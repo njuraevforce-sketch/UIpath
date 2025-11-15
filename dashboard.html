@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belk</title>
+    <title>Uipath</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -68,19 +68,20 @@
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
             position: relative;
-            height: 200px;
+            height: 250px;
+            overflow: hidden;
         }
 
         .logo {
             position: absolute;
             top: 15px;
             left: 15px;
-            width: 180px;
-            height: 65px;
+            width: 210px;
+            height: 75px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            z-index: 10;
+            justify-content: flex-start;
+            z-index: 20;
         }
 
         .logo img {
@@ -95,22 +96,37 @@
             align-items: center;
             justify-content: center;
             position: absolute;
-            top: 0;
+            top: 30px;
             left: 0;
             border-radius: 0 0 20px 20px;
             overflow: hidden;
+            z-index: 10;
+        }
+
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            z-index: 5;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
 
         .video-player {
             width: 90%;
-            height: 80%;
+            height: 75%;
             background: rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            border-radius: 10px;
+            border-radius: 15px;
             overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 15;
         }
 
         .video-player video {
@@ -162,6 +178,19 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+        }
+
+        .header-logo {
+            width: 120px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-logo img {
+            max-width: 100%;
+            max-height: 100%;
         }
 
         /* Main page styles */
@@ -350,6 +379,8 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin: 15px 0;
+            position: relative;
+            z-index: 10;
         }
 
         .action-item {
@@ -711,8 +742,9 @@
             <!-- Header с видео -->
             <div class="uni-header">
                 <div class="logo">
-                    <img src="assets/logo.png" alt="Belk">
+                    <img src="assets/logo.png" alt="Uipath">
                 </div>
+                <div class="video-background"></div>
                 <div class="video-container">
                     <div class="video-player">
                         <video id="promoVideo" controlsList="nodownload" onclick="this.paused ? this.play() : this.pause();">
@@ -782,7 +814,7 @@
             <div class="mission-section">
                 <div class="marquee-container">
                     <div class="marquee-content">
-                        <i class="fas fa-info-circle"></i> Belk - инновационная платформа для пассивного дохода. VIP 1: 20 USDT | VIP 2: 100 USDT | VIP 3: 300 USDT | VIP 4: 1000 USDT | VIP 5: 3000 USDT | VIP 6: 5000 USDT. Присоединяйтесь к нашей реферальной программе и получайте доход с 3 поколений!
+                        <i class="fas fa-info-circle"></i> Uipath - инновационная платформа для пассивного дохода. VIP 1: 20 USDT | VIP 2: 100 USDT | VIP 3: 300 USDT | VIP 4: 1000 USDT | VIP 5: 3000 USDT | VIP 6: 5000 USDT. Присоединяйтесь к нашей реферальной программе и получайте доход с 3 поколений!
                     </div>
                 </div>
             </div>
@@ -813,11 +845,11 @@
         <!-- Страница активов -->
         <div id="assetsPage" class="page">
             <div class="simple-header">
-                <div class="back-btn" onclick="showPage('mainPage')">
-                    <i class="fas fa-arrow-left"></i>
+                <div class="header-logo">
+                    <img src="assets/logo.png" alt="Uipath">
                 </div>
                 <div class="page-title">Активы</div>
-                <div style="width: 40px;"></div> <!-- Для выравнивания -->
+                <div style="width: 120px;"></div>
             </div>
 
             <div class="balance-card">
@@ -936,11 +968,11 @@
         <!-- Страница VIP -->
         <div id="vipPage" class="page">
             <div class="simple-header">
-                <div class="back-btn" onclick="showPage('mainPage')">
-                    <i class="fas fa-arrow-left"></i>
+                <div class="header-logo">
+                    <img src="assets/logo.png" alt="Uipath">
                 </div>
                 <div class="page-title">VIP Пакеты</div>
-                <div style="width: 40px;"></div>
+                <div style="width: 120px;"></div>
             </div>
 
             <div class="uni-card">
@@ -974,11 +1006,11 @@
         <!-- Страница заработка -->
         <div id="earnPage" class="page">
             <div class="simple-header">
-                <div class="back-btn" onclick="showPage('mainPage')">
-                    <i class="fas fa-arrow-left"></i>
+                <div class="header-logo">
+                    <img src="assets/logo.png" alt="Uipath">
                 </div>
                 <div class="page-title">Quantification</div>
-                <div style="width: 40px;"></div>
+                <div style="width: 120px;"></div>
             </div>
 
             <div class="uni-card">
@@ -1053,11 +1085,11 @@
         <!-- Страница профиля -->
         <div id="profilePage" class="page">
             <div class="simple-header">
-                <div class="back-btn" onclick="showPage('mainPage')">
-                    <i class="fas fa-arrow-left"></i>
+                <div class="header-logo">
+                    <img src="assets/logo.png" alt="Uipath">
                 </div>
                 <div class="page-title">Профиль</div>
-                <div style="width: 40px;"></div>
+                <div style="width: 120px;"></div>
             </div>
 
             <div class="uni-card">
@@ -1110,7 +1142,7 @@
                     
                     <div class="referral-link-container">
                         <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--dark);" id="referral-link">
-                            https://belk.app/ref/BLK2839475
+                            https://uipath.app/ref/BLK2839475
                         </div>
                         <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
                             Копировать
@@ -1220,8 +1252,8 @@
 
         // Загрузка состояния из localStorage
         function loadState() {
-            const savedState = localStorage.getItem('belkAppState');
-            const userData = localStorage.getItem('belkUserData');
+            const savedState = localStorage.getItem('uipathAppState');
+            const userData = localStorage.getItem('uipathUserData');
             
             if (userData) {
                 appState.user = JSON.parse(userData);
@@ -1243,7 +1275,7 @@
 
         // Сохранение состояния в localStorage
         function saveState() {
-            localStorage.setItem('belkAppState', JSON.stringify({
+            localStorage.setItem('uipathAppState', JSON.stringify({
                 referrals: appState.referrals,
                 transactions: appState.transactions,
                 totalIncome: appState.totalIncome,
@@ -1253,7 +1285,7 @@
                 }
             }));
             
-            localStorage.setItem('belkUserData', JSON.stringify(appState.user));
+            localStorage.setItem('uipathUserData', JSON.stringify(appState.user));
         }
 
         // Инициализация приложения
@@ -1478,7 +1510,7 @@
             document.getElementById('profile-id').textContent = appState.user.id;
             
             // Обновление реферальной ссылки
-            document.getElementById('referral-link').textContent = `https://belk.app/ref/${appState.user.referralCode}`;
+            document.getElementById('referral-link').textContent = `https://uipath.app/ref/${appState.user.referralCode}`;
             
             // Обновление экрана команды
             updateTeamScreen();
@@ -1741,9 +1773,9 @@
 
         function logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
-                localStorage.removeItem('belkUserLoggedIn');
-                localStorage.removeItem('belkAccessToken');
-                localStorage.removeItem('belkUser');
+                localStorage.removeItem('uipathUserLoggedIn');
+                localStorage.removeItem('uipathAccessToken');
+                localStorage.removeItem('uipathUser');
                 window.location.href = 'index.html';
             }
         }
