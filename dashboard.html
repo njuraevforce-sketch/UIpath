@@ -74,10 +74,10 @@
 
         .logo {
             position: absolute;
-            top: 5px;
-            left: 5px;
-            width: 254px;
-            height: 91px;
+            top: 15px;
+            left: 15px;
+            width: 200px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: flex-start;
@@ -181,11 +181,12 @@
         }
 
         .header-logo {
-            width: 132px;
-            height: 50px;
+            width: 120px;
+            height: 45px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            margin-left: 10px;
         }
 
         .header-logo img {
@@ -299,8 +300,8 @@
         }
 
         .uni-tabbar-icon {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             margin-bottom: 2px;
             display: flex;
             align-items: center;
@@ -323,7 +324,6 @@
             width: 50px;
             height: 50px;
             border-radius: 8px;
-            background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -331,9 +331,8 @@
         }
 
         .uni-tabbar-center img {
-            width: 24px;
-            height: 24px;
-            filter: brightness(0) invert(1);
+            width: 32px;
+            height: 32px;
         }
 
         /* Common components */
@@ -416,12 +415,32 @@
         }
 
         .balance-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background-image: url('assets/balance.png');
+            background-size: cover;
+            background-position: center;
             color: white;
             padding: 20px;
             border-radius: 15px;
             margin: 15px;
             box-shadow: 0 4px 15px rgba(10, 80, 94, 0.2);
+            position: relative;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 80, 94, 0.7);
+            border-radius: 15px;
+            z-index: 1;
+        }
+
+        .balance-card > * {
+            position: relative;
+            z-index: 2;
         }
 
         .balance-amount {
@@ -467,7 +486,9 @@
         }
 
         .vip-package {
-            background: var(--white);
+            background-image: url('assets/vip1.png');
+            background-size: cover;
+            background-position: center;
             padding: 20px;
             border-radius: 15px;
             display: flex;
@@ -478,6 +499,24 @@
             transition: all 0.3s ease;
             cursor: pointer;
             height: 110px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vip-package::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 80, 94, 0.7);
+            z-index: 1;
+        }
+
+        .vip-package > * {
+            position: relative;
+            z-index: 2;
         }
 
         .vip-package:hover {
@@ -486,9 +525,26 @@
         }
 
         .vip-package.active {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
             box-shadow: 0 4px 15px rgba(10, 80, 94, 0.3);
+        }
+
+        .vip-icon {
+            position: absolute;
+            right: 15%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .vip-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .referral-stats {
@@ -633,15 +689,20 @@
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 600;
+            margin: 0 auto 10px;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .logout-btn {
@@ -793,6 +854,38 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
+
+        .task-center-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .task-center-table th,
+        .task-center-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .task-center-table th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .task-center-table tr:nth-child(even) {
+            background-color: var(--light);
+        }
+        
+        .task-center-table tr:hover {
+            background-color: rgba(10, 80, 94, 0.05);
+        }
+        
+        .bonus-amount {
+            font-weight: 600;
+            color: var(--success);
+        }
     </style>
 </head>
 <body>
@@ -838,17 +931,17 @@
                         </div>
                         <div>Team</div>
                     </div>
-                    <div class="action-item">
-                        <div class="action-icon">
-                            <img src="assets/telegram.png" alt="Telegram">
-                        </div>
-                        <div>Telegram</div>
-                    </div>
-                    <div class="action-item">
+                    <div class="action-item" onclick="showPage('taskCenterPage')">
                         <div class="action-icon">
                             <img src="assets/task.png" alt="Task Center">
                         </div>
                         <div>Task Center</div>
+                    </div>
+                    <div class="action-item" onclick="showPage('referralPage')">
+                        <div class="action-icon">
+                            <img src="assets/telegram.png" alt="Telegram">
+                        </div>
+                        <div>Invite Friends</div>
                     </div>
                     <div class="action-item" onclick="showPage('historyPage')">
                         <div class="action-icon">
@@ -975,8 +1068,8 @@
         <!-- Team Page -->
         <div id="teamPage" class="page">
             <div class="simple-header">
-                <div class="back-btn" onclick="showPage('mainPage')">
-                    <i class="fas fa-arrow-left"></i>
+                <div class="header-logo">
+                    <img src="assets/logo.png" alt="Uipath">
                 </div>
                 <div class="page-title">Team</div>
                 <div style="width: 40px;"></div>
@@ -1014,6 +1107,15 @@
                         <div class="stats-label" style="color: var(--dark);">1% from 3rd Generation</div>
                     </div>
                 </div>
+                
+                <div class="referral-link-container" style="margin-top: 15px;">
+                    <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--dark);" id="team-referral-link">
+                        https://uipath.app/ref/BLK2839475
+                    </div>
+                    <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('team-referral-link')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="uni-card">
@@ -1044,7 +1146,7 @@
             <div class="uni-card">
                 <div class="vip-benefit">
                     <div class="vip-benefit-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-money-bill-wave"></i>
                     </div>
                     <div>
                         <div style="font-weight:600;">+2.5% income</div>
@@ -1053,7 +1155,7 @@
                 </div>
                 <div class="vip-benefit">
                     <div class="vip-benefit-icon">
-                        <i class="fas fa-users"></i>
+                        <i class="fas fa-user-friends"></i>
                     </div>
                     <div>
                         <div style="font-weight:600;">+8% referral</div>
@@ -1118,8 +1220,8 @@
         <!-- History Page -->
         <div id="historyPage" class="page">
             <div class="simple-header">
-                <div class="back-btn" onclick="showPage('mainPage')">
-                    <i class="fas fa-arrow-left"></i>
+                <div class="header-logo">
+                    <img src="assets/logo.png" alt="Uipath">
                 </div>
                 <div class="page-title">History</div>
                 <div style="width: 40px;"></div>
@@ -1154,7 +1256,9 @@
 
             <div class="uni-card">
                 <div style="text-align: center;">
-                    <div class="user-avatar" style="width: 60px; height: 60px; font-size: 24px; margin: 0 auto 10px;">U</div>
+                    <div class="user-avatar">
+                        <img src="assets/pro.png" alt="Profile">
+                    </div>
                     <div style="font-weight:600; font-size:18px;" id="profile-name">User</div>
                     <div style="background: var(--light); padding: 6px 12px; border-radius: 15px; font-size: 12px; color: var(--gray); display: inline-flex; align-items: center; gap: 6px; margin-top: 5px;">
                         ID: <span id="profile-id">BLK2839475</span>
@@ -1212,8 +1316,8 @@
         <!-- Referral Page -->
         <div id="referralPage" class="page">
             <div class="simple-header">
-                <div class="back-btn" onclick="showPage('mainPage')">
-                    <i class="fas fa-arrow-left"></i>
+                <div class="header-logo">
+                    <img src="assets/logo.png" alt="Uipath">
                 </div>
                 <div class="page-title">Invite Friends</div>
                 <div style="width: 40px;"></div>
@@ -1266,6 +1370,87 @@
             </div>
         </div>
 
+        <!-- Task Center Page -->
+        <div id="taskCenterPage" class="page">
+            <div class="simple-header">
+                <div class="header-logo">
+                    <img src="assets/logo.png" alt="Uipath">
+                </div>
+                <div class="page-title">Task Center</div>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="uni-card">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;">Available Bonuses</div>
+                    <div style="color: var(--gray);">Complete tasks and earn additional rewards</div>
+                </div>
+
+                <table class="task-center-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Bonus</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Registration Bonus</td>
+                            <td class="bonus-amount">$3.00</td>
+                            <td>Completed</td>
+                        </tr>
+                        <tr>
+                            <td>Purchase VIP 2 Package</td>
+                            <td class="bonus-amount">$5.00</td>
+                            <td>Available</td>
+                        </tr>
+                        <tr>
+                            <td>Purchase VIP 3 Package</td>
+                            <td class="bonus-amount">$10.00</td>
+                            <td>Available</td>
+                        </tr>
+                        <tr>
+                            <td>Purchase VIP 4 Package</td>
+                            <td class="bonus-amount">$15.00</td>
+                            <td>Available</td>
+                        </tr>
+                        <tr>
+                            <td>1st Generation Deposit $50</td>
+                            <td class="bonus-amount">$2.00</td>
+                            <td>Available</td>
+                        </tr>
+                        <tr>
+                            <td>1st Generation Deposit $100</td>
+                            <td class="bonus-amount">$5.00</td>
+                            <td>Available</td>
+                        </tr>
+                        <tr>
+                            <td>1st Generation Deposit $300</td>
+                            <td class="bonus-amount">$10.00</td>
+                            <td>Available</td>
+                        </tr>
+                        <tr>
+                            <td>1st Generation Deposit $1000</td>
+                            <td class="bonus-amount">$20.00</td>
+                            <td>Available</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
+                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">Terms & Conditions:</div>
+                    <div style="font-size: 14px; color: var(--gray); text-align: left;">
+                        • All bonuses are credited manually by administration<br>
+                        • VIP purchase bonuses are awarded after successful package activation<br>
+                        • Referral deposit bonuses require minimum deposit amounts from 1st generation users<br>
+                        • Bonuses are paid in USDT equivalent<br>
+                        • Administration reserves the right to modify bonus terms
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tab Bar -->
         <div class="uni-tabbar">
             <div class="uni-tabbar-item active" onclick="showPage('mainPage')">
@@ -1304,12 +1489,12 @@
     <script>
         // VIP packages data
         const vipPackages = [
-            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false },
-            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, active: false },
-            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, active: false },
-            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, active: false },
-            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, active: false },
-            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, active: false }
+            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false, bgImage: 'assets/vip1.png', icon: 'assets/vip1-icon.png' },
+            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, active: false, bgImage: 'assets/vip2.png', icon: 'assets/vip2-icon.png' },
+            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, active: false, bgImage: 'assets/vip3.png', icon: 'assets/vip3-icon.png' },
+            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, active: false, bgImage: 'assets/vip4.png', icon: 'assets/vip4-icon.png' },
+            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, active: false, bgImage: 'assets/vip5.png', icon: 'assets/vip5-icon.png' },
+            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, active: false, bgImage: 'assets/vip6.png', icon: 'assets/vip6-icon.png' }
         ];
 
         // App state
@@ -1333,7 +1518,7 @@
                 gen3: []
             },
             transactions: [
-                { id: 1, type: 'bonus', title: 'Welcome Bonus', date: 'Today, 14:30', amount: 3.10, positive: true }
+                { id: 1, type: 'bonus', title: 'Registration Bonus', date: 'Today, 14:30', amount: 3.10, positive: true }
             ],
             totalIncome: 0
         };
@@ -1419,11 +1604,6 @@
                 video.pause();
                 playBtn.style.display = 'flex';
             }
-        }
-
-        // Show referral screen
-        function showReferralScreen() {
-            showPage('referralPage');
         }
 
         // Show transaction type
@@ -1534,15 +1714,19 @@
                 if (isPurchased) packageClass += ' active';
                 
                 packageElement.className = packageClass;
+                packageElement.style.backgroundImage = `url('${pkg.bgImage}')`;
                 packageElement.onclick = () => purchaseVIPPackage(pkg);
                 
                 packageElement.innerHTML = `
                     <div>
-                        <div style="font-weight:600; font-size:16px;">VIP ${pkg.level}</div>
-                        <div style="font-size:14px;">${formatCurrency(pkg.price)} USDT</div>
-                        <div style="font-size:12px; opacity:0.9;">+${formatCurrency(pkg.dailyIncome)} USDT/day</div>
+                        <div style="font-weight:600; font-size:16px; color: white;">VIP ${pkg.level}</div>
+                        <div style="font-size:14px; color: white;">${formatCurrency(pkg.price)} USDT</div>
+                        <div style="font-size:12px; opacity:0.9; color: white;">+${formatCurrency(pkg.dailyIncome)} USDT/day</div>
                     </div>
-                    <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: ${isPurchased ? 'white' : 'white'}; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
+                    <div class="vip-icon">
+                        <img src="${pkg.icon}" alt="VIP ${pkg.level}">
+                    </div>
+                    <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: white; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
                         ${isPurchased ? 'ACTIVE' : 'BUY'}
                     </div>
                 `;
@@ -1608,6 +1792,7 @@
             
             // Update referral link
             document.getElementById('referral-link').textContent = `https://uipath.app/ref/${appState.user.referralCode}`;
+            document.getElementById('team-referral-link').textContent = `https://uipath.app/ref/${appState.user.referralCode}`;
             
             // Update team screen
             updateTeamScreen();
