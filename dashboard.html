@@ -60,23 +60,27 @@
 
         /* Header */
         .uni-header {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             padding: 15px;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            align-items: flex-start;
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
-            height: 120px;
+            position: relative;
+            height: 200px;
         }
 
         .logo {
-            width: 140px;
-            height: 50px;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 180px;
+            height: 65px;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10;
         }
 
         .logo img {
@@ -84,21 +88,23 @@
             max-height: 100%;
         }
 
-        /* Main page styles */
-        .main-hero {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 20px;
-            margin: 15px;
-            border-radius: 15px;
-            position: relative;
+        .video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 0 0 20px 20px;
             overflow: hidden;
-            height: 200px;
         }
 
         .video-player {
-            height: 100%;
-            background: var(--light);
+            width: 90%;
+            height: 80%;
+            background: rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -107,7 +113,14 @@
             overflow: hidden;
         }
 
+        .video-player video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .play-btn {
+            position: absolute;
             width: 60px;
             height: 60px;
             border-radius: 50%;
@@ -117,22 +130,40 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 5;
         }
 
+        /* Main page styles */
         .mission-section {
-            padding: 20px 15px;
+            padding: 15px;
+            margin-top: 10px;
         }
 
-        .mission-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            text-align: center;
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            background: var(--light);
+            padding: 10px 0;
+            border-radius: 8px;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 25s linear infinite;
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
         }
 
         .carousel {
             position: relative;
-            height: 200px;
+            height: 180px;
             overflow: hidden;
             border-radius: 10px;
             margin: 15px 0;
@@ -151,13 +182,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
         }
 
         .carousel-slide.active {
             opacity: 1;
+        }
+
+        /* Auto monitoring section */
+        .auto-monitoring {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 15px;
+        }
+
+        .monitoring-item {
+            height: 90px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--light);
+        }
+
+        .monitoring-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         /* Tab Bar */
@@ -182,6 +231,7 @@
             color: var(--gray);
             padding: 5px;
             flex: 1;
+            transition: all 0.3s ease;
         }
 
         .uni-tabbar-item.active {
@@ -189,8 +239,24 @@
         }
 
         .uni-tabbar-icon {
-            font-size: 22px;
+            width: 24px;
+            height: 24px;
             margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .uni-tabbar-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+
+        .uni-tabbar-item.active .uni-tabbar-icon img {
+            filter: grayscale(0%);
         }
 
         .uni-tabbar-center {
@@ -202,6 +268,12 @@
             align-items: center;
             justify-content: center;
             transform: translateY(-10px);
+        }
+
+        .uni-tabbar-center img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
         }
 
         /* Common components */
@@ -245,7 +317,7 @@
         .action-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+            gap: 10px;
             margin: 15px 0;
         }
 
@@ -254,7 +326,7 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            padding: 10px 5px;
+            padding: 8px 5px;
             border-radius: 10px;
             transition: all 0.3s ease;
             background: var(--white);
@@ -269,13 +341,16 @@
             width: 40px;
             height: 40px;
             border-radius: 8px;
-            background: var(--light);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 5px;
-            font-size: 18px;
-            color: var(--primary);
+        }
+
+        .action-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .balance-card {
@@ -561,6 +636,41 @@
             margin-bottom: 15px;
             color: var(--dark);
         }
+        
+        .assets-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .assets-button {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .assets-button:hover {
+            background: var(--light);
+        }
+        
+        .assets-button-icon {
+            width: 30px;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+        
+        .assets-button-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
@@ -572,79 +682,101 @@
                 <div class="logo">
                     <img src="assets/logo.png" alt="Belk">
                 </div>
-            </div>
-
-            <!-- Главная страница -->
-            <div id="mainPage" class="page active">
-                <div class="main-hero">
+                <div class="video-container">
                     <div class="video-player">
-                        <div class="play-btn">
+                        <video id="promoVideo" controlsList="nodownload" onclick="this.paused ? this.play() : this.pause();">
+                            <source src="assets/video.mp4" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                        <div class="play-btn" onclick="toggleVideo()">
                             <i class="fas fa-play" style="color: #000; font-size: 20px; margin-left: 2px;"></i>
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <!-- Главная страница -->
+            <div id="mainPage" class="page active">
                 <div class="uni-card">
                     <div class="action-grid">
                         <div class="action-item" onclick="showPage('assetsPage')">
                             <div class="action-icon">
-                                <i class="fas fa-wallet"></i>
+                                <img src="assets/deposit.png" alt="Пополнение">
                             </div>
-                            <div>Активы</div>
+                            <div>Пополнение</div>
                         </div>
-                        <div class="action-item" onclick="showReferralScreen()">
+                        <div class="action-item" onclick="showPage('assetsPage')">
                             <div class="action-icon">
-                                <i class="fas fa-user-plus"></i>
+                                <img src="assets/withdraw.png" alt="Вывод">
                             </div>
-                            <div>Пригласить</div>
+                            <div>Вывод</div>
                         </div>
                         <div class="action-item" onclick="showPage('teamPage')">
                             <div class="action-icon">
-                                <i class="fas fa-users"></i>
+                                <img src="assets/team.png" alt="Команда">
                             </div>
                             <div>Команда</div>
                         </div>
-                        <div class="action-item" onclick="showPage('vipPage')">
+                        <div class="action-item">
                             <div class="action-icon">
-                                <i class="fas fa-crown"></i>
+                                <img src="assets/telegram.png" alt="Телеграм">
                             </div>
-                            <div>VIP</div>
+                            <div>Телеграм</div>
                         </div>
-                        <div class="action-item" onclick="showPage('earnPage')">
+                        <div class="action-item">
                             <div class="action-icon">
-                                <i class="fas fa-bolt"></i>
+                                <img src="assets/task.png" alt="Центр задач">
                             </div>
-                            <div>Quantification</div>
+                            <div>Центр задач</div>
                         </div>
                         <div class="action-item" onclick="showPage('historyPage')">
                             <div class="action-icon">
-                                <i class="fas fa-history"></i>
+                                <img src="assets/history.png" alt="История">
                             </div>
                             <div>История</div>
                         </div>
                         <div class="action-item">
                             <div class="action-icon">
-                                <i class="fas fa-download"></i>
+                                <img src="assets/download.png" alt="Скачать">
                             </div>
                             <div>Скачать</div>
                         </div>
-                        <div class="action-item" onclick="showPage('profilePage')">
+                        <div class="action-item">
                             <div class="action-icon">
-                                <i class="fas fa-user"></i>
+                                <img src="assets/license.png" alt="Лицензия">
                             </div>
-                            <div>Профиль</div>
+                            <div>Лицензия</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mission-section">
-                    <div class="mission-title">Наша миссия</div>
-                    <div class="carousel">
-                        <div class="carousel-slide active" style="background-color: var(--primary);">Инновационные технологии</div>
-                        <div class="carousel-slide" style="background-color: var(--primary-light);">Пассивный доход</div>
-                        <div class="carousel-slide" style="background-color: var(--accent);">AI Quantification</div>
-                        <div class="carousel-slide" style="background-color: var(--success);">Реферальная программа</div>
-                        <div class="carousel-slide" style="background-color: var(--info);">VIP пакеты</div>
+                    <div class="marquee-container">
+                        <div class="marquee-content">
+                            <i class="fas fa-info-circle"></i> Belk - инновационная платформа для пассивного дохода. VIP 1: 20 USDT | VIP 2: 100 USDT | VIP 3: 300 USDT | VIP 4: 1000 USDT | VIP 5: 3000 USDT | VIP 6: 5000 USDT. Присоединяйтесь к нашей реферальной программе и получайте доход с 3 поколений!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel">
+                    <div class="carousel-slide active" style="background-image: url('assets/our.png');"></div>
+                    <div class="carousel-slide" style="background-image: url('assets/our1.png');"></div>
+                    <div class="carousel-slide" style="background-image: url('assets/our2.png');"></div>
+                    <div class="carousel-slide" style="background-image: url('assets/our3.png');"></div>
+                </div>
+
+                <div class="auto-monitoring">
+                    <div class="monitoring-item">
+                        <img src="assets/quant-system.gif" alt="Система Quant 1">
+                    </div>
+                    <div class="monitoring-item">
+                        <img src="assets/quant-system2.gif" alt="Система Quant 2">
+                    </div>
+                    <div class="monitoring-item">
+                        <img src="assets/quant-system3.gif" alt="Система Quant 3">
+                    </div>
+                    <div class="monitoring-item">
+                        <img src="assets/quant-system4.gif" alt="Система Quant 4">
                     </div>
                 </div>
             </div>
@@ -675,13 +807,19 @@
                 </div>
 
                 <div class="uni-card">
-                    <div style="display: flex; gap: 10px; margin: 15px 0;">
-                        <button class="uni-button" style="flex: 1;">
-                            <i class="fas fa-plus"></i> Пополнить
-                        </button>
-                        <button class="uni-button" style="flex: 1; background: var(--accent);">
-                            <i class="fas fa-arrow-up"></i> Вывести
-                        </button>
+                    <div class="assets-buttons">
+                        <div class="assets-button">
+                            <div class="assets-button-icon">
+                                <img src="assets/deposit.png" alt="Пополнение">
+                            </div>
+                            <div>Пополнить</div>
+                        </div>
+                        <div class="assets-button">
+                            <div class="assets-button-icon">
+                                <img src="assets/withdraw.png" alt="Вывод">
+                            </div>
+                            <div>Вывести</div>
+                        </div>
                     </div>
                 </div>
 
@@ -925,25 +1063,33 @@
             <!-- Tab Bar -->
             <div class="uni-tabbar">
                 <div class="uni-tabbar-item active" onclick="showPage('mainPage')">
-                    <div class="uni-tabbar-icon"><i class="fas fa-home"></i></div>
+                    <div class="uni-tabbar-icon">
+                        <img src="assets/home.png" alt="Главная">
+                    </div>
                     <div>Главная</div>
                 </div>
                 <div class="uni-tabbar-item" onclick="showPage('vipPage')">
-                    <div class="uni-tabbar-icon"><i class="fas fa-crown"></i></div>
+                    <div class="uni-tabbar-icon">
+                        <img src="assets/VIP.png" alt="VIP">
+                    </div>
                     <div>VIP</div>
                 </div>
                 <div class="uni-tabbar-item" onclick="showPage('earnPage')">
                     <div class="uni-tabbar-center">
-                        <i class="fas fa-bolt" style="color: white; font-size: 20px;"></i>
+                        <img src="assets/quant.png" alt="Quantification">
                     </div>
                     <div style="font-weight:600">Quantification</div>
                 </div>
                 <div class="uni-tabbar-item" onclick="showPage('assetsPage')">
-                    <div class="uni-tabbar-icon"><i class="fas fa-wallet"></i></div>
+                    <div class="uni-tabbar-icon">
+                        <img src="assets/asset.png" alt="Активы">
+                    </div>
                     <div>Активы</div>
                 </div>
                 <div class="uni-tabbar-item" onclick="showPage('profilePage')">
-                    <div class="uni-tabbar-icon"><i class="fas fa-user"></i></div>
+                    <div class="uni-tabbar-icon">
+                        <img src="assets/Profile.png" alt="Профиль">
+                    </div>
                     <div>Профиль</div>
                 </div>
             </div>
@@ -1113,6 +1259,20 @@
                 currentSlide = (currentSlide + 1) % slides.length;
                 slides[currentSlide].classList.add('active');
             }, 5000);
+        }
+
+        // Управление видео
+        function toggleVideo() {
+            const video = document.getElementById('promoVideo');
+            const playBtn = document.querySelector('.play-btn');
+            
+            if (video.paused) {
+                video.play();
+                playBtn.style.display = 'none';
+            } else {
+                video.pause();
+                playBtn.style.display = 'flex';
+            }
         }
 
         // Показать реферальный экран
