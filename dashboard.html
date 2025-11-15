@@ -550,6 +550,17 @@
             color: white;
             font-weight: 600;
         }
+
+        .history-section {
+            margin-top: 20px;
+        }
+
+        .history-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
     </style>
 </head>
 <body>
@@ -559,8 +570,7 @@
             <!-- Header -->
             <div class="uni-header">
                 <div class="logo">
-                    <!-- Замените на ваш логотип -->
-                    <div style="color: white; font-size: 24px; font-weight: bold;">BELK</div>
+                    <img src="assets/logo.png" alt="Belk">
                 </div>
             </div>
 
@@ -674,6 +684,24 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- ИСТОРИЯ ТРАНЗАКЦИЙ В АКТИВАХ -->
+                <div class="uni-card">
+                    <div class="history-section">
+                        <div class="history-title">История транзакций</div>
+                        <div class="transaction-tabs">
+                            <div class="transaction-tab active" onclick="showTransactionType('all')">Все</div>
+                            <div class="transaction-tab" onclick="showTransactionType('deposits')">Пополнения</div>
+                            <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Вывод</div>
+                            <div class="transaction-tab" onclick="showTransactionType('referrals')">Рефералы</div>
+                            <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
+                        </div>
+                        
+                        <div id="transaction-history-assets">
+                            <!-- Transactions will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Страница команды -->
@@ -682,39 +710,37 @@
                     <div class="referral-stats">
                         <div class="referral-stat">
                             <div class="stats-value" id="gen1-count">0</div>
-                            <div class="stats-label">1-е поколение</div>
+                            <div class="stats-label" style="color: var(--dark);">1-е поколение</div>
                         </div>
                         <div class="referral-stat">
                             <div class="stats-value" id="gen2-count">0</div>
-                            <div class="stats-label">2-е поколение</div>
+                            <div class="stats-label" style="color: var(--dark);">2-е поколение</div>
                         </div>
                         <div class="referral-stat">
                             <div class="stats-value" id="gen3-count">0</div>
-                            <div class="stats-label">3-е поколение</div>
+                            <div class="stats-label" style="color: var(--dark);">3-е поколение</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">Реферальный доход</h3>
                     <div class="referral-stats">
                         <div class="referral-stat">
                             <div class="stats-value" id="gen1-income">0 USDT</div>
-                            <div class="stats-label">8% от 1-го поколения</div>
+                            <div class="stats-label" style="color: var(--dark);">8% от 1-го поколения</div>
                         </div>
                         <div class="referral-stat">
                             <div class="stats-value" id="gen2-income">0 USDT</div>
-                            <div class="stats-label">3% от 2-го поколения</div>
+                            <div class="stats-label" style="color: var(--dark);">3% от 2-го поколения</div>
                         </div>
                         <div class="referral-stat">
                             <div class="stats-value" id="gen3-income">0 USDT</div>
-                            <div class="stats-label">1% от 3-го поколения</div>
+                            <div class="stats-label" style="color: var(--dark);">1% от 3-го поколения</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">Ваши рефералы</h3>
                     <div class="referral-list" id="referral-list">
                         <div style="text-align: center; color: var(--gray); padding: 20px 0;">
                             Рефералы будут отображаться здесь
@@ -726,14 +752,12 @@
             <!-- Страница VIP -->
             <div id="vipPage" class="page">
                 <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">VIP Инвестиционные пакеты</h3>
                     <div class="vip-packages" id="vip-packages-list">
                         <!-- VIP packages will be populated by JavaScript -->
                     </div>
                 </div>
 
                 <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">Ваши VIP преимущества</h3>
                     <div class="vip-benefit">
                         <div class="vip-benefit-icon">
                             <i class="fas fa-chart-line"></i>
@@ -853,11 +877,13 @@
             <div id="referralPage" class="page">
                 <div class="referral-screen">
                     <div class="uni-card">
-                        <h2 style="margin-bottom: 15px;">Пригласите друзей</h2>
-                        <p style="margin-bottom: 20px; color: var(--gray);">Приглашайте друзей и получайте доход с 3 поколений рефералов</p>
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;">Пригласите друзей</div>
+                            <div style="color: var(--gray);">Приглашайте друзей и получайте доход с 3 поколений рефералов</div>
+                        </div>
                         
                         <div class="referral-link-container">
-                            <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;" id="referral-link">
+                            <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--dark);" id="referral-link">
                                 https://belk.app/ref/BLK2839475
                             </div>
                             <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
@@ -866,20 +892,30 @@
                         </div>
                         
                         <div style="margin-top: 30px;">
-                            <h3 style="margin-bottom: 15px;">Ваши бонусы</h3>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); text-align: center;">Ваши бонусы</div>
                             <div class="referral-stats">
                                 <div class="referral-stat">
-                                    <div class="stats-value">8%</div>
-                                    <div class="stats-label">1-е поколение</div>
+                                    <div class="stats-value" style="color: var(--primary);">8%</div>
+                                    <div class="stats-label" style="color: var(--dark);">1-е поколение</div>
                                 </div>
                                 <div class="referral-stat">
-                                    <div class="stats-value">3%</div>
-                                    <div class="stats-label">2-е поколение</div>
+                                    <div class="stats-value" style="color: var(--primary);">3%</div>
+                                    <div class="stats-label" style="color: var(--dark);">2-е поколение</div>
                                 </div>
                                 <div class="referral-stat">
-                                    <div class="stats-value">1%</div>
-                                    <div class="stats-label">3-е поколение</div>
+                                    <div class="stats-value" style="color: var(--primary);">1%</div>
+                                    <div class="stats-label" style="color: var(--dark);">3-е поколение</div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
+                            <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">Как это работает:</div>
+                            <div style="font-size: 14px; color: var(--gray); text-align: left;">
+                                • 8% от депозитов 1-го поколения<br>
+                                • 3% от депозитов 2-го поколения<br>
+                                • 1% от депозитов 3-го поколения<br>
+                                • Доход начисляется моментально
                             </div>
                         </div>
                     </div>
@@ -1098,7 +1134,14 @@
         // Обновление истории транзакций
         function updateTransactionsHistory(type = 'all') {
             const transactionHistory = document.getElementById('transaction-history');
-            transactionHistory.innerHTML = '';
+            const transactionHistoryAssets = document.getElementById('transaction-history-assets');
+            
+            if (transactionHistory) updateTransactionList(transactionHistory, type);
+            if (transactionHistoryAssets) updateTransactionList(transactionHistoryAssets, type);
+        }
+
+        function updateTransactionList(container, type = 'all') {
+            container.innerHTML = '';
             
             let filteredTransactions = appState.transactions;
             
@@ -1110,6 +1153,11 @@
                     if (type === 'quantification') return transaction.type === 'daily_income';
                     return true;
                 });
+            }
+            
+            if (filteredTransactions.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Транзакции не найдены</div>';
+                return;
             }
             
             filteredTransactions.forEach(transaction => {
@@ -1164,7 +1212,7 @@
                     </div>
                 `;
                 
-                transactionHistory.appendChild(transactionItem);
+                container.appendChild(transactionItem);
             });
         }
 
@@ -1265,6 +1313,9 @@
             
             // Обновление экрана заработка
             updateEarnScreen();
+            
+            // Обновление истории транзакций
+            updateTransactionsHistory('all');
         }
 
         // Обновление экрана команды
@@ -1286,6 +1337,11 @@
             // Обновление списка рефералов
             const referralList = document.getElementById('referral-list');
             referralList.innerHTML = '';
+            
+            if (appState.referrals.gen1.length === 0) {
+                referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Рефералы будут отображаться здесь</div>';
+                return;
+            }
             
             // Показываем рефералов 1-го поколения
             appState.referrals.gen1.forEach(ref => {
@@ -1467,7 +1523,7 @@
             updateNavActiveState(pageId);
             
             // Обновляем историю транзакций если перешли на эту страницу
-            if (pageId === 'historyPage') {
+            if (pageId === 'historyPage' || pageId === 'assetsPage') {
                 updateTransactionsHistory('all');
             }
         }
