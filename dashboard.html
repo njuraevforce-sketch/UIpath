@@ -6,7 +6,6 @@
     <title>Belk</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* UNI-APP точные стили */
         * {
             margin: 0;
             padding: 0;
@@ -40,11 +39,6 @@
             font-weight: 200;
         }
 
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-weight: 600;
-        }
-
         .app-container {
             max-width: 100%;
             margin: 0 auto;
@@ -57,185 +51,116 @@
             display: none;
             background: var(--white);
             min-height: 100vh;
+            padding-bottom: 70px;
         }
 
         .page.active {
             display: block;
         }
 
-        /* Стили для страниц аутентификации */
-        .auth-page {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-        }
-
-        .auth-container {
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            color: var(--dark);
-        }
-
-        .auth-logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .auth-logo h1 {
-            font-size: 32px;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .auth-logo p {
-            color: var(--gray);
-            font-size: 14px;
-        }
-
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            background: var(--light);
-            border-radius: 8px;
-            padding: 4px;
-        }
-
-        .auth-tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 400;
-            transition: all 0.3s ease;
-        }
-
-        .auth-tab.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        .auth-form {
-            display: none;
-        }
-
-        .auth-form.active {
-            display: block;
-        }
-
-        .auth-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e5e5e5;
-            border-radius: 5px;
-            margin: 8px 0;
-            font-size: 16px;
-            background: var(--white);
-            font-weight: 300;
-        }
-
-        .auth-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 100%;
-            margin: 10px 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 400;
-        }
-
-        .auth-button:hover {
-            background: var(--primary-light);
-        }
-
-        .auth-divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            color: var(--gray);
-            font-size: 14px;
-        }
-
-        .auth-divider:before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e5e5e5;
-        }
-
-        .auth-divider span {
-            background: white;
-            padding: 0 10px;
-            position: relative;
-        }
-
-        .social-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .social-button {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #e5e5e5;
-            border-radius: 5px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .social-button:hover {
-            background: var(--light);
-        }
-
-        .social-button i {
-            font-size: 18px;
-            margin-right: 8px;
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: var(--gray);
-        }
-
-        .auth-footer a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 400;
-        }
-
-        /* Стили основного приложения */
+        /* Header */
         .uni-header {
             background: var(--primary);
             color: white;
-            padding: 44px 15px 15px;
-            text-align: center;
-            position: relative;
-            font-size: 17px;
-            font-weight: 600;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            height: 120px;
         }
 
+        .logo {
+            width: 140px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Main page styles */
+        .main-hero {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            margin: 15px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+        }
+
+        .video-player {
+            height: 100%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mission-section {
+            padding: 20px 15px;
+        }
+
+        .mission-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .carousel {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        /* Tab Bar */
         .uni-tabbar {
             position: fixed;
             bottom: 0;
@@ -279,6 +204,17 @@
             transform: translateY(-10px);
         }
 
+        /* Common components */
+        .uni-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
         .uni-button {
             background: var(--primary);
             color: white;
@@ -304,58 +240,6 @@
 
         .uni-button-success {
             background: var(--success);
-        }
-
-        .uni-button-warning {
-            background: var(--warning);
-            color: #000;
-        }
-
-        .uni-button-danger {
-            background: var(--danger);
-        }
-
-        .uni-card {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px;
-            position: relative;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .uni-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e5e5e5;
-            border-radius: 5px;
-            margin: 8px 0;
-            font-size: 16px;
-            background: var(--white);
-            font-weight: 300;
-        }
-
-        .uni-badge {
-            background: var(--accent);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        /* Belk специфичные стили в UNI-APP стиле */
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
         }
 
         .action-grid {
@@ -394,47 +278,80 @@
             color: var(--primary);
         }
 
-        .income-display {
-            text-align: center;
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
             padding: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
+            border-radius: 15px;
             margin: 15px;
-            border-radius: 10px;
             box-shadow: 0 4px 15px rgba(10, 80, 94, 0.2);
         }
 
-        .vip-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 15px;
-            margin: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.2);
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: var(--white);
-            border-bottom: 1px solid #e5e5e5;
-        }
-
-        .uni-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 600;
             margin: 10px 0;
         }
 
-        .transaction-item {
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .balance-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .balance-detail {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .stats-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .stats-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .vip-packages {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .vip-package {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            height: 110px;
+        }
+
+        .vip-package:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .vip-package.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.3);
         }
 
         .referral-stats {
@@ -453,116 +370,60 @@
             border: 1px solid rgba(0,0,0,0.05);
         }
 
-        .promo-grid {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
+        .referral-screen {
+            text-align: center;
+            padding: 30px 20px;
         }
 
-        .promo-card {
-            flex: 1;
-            padding: 15px;
-            color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .promo-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-        }
-
-        .video-player {
-            height: 200px;
+        .referral-link-container {
             background: var(--light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 15px 0;
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .play-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .play-btn:hover {
-            transform: scale(1.1);
-            background: rgba(255,255,255,1);
-        }
-
-        .video-controls {
-            position: absolute;
-            left: 15px;
-            right: 15px;
-            bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #fff;
-            font-size: 12px;
-        }
-
-        .video-progress {
-            flex: 1;
-            height: 4px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .video-progress-bar {
-            height: 100%;
-            width: 33%;
-            background: #fff;
-        }
-
-        .vip-packages {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .vip-package {
-            background: var(--white);
             padding: 15px;
             border-radius: 10px;
+            margin: 20px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+        }
+
+        .transaction-tabs {
+            display: flex;
+            background: var(--light);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+
+        .transaction-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: 400;
+            transition: all 0.3s ease;
         }
 
-        .vip-package:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .transaction-tab.active {
+            background: var(--primary);
+            color: white;
         }
 
-        .vip-package.active {
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .income-display {
+            text-align: center;
+            padding: 20px;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.3);
-        }
-
-        .vip-package-featured {
-            background: linear-gradient(135deg, var(--accent), var(--accent-light));
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 157, 0, 0.3);
+            margin: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.2);
         }
 
         .process-steps {
@@ -612,45 +473,52 @@
             color: var(--gray);
         }
 
-        .trading-stats {
+        .vip-benefit {
             display: flex;
-            justify-content: space-between;
-            margin: 15px 0;
-        }
-
-        .trading-stat {
-            text-align: center;
-            flex: 1;
-        }
-
-        .language-switch {
-            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
             background: var(--light);
-            border-radius: 5px;
-            padding: 2px;
+            border-radius: 8px;
+            margin-bottom: 10px;
         }
 
-        .lang-option {
-            flex: 1;
-            padding: 8px;
-            text-align: center;
-            border-radius: 3px;
-            cursor: pointer;
-            font-weight: 300;
-        }
-
-        .lang-option.active {
-            background: var(--white);
-            font-weight: 400;
-        }
-
-        .team-banner {
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px;
+        .vip-benefit-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            box-shadow: 0 4px 10px rgba(10, 80, 94, 0.2);
+            font-size: 18px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            margin: 20px 0 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 400;
         }
 
         .referral-list {
@@ -682,273 +550,31 @@
             color: white;
             font-weight: 600;
         }
-
-        .uni-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .uni-modal.active {
-            display: flex;
-        }
-
-        .uni-modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .uni-modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .uni-modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .uni-modal-button {
-            flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .uni-modal-button.primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .uni-modal-button.primary:hover {
-            background: var(--primary-light);
-        }
-
-        .uni-modal-button.secondary {
-            background: var(--light);
-            color: var(--gray);
-        }
-
-        .featured-badge {
-            position: absolute;
-            top: -8px;
-            right: 10px;
-            background: var(--accent);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 15px;
-            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.2);
-            text-align: center;
-        }
-
-        .balance-amount {
-            font-size: 32px;
-            font-weight: 600;
-            margin: 10px 0;
-        }
-
-        .balance-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .stats-card {
-            background: var(--white);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .stats-value {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .stats-label {
-            font-size: 12px;
-            color: var(--gray);
-        }
-
-        .vip-benefit {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: var(--light);
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .vip-benefit-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Страница аутентификации -->
-        <div id="authPage" class="page active">
-            <div class="auth-page">
-                <div class="auth-container">
-                    <div class="auth-logo">
-                        <h1>Belk</h1>
-                        <p>Инвестируйте с умом, зарабатывайте с Belk</p>
-                    </div>
-                    
-                    <div class="auth-tabs">
-                        <div class="auth-tab active" onclick="showAuthForm('login')">Вход</div>
-                        <div class="auth-tab" onclick="showAuthForm('register')">Регистрация</div>
-                    </div>
-                    
-                    <!-- Форма входа -->
-                    <div id="loginForm" class="auth-form active">
-                        <input type="email" class="auth-input" placeholder="Email" id="loginEmail">
-                        <input type="password" class="auth-input" placeholder="Пароль" id="loginPassword">
-                        <button class="auth-button" onclick="login()">Войти</button>
-                        
-                        <div class="auth-divider">
-                            <span>или войдите через</span>
-                        </div>
-                        
-                        <div class="social-buttons">
-                            <div class="social-button">
-                                <i class="fab fa-google" style="color: #DB4437;"></i>
-                                <span>Google</span>
-                            </div>
-                            <div class="social-button">
-                                <i class="fab fa-apple"></i>
-                                <span>Apple ID</span>
-                            </div>
-                        </div>
-                        
-                        <div class="auth-footer">
-                            <a href="#" onclick="showAuthForm('forgot')">Забыли пароль?</a>
-                        </div>
-                    </div>
-                    
-                    <!-- Форма регистрации -->
-                    <div id="registerForm" class="auth-form">
-                        <input type="text" class="auth-input" placeholder="Имя" id="registerName">
-                        <input type="email" class="auth-input" placeholder="Email" id="registerEmail">
-                        <input type="password" class="auth-input" placeholder="Пароль" id="registerPassword">
-                        <input type="password" class="auth-input" placeholder="Подтвердите пароль" id="registerConfirmPassword">
-                        <button class="auth-button" onclick="register()">Зарегистрироваться</button>
-                        
-                        <div class="auth-divider">
-                            <span>или зарегистрируйтесь через</span>
-                        </div>
-                        
-                        <div class="social-buttons">
-                            <div class="social-button">
-                                <i class="fab fa-google" style="color: #DB4437;"></i>
-                                <span>Google</span>
-                            </div>
-                            <div class="social-button">
-                                <i class="fab fa-apple"></i>
-                                <span>Apple ID</span>
-                            </div>
-                        </div>
-                        
-                        <div class="auth-footer">
-                            Нажимая "Зарегистрироваться", вы соглашаетесь с <a href="#">Условиями использования</a> и <a href="#">Политикой конфиденциальности</a>
-                        </div>
-                    </div>
-                    
-                    <!-- Форма восстановления пароля -->
-                    <div id="forgotForm" class="auth-form">
-                        <p style="margin-bottom: 15px; color: var(--gray); font-size: 14px;">Введите ваш email для восстановления пароля</p>
-                        <input type="email" class="auth-input" placeholder="Email" id="forgotEmail">
-                        <button class="auth-button" onclick="resetPassword()">Восстановить пароль</button>
-                        
-                        <div class="auth-footer">
-                            <a href="#" onclick="showAuthForm('login')">Вернуться к входу</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Основное приложение -->
-        <div id="mainApp" class="page">
+        <div id="mainApp" class="page active">
             <!-- Header -->
             <div class="uni-header">
-                <h1>Belk</h1>
+                <div class="logo">
+                    <!-- Замените на ваш логотип -->
+                    <div style="color: white; font-size: 24px; font-weight: bold;">BELK</div>
+                </div>
             </div>
 
             <!-- Главная страница -->
             <div id="mainPage" class="page active">
-                <div class="uni-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="user-avatar" id="user-avatar">U</div>
-                            <div>
-                                <div style="font-weight:600" id="user-name">Пользователь</div>
-                            </div>
-                        </div>
-                        <div class="uni-badge" onclick="logout()" style="cursor: pointer;">
-                            <i class="fas fa-sign-out-alt"></i> Выйти
-                        </div>
-                    </div>
-
-                    <div class="balance-card">
-                        <div class="balance-label">Ваш баланс</div>
-                        <div class="balance-amount" id="currentBalance">3,10 USDT</div>
-                        <div class="balance-label">Доступно для вывода</div>
-                    </div>
-
+                <div class="main-hero">
                     <div class="video-player">
                         <div class="play-btn">
                             <i class="fas fa-play" style="color: #000; font-size: 20px; margin-left: 2px;"></i>
-                        </div>
-                        <div class="video-controls">
-                            <div style="width:60px;">0:00 / 0:18</div>
-                            <div class="video-progress">
-                                <div class="video-progress-bar"></div>
-                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">Быстрые действия</h3>
                     <div class="action-grid">
                         <div class="action-item" onclick="showPage('assetsPage')">
                             <div class="action-icon">
@@ -956,11 +582,11 @@
                             </div>
                             <div>Активы</div>
                         </div>
-                        <div class="action-item">
+                        <div class="action-item" onclick="showReferralScreen()">
                             <div class="action-icon">
-                                <i class="fab fa-telegram"></i>
+                                <i class="fas fa-user-plus"></i>
                             </div>
-                            <div>Telegram</div>
+                            <div>Пригласить</div>
                         </div>
                         <div class="action-item" onclick="showPage('teamPage')">
                             <div class="action-icon">
@@ -968,23 +594,23 @@
                             </div>
                             <div>Команда</div>
                         </div>
-                        <div class="action-item">
-                            <div class="action-icon">
-                                <i class="fas fa-user-plus"></i>
-                            </div>
-                            <div>Пригласить</div>
-                        </div>
                         <div class="action-item" onclick="showPage('vipPage')">
                             <div class="action-icon">
                                 <i class="fas fa-crown"></i>
                             </div>
                             <div>VIP</div>
                         </div>
-                        <div class="action-item">
+                        <div class="action-item" onclick="showPage('earnPage')">
                             <div class="action-icon">
-                                <i class="fas fa-question-circle"></i>
+                                <i class="fas fa-bolt"></i>
                             </div>
-                            <div>Помощь</div>
+                            <div>Quantification</div>
+                        </div>
+                        <div class="action-item" onclick="showPage('historyPage')">
+                            <div class="action-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div>История</div>
                         </div>
                         <div class="action-item">
                             <div class="action-icon">
@@ -992,56 +618,50 @@
                             </div>
                             <div>Скачать</div>
                         </div>
-                        <div class="action-item">
+                        <div class="action-item" onclick="showPage('profilePage')">
                             <div class="action-icon">
-                                <i class="fas fa-file-alt"></i>
+                                <i class="fas fa-user"></i>
                             </div>
-                            <div>Лицензия</div>
-                        </div>
-                    </div>
-
-                    <div class="promo-grid">
-                        <div class="promo-card" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark));" onclick="showPage('teamPage')">
-                            <div style="font-weight:600;font-size:14px">Пригласить друзей</div>
-                            <div style="font-size:12px;opacity:0.95;margin-top:4px">Бонус за приглашение</div>
-                        </div>
-                        <div class="promo-card" style="background: linear-gradient(135deg, var(--accent), var(--accent-light));" onclick="showPage('earnPage')">
-                            <div style="font-weight:600;font-size:14px">Центр заданий</div>
-                            <div style="font-size:12px;opacity:0.95;margin-top:4px">Выполняйте задания</div>
+                            <div>Профиль</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="stats-card">
-                    <h3 style="margin-bottom: 15px;">Статистика за сегодня</h3>
-                    <div class="uni-grid">
-                        <div style="text-align: center;">
-                            <div class="stats-value">+0.12 USDT</div>
-                            <div class="stats-label">Доход</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div class="stats-value">3</div>
-                            <div class="stats-label">Сделки</div>
-                        </div>
+                <div class="mission-section">
+                    <div class="mission-title">Наша миссия</div>
+                    <div class="carousel">
+                        <div class="carousel-slide active" style="background-color: var(--primary);">Инновационные технологии</div>
+                        <div class="carousel-slide" style="background-color: var(--primary-light);">Пассивный доход</div>
+                        <div class="carousel-slide" style="background-color: var(--accent);">AI Quantification</div>
+                        <div class="carousel-slide" style="background-color: var(--success);">Реферальная программа</div>
+                        <div class="carousel-slide" style="background-color: var(--info);">VIP пакеты</div>
                     </div>
                 </div>
             </div>
 
             <!-- Страница активов -->
             <div id="assetsPage" class="page">
-                <div class="page-header">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div>
-                            <div style="font-weight:600">Активы</div>
-                            <div style="font-size:12px; color:var(--gray)">Управление средствами</div>
+                <div class="balance-card">
+                    <div class="balance-label">Общий баланс</div>
+                    <div class="balance-amount" id="total-balance">3,10 USDT</div>
+                    <div class="balance-details">
+                        <div class="balance-detail">
+                            <div class="balance-label">От рефералов</div>
+                            <div class="stats-value">0.00 USDT</div>
+                        </div>
+                        <div class="balance-detail">
+                            <div class="balance-label">От бонусов</div>
+                            <div class="stats-value">3.10 USDT</div>
+                        </div>
+                        <div class="balance-detail">
+                            <div class="balance-label">От Quantification</div>
+                            <div class="stats-value">0.00 USDT</div>
+                        </div>
+                        <div class="balance-detail">
+                            <div class="balance-label">Доступно</div>
+                            <div class="stats-value">3.10 USDT</div>
                         </div>
                     </div>
-                </div>
-
-                <div class="balance-card">
-                    <div style="color:var(--white); font-size:14px;">Общий баланс</div>
-                    <div style="font-size:28px; font-weight:600; margin: 10px 0;" id="total-balance">3,10 USDT</div>
-                    <div style="color:var(--white); font-size:12px; opacity:0.9;" id="today-income">+0.12 USDT за сегодня</div>
                 </div>
 
                 <div class="uni-card">
@@ -1054,55 +674,10 @@
                         </button>
                     </div>
                 </div>
-
-                <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">История транзакций</h3>
-                    <div id="transaction-history">
-                        <div class="transaction-item">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 30px; height: 30px; border-radius: 50%; background: rgba(76,217,100,0.1); display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-gift" style="color: var(--success);"></i>
-                                </div>
-                                <div>
-                                    <div style="font-weight:600;">Начальный бонус</div>
-                                    <div style="font-size:12px; color:var(--gray);">Сегодня, 14:30</div>
-                                </div>
-                            </div>
-                            <div style="font-weight:600; color: var(--success);">
-                                +3,10 USDT
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Страница команды -->
             <div id="teamPage" class="page">
-                <div class="page-header">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div>
-                            <div style="font-weight:600">Команда</div>
-                            <div style="font-size:12px; color:var(--gray)">Обзор команды</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-banner">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div>
-                            <div style="font-weight:600;">Обзор команды</div>
-                            <div style="font-size:12px; margin-top:4px; opacity:0.9">Сегодня ▾</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-weight:600;" id="new-members">0</div>
-                            <div style="font-size:12px;">Новых участников</div>
-                            <div style="height:8px"></div>
-                            <div style="font-weight:600;" id="new-income">0.00</div>
-                            <div style="font-size:12px;">Новый доход</div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="uni-card">
                     <div class="referral-stats">
                         <div class="referral-stat">
@@ -1150,23 +725,6 @@
 
             <!-- Страница VIP -->
             <div id="vipPage" class="page">
-                <div class="page-header">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div>
-                            <div style="font-weight:600">VIP Статус</div>
-                            <div style="font-size:12px; color:var(--gray)">Премиум возможности</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vip-card">
-                    <div style="text-align: center;">
-                        <div style="font-size: 14px; opacity: 0.9;">Текущий статус</div>
-                        <div style="font-size: 24px; font-weight: 600; margin: 10px 0;">VIP 0</div>
-                        <div style="font-size: 14px; opacity: 0.9;">Для доступа к премиум функциям приобретите пакет</div>
-                    </div>
-                </div>
-
                 <div class="uni-card">
                     <h3 style="margin-bottom: 15px;">VIP Инвестиционные пакеты</h3>
                     <div class="vip-packages" id="vip-packages-list">
@@ -1181,7 +739,7 @@
                             <i class="fas fa-chart-line"></i>
                         </div>
                         <div>
-                            <div style="font-weight:600;">+15% доход</div>
+                            <div style="font-weight:600;">+2.5% доход</div>
                             <div style="font-size:12px; color:var(--gray);">К заработку</div>
                         </div>
                     </div>
@@ -1190,26 +748,8 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div>
-                            <div style="font-weight:600;">+10% реф.</div>
+                            <div style="font-weight:600;">+8% реф.</div>
                             <div style="font-size:12px; color:var(--gray);">На команду</div>
-                        </div>
-                    </div>
-                    <div class="vip-benefit">
-                        <div class="vip-benefit-icon">
-                            <i class="fas fa-gift"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight:600;">Бонусы</div>
-                            <div style="font-size:12px; color:var(--gray);">Ежедневные</div>
-                        </div>
-                    </div>
-                    <div class="vip-benefit">
-                        <div class="vip-benefit-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight:600;">Приоритет</div>
-                            <div style="font-size:12px; color:var(--gray);">Поддержка</div>
                         </div>
                     </div>
                 </div>
@@ -1217,12 +757,11 @@
 
             <!-- Страница заработка -->
             <div id="earnPage" class="page">
-                <div class="page-header">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div>
-                            <div style="font-weight:600">AI Трейдинг</div>
-                            <div style="font-size:12px; color:var(--gray)">Автоматический заработок</div>
-                        </div>
+                <div class="uni-card">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 14px; opacity: 0.9;">Текущий статус</div>
+                        <div style="font-size: 24px; font-weight: 600; margin: 10px 0;">VIP 0</div>
+                        <div style="font-size: 14px; opacity: 0.9;">Для доступа к премиум функциям приобретите пакет</div>
                     </div>
                 </div>
 
@@ -1234,26 +773,6 @@
                         <i class="fas fa-bolt"></i> ЗАБРАТЬ ДОХОД
                     </button>
                     <div style="font-size:12px; margin-top: 10px;" id="claim-timer"></div>
-                </div>
-
-                <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">Статистика трейдинга</h3>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <div style="font-size:14px; color:var(--gray);">Успешных сделок</div>
-                        <div style="font-weight:600;" id="success-rate">0%</div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <div style="font-size:14px; color:var(--gray);">Общий доход</div>
-                        <div style="font-weight:600; color:var(--success);" id="total-income">+0.00 USDT</div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <div style="font-size:14px; color:var(--gray);">Активных стратегий</div>
-                        <div style="font-weight:600;" id="active-strategies">0</div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <div style="font-size:14px; color:var(--gray);">Следующая сессия</div>
-                        <div style="font-weight:600;" id="next-session">через 0:00</div>
-                    </div>
                 </div>
 
                 <div style="position: relative; margin: 20px 0;">
@@ -1280,17 +799,25 @@
                 </div>
             </div>
 
-            <!-- Страница профиля -->
-            <div id="profilePage" class="page">
-                <div class="page-header">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div>
-                            <div style="font-weight:600">Профиль</div>
-                            <div style="font-size:12px; color:var(--gray)">Управление аккаунтом</div>
-                        </div>
+            <!-- Страница истории -->
+            <div id="historyPage" class="page">
+                <div class="uni-card">
+                    <div class="transaction-tabs">
+                        <div class="transaction-tab active" onclick="showTransactionType('all')">Все</div>
+                        <div class="transaction-tab" onclick="showTransactionType('deposits')">Пополнения</div>
+                        <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Вывод</div>
+                        <div class="transaction-tab" onclick="showTransactionType('referrals')">Рефералы</div>
+                        <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
+                    </div>
+                    
+                    <div id="transaction-history">
+                        <!-- Transactions will be populated by JavaScript -->
                     </div>
                 </div>
+            </div>
 
+            <!-- Страница профиля -->
+            <div id="profilePage" class="page">
                 <div class="uni-card">
                     <div style="text-align: center;">
                         <div class="user-avatar" style="width: 60px; height: 60px; font-size: 24px; margin: 0 auto 10px;">U</div>
@@ -1303,72 +830,57 @@
 
                     <div style="margin-top: 20px;">
                         <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Имя пользователя</label>
-                            <input type="text" id="username" class="uni-input" value="Пользователь">
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Email</label>
-                            <input type="email" id="email" class="uni-input" value="user@example.com">
+                            <input type="email" id="email" class="uni-input" value="user@example.com" readonly>
                         </div>
                         
                         <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Телефон</label>
-                            <input type="tel" id="phone" class="uni-input" value="+7 (900) 123-45-67">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Сменить пароль</label>
+                            <input type="password" class="uni-input" placeholder="Текущий пароль">
+                            <input type="password" class="uni-input" placeholder="Новый пароль">
+                            <input type="password" class="uni-input" placeholder="Подтвердите пароль">
+                            <button class="uni-button" onclick="updatePassword()" style="margin-top: 10px;">Обновить пароль</button>
                         </div>
+                    </div>
+                    
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </div>
+            </div>
+
+            <!-- Реферальный экран -->
+            <div id="referralPage" class="page">
+                <div class="referral-screen">
+                    <div class="uni-card">
+                        <h2 style="margin-bottom: 15px;">Пригласите друзей</h2>
+                        <p style="margin-bottom: 20px; color: var(--gray);">Приглашайте друзей и получайте доход с 3 поколений рефералов</p>
                         
-                        <div style="background: var(--light); padding: 12px; border-radius: 5px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-                            <div style="font-size: 12px; color: var(--gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;" id="referral-link">
+                        <div class="referral-link-container">
+                            <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;" id="referral-link">
                                 https://belk.app/ref/BLK2839475
                             </div>
-                            <button class="uni-button" style="padding: 6px 10px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
+                            <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
                                 Копировать
                             </button>
                         </div>
                         
-                        <div style="margin-top: 20px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Язык</label>
-                            <div class="language-switch">
-                                <div class="lang-option active">Русский</div>
-                                <div class="lang-option">English</div>
+                        <div style="margin-top: 30px;">
+                            <h3 style="margin-bottom: 15px;">Ваши бонусы</h3>
+                            <div class="referral-stats">
+                                <div class="referral-stat">
+                                    <div class="stats-value">8%</div>
+                                    <div class="stats-label">1-е поколение</div>
+                                </div>
+                                <div class="referral-stat">
+                                    <div class="stats-value">3%</div>
+                                    <div class="stats-label">2-е поколение</div>
+                                </div>
+                                <div class="referral-stat">
+                                    <div class="stats-value">1%</div>
+                                    <div class="stats-label">3-е поколение</div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">Безопасность</h3>
-                    <input type="password" class="uni-input" placeholder="Текущий пароль">
-                    <input type="password" class="uni-input" placeholder="Новый пароль">
-                    <input type="password" class="uni-input" placeholder="Подтвердите пароль">
-                    <button class="uni-button" onclick="updateSecurity()">Обновить настройки</button>
-                </div>
-
-                <div class="uni-card">
-                    <h3 style="margin-bottom: 15px;">Действия с аккаунтом</h3>
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        <div style="padding:12px; background:var(--light); border-radius:5px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
-                            <div>
-                                <div style="font-weight:600;">Верификация</div>
-                                <div style="font-size:11px; color:var(--gray);">Пройдите для повышения лимитов</div>
-                            </div>
-                            <i class="fas fa-chevron-right" style="color:var(--gray);"></i>
-                        </div>
-                        
-                        <div style="padding:12px; background:var(--light); border-radius:5px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
-                            <div>
-                                <div style="font-weight:600;">Настройки уведомлений</div>
-                                <div style="font-size:11px; color:var(--gray);">Email, Push, Telegram</div>
-                            </div>
-                            <i class="fas fa-chevron-right" style="color:var(--gray);"></i>
-                        </div>
-                        
-                        <div style="padding:12px; background:#fff0f0; border-radius:5px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="logout()">
-                            <div>
-                                <div style="font-weight:600; color:var(--danger);">Выйти из аккаунта</div>
-                                <div style="font-size:11px; color:var(--danger); opacity:0.7;">Завершить текущую сессию</div>
-                            </div>
-                            <i class="fas fa-sign-out-alt" style="color:var(--danger);"></i>
                         </div>
                     </div>
                 </div>
@@ -1388,7 +900,7 @@
                     <div class="uni-tabbar-center">
                         <i class="fas fa-bolt" style="color: white; font-size: 20px;"></i>
                     </div>
-                    <div style="font-weight:600">Заработок</div>
+                    <div style="font-weight:600">Quantification</div>
                 </div>
                 <div class="uni-tabbar-item" onclick="showPage('assetsPage')">
                     <div class="uni-tabbar-icon"><i class="fas fa-wallet"></i></div>
@@ -1403,14 +915,18 @@
     </div>
 
     <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
+
         // Данные VIP пакетов
         const vipPackages = [
-            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false, featured: false },
-            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, active: false, featured: false },
-            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, active: false, featured: true },
-            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, active: false, featured: false },
-            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, active: false, featured: false },
-            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, active: false, featured: true }
+            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false },
+            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, active: false },
+            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, active: false },
+            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, active: false },
+            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, active: false },
+            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, active: false }
         ];
 
         // Состояние приложения
@@ -1419,7 +935,6 @@
                 id: 'BLK2839475',
                 name: 'Пользователь',
                 email: 'user@example.com',
-                phone: '+7 (900) 123-45-67',
                 balance: 3.10,
                 level: 1,
                 vipLevel: 0,
@@ -1433,7 +948,7 @@
                 gen3: []
             },
             transactions: [
-                { id: 1, type: 'deposit', title: 'Начальный бонус', date: 'Сегодня, 14:30', amount: 3.10, positive: true }
+                { id: 1, type: 'bonus', title: 'Начальный бонус', date: 'Сегодня, 14:30', amount: 3.10, positive: true }
             ],
             totalIncome: 0
         };
@@ -1477,319 +992,127 @@
         }
 
         // Инициализация приложения
-        function initApp() {
+        async function initApp() {
+            const token = localStorage.getItem('belkAccessToken');
             const isLoggedIn = localStorage.getItem('belkUserLoggedIn');
-            if (isLoggedIn) {
-                // Пользователь вошел в систему, показываем основное приложение
-                document.getElementById('authPage').classList.remove('active');
-                document.getElementById('mainApp').classList.add('active');
-                
-                loadState();
-                renderVIPPackages();
-                updateUI();
-                updateClaimButton();
-                startTimer();
-            } else {
-                // Пользователь не вошел, показываем страницу аутентификации
-                document.getElementById('authPage').classList.add('active');
-                document.getElementById('mainApp').classList.remove('active');
-            }
-        }
-
-        // Показать форму аутентификации
-        function showAuthForm(formType) {
-            // Скрыть все формы
-            document.querySelectorAll('.auth-form').forEach(form => {
-                form.classList.remove('active');
-            });
             
-            // Показать нужную форму
-            document.getElementById(formType + 'Form').classList.add('active');
-            
-            // Обновить активную вкладку
-            document.querySelectorAll('.auth-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            if (formType === 'login' || formType === 'register') {
-                document.querySelectorAll('.auth-tab')[formType === 'login' ? 0 : 1].classList.add('active');
-            }
-        }
-
-        // Вход в систему
-        function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!email || !password) {
-                alert('Пожалуйста, заполните все поля');
+            if (!token && !isLoggedIn) {
+                window.location.href = 'index.html';
                 return;
             }
-            
-            // В реальном приложении здесь был бы запрос к серверу
-            // Для демонстрации просто сохраняем состояние входа
-            localStorage.setItem('belkUserLoggedIn', 'true');
-            
-            // Переходим к основному приложению
-            document.getElementById('authPage').classList.remove('active');
-            document.getElementById('mainApp').classList.add('active');
-            
-            // Инициализируем основное приложение
-            initApp();
-        }
 
-        // Регистрация
-        function register() {
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            // Загрузка данных
+            loadState();
             
-            if (!name || !email || !password || !confirmPassword) {
-                alert('Пожалуйста, заполните все поля');
-                return;
+            // Если есть токен, загружаем данные из Supabase
+            if (token) {
+                await loadUserDataFromSupabase(token);
             }
             
-            if (password !== confirmPassword) {
-                alert('Пароли не совпадают');
-                return;
-            }
-            
-            // В реальном приложении здесь был бы запрос к серверу
-            // Для демонстрации просто сохраняем состояние входа
-            localStorage.setItem('belkUserLoggedIn', 'true');
-            
-            // Обновляем имя пользователя
-            appState.user.name = name;
-            appState.user.email = email;
-            saveState();
-            
-            // Переходим к основному приложению
-            document.getElementById('authPage').classList.remove('active');
-            document.getElementById('mainApp').classList.add('active');
-            
-            // Инициализируем основное приложение
-            initApp();
-        }
-
-        // Восстановление пароля
-        function resetPassword() {
-            const email = document.getElementById('forgotEmail').value;
-            
-            if (!email) {
-                alert('Пожалуйста, введите email');
-                return;
-            }
-            
-            // В реальном приложении здесь был бы запрос к серверу
-            alert('Инструкции по восстановлению пароля отправлены на ' + email);
-            
-            // Возвращаемся к форме входа
-            showAuthForm('login');
-        }
-
-        // Выход из системы
-        function logout() {
-            if (confirm('Вы уверены, что хотите выйти?')) {
-                localStorage.removeItem('belkUserLoggedIn');
-                document.getElementById('authPage').classList.add('active');
-                document.getElementById('mainApp').classList.remove('active');
-            }
-        }
-
-        // Рендер VIP пакетов
-        function renderVIPPackages() {
-            const packagesList = document.getElementById('vip-packages-list');
-            packagesList.innerHTML = '';
-            
-            vipPackages.forEach(pkg => {
-                const isPurchased = appState.user.purchasedVIPs.includes(pkg.id);
-                const packageElement = document.createElement('div');
-                let packageClass = 'vip-package';
-                if (isPurchased) packageClass += ' active';
-                if (pkg.featured) packageClass += ' vip-package-featured';
-                
-                packageElement.className = packageClass;
-                packageElement.onclick = () => showVIPPurchaseModal(pkg);
-                
-                packageElement.innerHTML = `
-                    ${pkg.featured ? '<div class="featured-badge">ПОПУЛЯРНЫЙ</div>' : ''}
-                    <div>
-                        <div style="font-weight:600; font-size:16px;">VIP ${pkg.level}</div>
-                        <div style="font-size:14px;">${formatCurrency(pkg.price)} USDT</div>
-                        <div style="font-size:12px; opacity:0.9;">+${formatCurrency(pkg.dailyIncome)} USDT/день</div>
-                    </div>
-                    <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : (pkg.featured ? 'rgba(255,255,255,0.2)' : 'var(--primary)')}; color: ${isPurchased || pkg.featured ? 'white' : 'white'}; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
-                        ${isPurchased ? 'АКТИВЕН' : 'КУПИТЬ'}
-                    </div>
-                `;
-                
-                packagesList.appendChild(packageElement);
-            });
-        }
-
-        // Показать модальное окно покупки VIP пакета
-        function showVIPPurchaseModal(pkg) {
-            if (appState.user.purchasedVIPs.includes(pkg.id)) return;
-            
-            const modal = document.getElementById('vipPurchaseModal');
-            const title = document.getElementById('vip-purchase-title');
-            const details = document.getElementById('vip-purchase-details');
-            const button = document.getElementById('vip-purchase-button');
-            
-            title.textContent = `Покупка VIP ${pkg.level}`;
-            
-            details.innerHTML = `
-                <p>Стоимость: <strong>${formatCurrency(pkg.price)} USDT</strong></p>
-                <p>Ежедневный доход: <strong style="color:var(--success)">${formatCurrency(pkg.dailyIncome)} USDT</strong></p>
-                <p>Доходность: <strong>${pkg.percentage}%</strong> в день</p>
-                <p>Ваш баланс: <strong>${formatCurrency(appState.user.balance)} USDT</strong></p>
-            `;
-            
-            if (appState.user.balance >= pkg.price) {
-                button.disabled = false;
-                button.textContent = 'Купить';
-                button.className = 'uni-modal-button primary';
-            } else {
-                button.disabled = true;
-                button.textContent = 'Недостаточно средств';
-                button.className = 'uni-modal-button secondary';
-            }
-            
-            modal.classList.add('active');
-        }
-
-        // Покупка VIP пакета
-        function purchaseVIPPackage() {
-            const modal = document.getElementById('vipPurchaseModal');
-            const title = document.getElementById('vip-purchase-title').textContent;
-            const vipLevel = parseInt(title.split(' ')[2]);
-            const pkg = vipPackages.find(p => p.level === vipLevel);
-            
-            if (!pkg || appState.user.balance < pkg.price) return;
-            
-            // Списание средств
-            appState.user.balance -= pkg.price;
-            appState.user.purchasedVIPs.push(pkg.id);
-            
-            // Обновляем VIP уровень пользователя
-            appState.user.vipLevel = Math.max(appState.user.vipLevel, pkg.level);
-            
-            // Добавляем транзакцию
-            appState.transactions.unshift({
-                id: appState.transactions.length + 1,
-                type: 'vip_purchase',
-                title: `Покупка VIP ${pkg.level}`,
-                date: 'Только что',
-                amount: pkg.price,
-                positive: false
-            });
-            
-            // Сохранение состояния
-            saveState();
-            
-            // Обновление UI
-            updateUI();
             renderVIPPackages();
-            
-            // Закрытие модального окна
-            closeModal('vipPurchaseModal');
-            
-            // Показать уведомление об успешной покупке
-            alert(`VIP ${pkg.level} успешно приобретен!`);
+            updateUI();
+            updateClaimButton();
+            startTimer();
+            startCarousel();
         }
 
-        // Закрыть модальное окно
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
+        // Загрузка данных пользователя из Supabase
+        async function loadUserDataFromSupabase(token) {
+            try {
+                // Получение данных пользователя
+                const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    if (userData.length > 0) {
+                        appState.user = { ...appState.user, ...userData[0] };
+                    }
+                }
+
+                // Получение транзакций
+                const transactionsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?user_id=eq.${appState.user.id}`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (transactionsResponse.ok) {
+                    const transactionsData = await transactionsResponse.json();
+                    appState.transactions = transactionsData;
+                }
+
+                // Получение рефералов
+                const referralsResponse = await fetch(`${SUPABASE_URL}/rest/v1/referrals?referrer_id=eq.${appState.user.id}`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (referralsResponse.ok) {
+                    const referralsData = await referralsResponse.json();
+                    // Обработка рефералов по поколениям
+                    appState.referrals.gen1 = referralsData.filter(ref => ref.generation === 1);
+                    appState.referrals.gen2 = referralsData.filter(ref => ref.generation === 2);
+                    appState.referrals.gen3 = referralsData.filter(ref => ref.generation === 3);
+                }
+            } catch (error) {
+                console.error('Error loading data from Supabase:', error);
+            }
         }
 
-        // Форматирование валюты
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('ru-RU', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
+        // Карусель на главной
+        function startCarousel() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-slide');
+            
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 5000);
         }
 
-        // Обновление UI
-        function updateUI() {
-            // Обновление баланса
-            document.getElementById('currentBalance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-            document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-            
-            // Обновление имени пользователя
-            document.getElementById('user-name').textContent = appState.user.name;
-            document.getElementById('profile-name').textContent = appState.user.name;
-            
-            // Обновление аватара
-            document.getElementById('user-avatar').textContent = appState.user.name.charAt(0);
-            
-            // Обновление ID пользователя
-            document.getElementById('profile-id').textContent = appState.user.id;
-            
-            // Обновление реферальной ссылки
-            document.getElementById('referral-link').textContent = `https://belk.app/ref/${appState.user.referralCode}`;
-            
-            // Обновление формы профиля
-            document.getElementById('username').value = appState.user.name;
-            document.getElementById('email').value = appState.user.email;
-            document.getElementById('phone').value = appState.user.phone;
-            
-            // Обновление экрана команды
-            updateTeamScreen();
-            
-            // Обновление экрана активов
-            updateAssetsScreen();
-            
-            // Обновление экрана заработка
-            updateEarnScreen();
+        // Показать реферальный экран
+        function showReferralScreen() {
+            showPage('referralPage');
         }
 
-        // Обновление экрана команды
-        function updateTeamScreen() {
-            // Обновление статистики рефералов
-            document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
-            document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
-            document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
+        // Показать тип транзакций
+        function showTransactionType(type) {
+            const tabs = document.querySelectorAll('.transaction-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
             
-            // Расчет доходов от рефералов
-            const gen1Income = appState.referrals.gen1.reduce((sum, ref) => sum + (ref.income || 0), 0);
-            const gen2Income = appState.referrals.gen2.reduce((sum, ref) => sum + (ref.income || 0), 0);
-            const gen3Income = appState.referrals.gen3.reduce((sum, ref) => sum + (ref.income || 0), 0);
+            event.target.classList.add('active');
             
-            document.getElementById('gen1-income').textContent = `${formatCurrency(gen1Income)} USDT`;
-            document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
-            document.getElementById('gen3-income').textContent = `${formatCurrency(gen3Income)} USDT`;
-            
-            // Обновление списка рефералов
-            const referralList = document.getElementById('referral-list');
-            referralList.innerHTML = '';
-            
-            // Показываем рефералов 1-го поколения
-            appState.referrals.gen1.forEach(ref => {
-                const referralItem = document.createElement('div');
-                referralItem.className = 'referral-item';
-                referralItem.innerHTML = `
-                    <div class="referral-info">
-                        <div class="referral-avatar">${ref.name.charAt(0)}</div>
-                        <div>
-                            <div class="name" style="font-weight:600;">${ref.name}</div>
-                            <div class="date" style="font-size:11px; color:var(--gray);">Присоединился: ${ref.date}</div>
-                        </div>
-                    </div>
-                    <div class="referral-income" style="font-weight:600; color:var(--success);">+${formatCurrency(ref.income)} USDT</div>
-                `;
-                referralList.appendChild(referralItem);
-            });
+            // Фильтрация транзакций по типу
+            updateTransactionsHistory(type);
         }
 
-        // Обновление экрана активов
-        function updateAssetsScreen() {
+        // Обновление истории транзакций
+        function updateTransactionsHistory(type = 'all') {
             const transactionHistory = document.getElementById('transaction-history');
             transactionHistory.innerHTML = '';
             
-            appState.transactions.forEach(transaction => {
+            let filteredTransactions = appState.transactions;
+            
+            if (type !== 'all') {
+                filteredTransactions = appState.transactions.filter(transaction => {
+                    if (type === 'deposits') return transaction.type === 'deposit';
+                    if (type === 'withdrawals') return transaction.type === 'withdraw';
+                    if (type === 'referrals') return transaction.type === 'referral';
+                    if (type === 'quantification') return transaction.type === 'daily_income';
+                    return true;
+                });
+            }
+            
+            filteredTransactions.forEach(transaction => {
                 const transactionItem = document.createElement('div');
                 transactionItem.className = 'transaction-item';
                 
@@ -1845,6 +1168,143 @@
             });
         }
 
+        // Рендер VIP пакетов
+        function renderVIPPackages() {
+            const packagesList = document.getElementById('vip-packages-list');
+            packagesList.innerHTML = '';
+            
+            vipPackages.forEach(pkg => {
+                const isPurchased = appState.user.purchasedVIPs.includes(pkg.id);
+                const packageElement = document.createElement('div');
+                let packageClass = 'vip-package';
+                if (isPurchased) packageClass += ' active';
+                
+                packageElement.className = packageClass;
+                packageElement.onclick = () => purchaseVIPPackage(pkg);
+                
+                packageElement.innerHTML = `
+                    <div>
+                        <div style="font-weight:600; font-size:16px;">VIP ${pkg.level}</div>
+                        <div style="font-size:14px;">${formatCurrency(pkg.price)} USDT</div>
+                        <div style="font-size:12px; opacity:0.9;">+${formatCurrency(pkg.dailyIncome)} USDT/день</div>
+                    </div>
+                    <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: ${isPurchased ? 'white' : 'white'}; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
+                        ${isPurchased ? 'АКТИВЕН' : 'КУПИТЬ'}
+                    </div>
+                `;
+                
+                packagesList.appendChild(packageElement);
+            });
+        }
+
+        // Покупка VIP пакета
+        function purchaseVIPPackage(pkg) {
+            if (appState.user.purchasedVIPs.includes(pkg.id)) return;
+            
+            if (appState.user.balance < pkg.price) {
+                alert('Недостаточно средств для покупки этого пакета');
+                return;
+            }
+            
+            if (confirm(`Вы уверены, что хотите купить VIP ${pkg.level} за ${formatCurrency(pkg.price)} USDT?`)) {
+                // Списание средств
+                appState.user.balance -= pkg.price;
+                appState.user.purchasedVIPs.push(pkg.id);
+                appState.user.vipLevel = Math.max(appState.user.vipLevel, pkg.level);
+                
+                // Добавляем транзакцию
+                appState.transactions.unshift({
+                    id: appState.transactions.length + 1,
+                    type: 'vip_purchase',
+                    title: `Покупка VIP ${pkg.level}`,
+                    date: 'Только что',
+                    amount: pkg.price,
+                    positive: false
+                });
+                
+                // Сохранение состояния
+                saveState();
+                
+                // Обновление UI
+                updateUI();
+                renderVIPPackages();
+                
+                alert(`VIP ${pkg.level} успешно приобретен!`);
+            }
+        }
+
+        // Форматирование валюты
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ru-RU', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Обновление UI
+        function updateUI() {
+            // Обновление баланса
+            document.getElementById('currentBalance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
+            document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
+            
+            // Обновление имени пользователя
+            document.getElementById('user-name').textContent = appState.user.name;
+            document.getElementById('profile-name').textContent = appState.user.name;
+            
+            // Обновление аватара
+            document.getElementById('user-avatar').textContent = appState.user.name.charAt(0);
+            
+            // Обновление ID пользователя
+            document.getElementById('profile-id').textContent = appState.user.id;
+            
+            // Обновление реферальной ссылки
+            document.getElementById('referral-link').textContent = `https://belk.app/ref/${appState.user.referralCode}`;
+            
+            // Обновление экрана команды
+            updateTeamScreen();
+            
+            // Обновление экрана заработка
+            updateEarnScreen();
+        }
+
+        // Обновление экрана команды
+        function updateTeamScreen() {
+            // Обновление статистики рефералов
+            document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
+            document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
+            document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
+            
+            // Расчет доходов от рефералов
+            const gen1Income = appState.referrals.gen1.reduce((sum, ref) => sum + (ref.income || 0), 0);
+            const gen2Income = appState.referrals.gen2.reduce((sum, ref) => sum + (ref.income || 0), 0);
+            const gen3Income = appState.referrals.gen3.reduce((sum, ref) => sum + (ref.income || 0), 0);
+            
+            document.getElementById('gen1-income').textContent = `${formatCurrency(gen1Income)} USDT`;
+            document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
+            document.getElementById('gen3-income').textContent = `${formatCurrency(gen3Income)} USDT`;
+            
+            // Обновление списка рефералов
+            const referralList = document.getElementById('referral-list');
+            referralList.innerHTML = '';
+            
+            // Показываем рефералов 1-го поколения
+            appState.referrals.gen1.forEach(ref => {
+                const referralItem = document.createElement('div');
+                referralItem.className = 'referral-item';
+                referralItem.innerHTML = `
+                    <div class="referral-info">
+                        <div class="referral-avatar">${ref.name.charAt(0)}</div>
+                        <div>
+                            <div class="name" style="font-weight:600;">${ref.name}</div>
+                            <div class="date" style="font-size:11px; color:var(--gray);">Присоединился: ${ref.date}</div>
+                        </div>
+                    </div>
+                    <div class="referral-income" style="font-weight:600; color:var(--success);">+${formatCurrency(ref.income)} USDT</div>
+                `;
+                referralList.appendChild(referralItem);
+            });
+        }
+
         // Обновление экрана заработка
         function updateEarnScreen() {
             // Расчет доступного дохода
@@ -1866,14 +1326,6 @@
             document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% за сегодня`;
             
             document.getElementById('total-income').textContent = `+${formatCurrency(appState.totalIncome)} USDT`;
-            
-            // Обновление статистики
-            document.getElementById('success-rate').textContent = `${appState.user.purchasedVIPs.length > 0 ? '87%' : '0%'}`;
-            document.getElementById('active-strategies').textContent = appState.user.purchasedVIPs.length;
-            
-            // Расчет времени до следующей сессии
-            const nextSession = appState.user.purchasedVIPs.length > 0 ? 'через 2:15' : 'не активна';
-            document.getElementById('next-session').textContent = nextSession;
         }
 
         // Обновление кнопки забора дохода
@@ -1897,45 +1349,34 @@
                 return;
             }
             
-            if (!appState.user.lastClaimDate) {
-                // Первый раз - кнопка активна
-                claimButton.disabled = false;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ЗАБРАТЬ ДОХОД';
-                claimTimer.textContent = '';
-                return;
-            }
-            
+            // Проверка времени (22:00 UTC логика)
             const now = new Date();
-            const lastClaim = new Date(appState.user.lastClaimDate);
-            const timeDiff = now - lastClaim;
-            const hoursDiff = timeDiff / (1000 * 60 * 60);
+            const utcHours = now.getUTCHours();
+            const canClaim = utcHours >= 22;
             
-            // Проверяем, прошло ли 24 часа с последнего забора
-            if (hoursDiff >= 24) {
+            if (canClaim) {
                 claimButton.disabled = false;
                 claimButton.innerHTML = '<i class="fas fa-bolt"></i> ЗАБРАТЬ ДОХОД';
-                claimTimer.textContent = '';
+                claimTimer.textContent = 'Доступно для забора';
             } else {
                 claimButton.disabled = true;
-                const hoursLeft = 23 - Math.floor(hoursDiff);
-                const minutesLeft = 60 - Math.floor((hoursDiff % 1) * 60);
-                claimTimer.textContent = `Доступно через: ${hoursLeft}ч ${minutesLeft}м`;
+                const hoursLeft = 21 - utcHours;
+                const minutesLeft = 60 - now.getUTCMinutes();
+                claimTimer.textContent = `Доступно в 22:00 UTC (через ${hoursLeft}ч ${minutesLeft}м)`;
             }
         }
 
         // Таймер для обновления кнопки забора дохода
         function startTimer() {
-            setInterval(updateClaimButton, 60000); // Обновляем каждую минуту
+            setInterval(updateClaimButton, 60000);
         }
 
-        // Процесс трейдинга
+        // Процесс получения дохода
         function startTradingProcess() {
             const claimBtn = document.getElementById('claim-button');
             const steps = [1, 2, 3];
             
-            if (claimBtn.disabled || claimBtn.classList.contains('processing') || claimBtn.classList.contains('completed')) {
-                return;
-            }
+            if (claimBtn.disabled) return;
             
             // Начинаем процесс
             claimBtn.disabled = true;
@@ -1974,7 +1415,7 @@
                         appState.transactions.unshift({
                             id: appState.transactions.length + 1,
                             type: 'daily_income',
-                            title: 'Ежедневный доход от VIP',
+                            title: 'Ежедневный доход от Quantification',
                             date: 'Только что',
                             amount: dailyIncome,
                             positive: true
@@ -2014,7 +1455,7 @@
         function showPage(pageId) {
             // Скрываем все экраны
             document.querySelectorAll('.page').forEach(page => {
-                if (page.id !== 'authPage' && page.id !== 'mainApp') {
+                if (page.id !== 'mainApp') {
                     page.classList.remove('active');
                 }
             });
@@ -2024,6 +1465,11 @@
             
             // Обновляем активное состояние в навбаре
             updateNavActiveState(pageId);
+            
+            // Обновляем историю транзакций если перешли на эту страницу
+            if (pageId === 'historyPage') {
+                updateTransactionsHistory('all');
+            }
         }
         
         function updateNavActiveState(pageId) {
@@ -2065,40 +1511,18 @@
             });
         }
 
-        function updateSecurity() {
-            const email = document.getElementById('email').value;
-            const username = document.getElementById('username').value;
-            const phone = document.getElementById('phone').value;
-            
-            appState.user.email = email;
-            appState.user.name = username;
-            appState.user.phone = phone;
-            
-            saveState();
-            updateUI();
-            alert('Настройки обновлены!');
+        function updatePassword() {
+            alert('Функция смены пароля будет реализована в следующем обновлении');
         }
 
-        // Обработчики для переключения языка
-        document.querySelectorAll('.lang-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.lang-option').forEach(opt => {
-                    opt.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // Анимации кнопок
-        document.querySelectorAll('.play-btn, .promo-card').forEach(el => {
-            el.addEventListener('click', () => {
-                el.animate([
-                    { transform: 'translateY(0)' },
-                    { transform: 'translateY(-8px)' },
-                    { transform: 'translateY(0)' }
-                ], { duration: 260 });
-            });
-        });
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('belkUserLoggedIn');
+                localStorage.removeItem('belkAccessToken');
+                localStorage.removeItem('belkUser');
+                window.location.href = 'index.html';
+            }
+        }
 
         // Инициализация приложения при загрузке
         window.onload = initApp;
