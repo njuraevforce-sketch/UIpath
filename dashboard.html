@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,10 +74,10 @@
 
         .logo {
             position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 210px;
-            height: 75px;
+            top: 5px;
+            left: 5px;
+            width: 254px;
+            height: 91px;
             display: flex;
             align-items: center;
             justify-content: flex-start;
@@ -181,8 +181,8 @@
         }
 
         .header-logo {
-            width: 120px;
-            height: 45px;
+            width: 132px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -733,13 +733,73 @@
             height: 100%;
             object-fit: contain;
         }
+        
+        .uni-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background: var(--light);
+        }
+        
+        .verification-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .verification-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .verification-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+        
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .status-icon.verified {
+            background: var(--success);
+        }
+        
+        .verification-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Главная страница -->
+        <!-- Main Page -->
         <div id="mainPage" class="page active">
-            <!-- Header с видео -->
+            <!-- Header with video -->
             <div class="uni-header">
                 <div class="logo">
                     <img src="assets/logo.png" alt="Uipath">
@@ -749,7 +809,7 @@
                     <div class="video-player">
                         <video id="promoVideo" controlsList="nodownload" onclick="this.paused ? this.play() : this.pause();">
                             <source src="assets/video.mp4" type="video/mp4">
-                            Ваш браузер не поддерживает видео.
+                            Your browser does not support video.
                         </video>
                         <div class="play-btn" onclick="toggleVideo()">
                             <i class="fas fa-play" style="color: #000; font-size: 20px; margin-left: 2px;"></i>
@@ -762,51 +822,51 @@
                 <div class="action-grid">
                     <div class="action-item" onclick="showPage('assetsPage')">
                         <div class="action-icon">
-                            <img src="assets/deposit.png" alt="Пополнение">
+                            <img src="assets/deposit.png" alt="Deposit">
                         </div>
-                        <div>Пополнение</div>
+                        <div>Deposit</div>
                     </div>
                     <div class="action-item" onclick="showPage('assetsPage')">
                         <div class="action-icon">
-                            <img src="assets/withdraw.png" alt="Вывод">
+                            <img src="assets/withdraw.png" alt="Withdraw">
                         </div>
-                        <div>Вывод</div>
+                        <div>Withdraw</div>
                     </div>
                     <div class="action-item" onclick="showPage('teamPage')">
                         <div class="action-icon">
-                            <img src="assets/team.png" alt="Команда">
+                            <img src="assets/team.png" alt="Team">
                         </div>
-                        <div>Команда</div>
+                        <div>Team</div>
                     </div>
                     <div class="action-item">
                         <div class="action-icon">
-                            <img src="assets/telegram.png" alt="Телеграм">
+                            <img src="assets/telegram.png" alt="Telegram">
                         </div>
-                        <div>Телеграм</div>
+                        <div>Telegram</div>
                     </div>
                     <div class="action-item">
                         <div class="action-icon">
-                            <img src="assets/task.png" alt="Центр задач">
+                            <img src="assets/task.png" alt="Task Center">
                         </div>
-                        <div>Центр задач</div>
+                        <div>Task Center</div>
                     </div>
                     <div class="action-item" onclick="showPage('historyPage')">
                         <div class="action-icon">
-                            <img src="assets/history.png" alt="История">
+                            <img src="assets/history.png" alt="History">
                         </div>
-                        <div>История</div>
+                        <div>History</div>
                     </div>
                     <div class="action-item">
                         <div class="action-icon">
-                            <img src="assets/download.png" alt="Скачать">
+                            <img src="assets/download.png" alt="Download">
                         </div>
-                        <div>Скачать</div>
+                        <div>Download</div>
                     </div>
                     <div class="action-item">
                         <div class="action-icon">
-                            <img src="assets/license.png" alt="Лицензия">
+                            <img src="assets/license.png" alt="License">
                         </div>
-                        <div>Лицензия</div>
+                        <div>License</div>
                     </div>
                 </div>
             </div>
@@ -814,7 +874,7 @@
             <div class="mission-section">
                 <div class="marquee-container">
                     <div class="marquee-content">
-                        <i class="fas fa-info-circle"></i> Uipath - инновационная платформа для пассивного дохода. VIP 1: 20 USDT | VIP 2: 100 USDT | VIP 3: 300 USDT | VIP 4: 1000 USDT | VIP 5: 3000 USDT | VIP 6: 5000 USDT. Присоединяйтесь к нашей реферальной программе и получайте доход с 3 поколений!
+                        <i class="fas fa-info-circle"></i> Uipath - innovative platform for passive income. VIP 1: 20 USDT | VIP 2: 100 USDT | VIP 3: 300 USDT | VIP 4: 1000 USDT | VIP 5: 3000 USDT | VIP 6: 5000 USDT. Join our referral program and earn income from 3 generations!
                     </div>
                 </div>
             </div>
@@ -828,48 +888,48 @@
 
             <div class="auto-monitoring">
                 <div class="monitoring-item">
-                    <img src="assets/quant-system.gif" alt="Система Quant 1">
+                    <img src="assets/quant-system.gif" alt="Quant System 1">
                 </div>
                 <div class="monitoring-item">
-                    <img src="assets/quant-system2.gif" alt="Система Quant 2">
+                    <img src="assets/quant-system2.gif" alt="Quant System 2">
                 </div>
                 <div class="monitoring-item">
-                    <img src="assets/quant-system3.gif" alt="Система Quant 3">
+                    <img src="assets/quant-system3.gif" alt="Quant System 3">
                 </div>
                 <div class="monitoring-item">
-                    <img src="assets/quant-system4.gif" alt="Система Quant 4">
+                    <img src="assets/quant-system4.gif" alt="Quant System 4">
                 </div>
             </div>
         </div>
 
-        <!-- Страница активов -->
+        <!-- Assets Page -->
         <div id="assetsPage" class="page">
             <div class="simple-header">
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">Активы</div>
-                <div style="width: 120px;"></div>
+                <div class="page-title">Assets</div>
+                <div style="width: 132px;"></div>
             </div>
 
             <div class="balance-card">
-                <div class="balance-label">Общий баланс</div>
-                <div class="balance-amount" id="total-balance">3,10 USDT</div>
+                <div class="balance-label">Total Balance</div>
+                <div class="balance-amount" id="total-balance">3.10 USDT</div>
                 <div class="balance-details">
                     <div class="balance-detail">
-                        <div class="balance-label">От рефералов</div>
+                        <div class="balance-label">From Referrals</div>
                         <div class="stats-value">0.00 USDT</div>
                     </div>
                     <div class="balance-detail">
-                        <div class="balance-label">От бонусов</div>
+                        <div class="balance-label">From Bonuses</div>
                         <div class="stats-value">3.10 USDT</div>
                     </div>
                     <div class="balance-detail">
-                        <div class="balance-label">От Quantification</div>
+                        <div class="balance-label">From Quantification</div>
                         <div class="stats-value">0.00 USDT</div>
                     </div>
                     <div class="balance-detail">
-                        <div class="balance-label">Доступно</div>
+                        <div class="balance-label">Available</div>
                         <div class="stats-value">3.10 USDT</div>
                     </div>
                 </div>
@@ -879,46 +939,46 @@
                 <div class="assets-buttons">
                     <div class="assets-button">
                         <div class="assets-button-icon">
-                            <img src="assets/deposit.png" alt="Пополнение">
+                            <img src="assets/deposit.png" alt="Deposit">
                         </div>
-                        <div>Пополнить</div>
+                        <div>Deposit</div>
                     </div>
                     <div class="assets-button">
                         <div class="assets-button-icon">
-                            <img src="assets/withdraw.png" alt="Вывод">
+                            <img src="assets/withdraw.png" alt="Withdraw">
                         </div>
-                        <div>Вывести</div>
+                        <div>Withdraw</div>
                     </div>
                 </div>
             </div>
 
             <div class="uni-card">
                 <div class="history-section">
-                    <div class="history-title">История транзакций</div>
+                    <div class="history-title">Transaction History</div>
                     <div class="transaction-tabs">
-                        <div class="transaction-tab active" onclick="showTransactionType('all')">Все</div>
-                        <div class="transaction-tab" onclick="showTransactionType('deposits')">Пополнения</div>
-                        <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Вывод</div>
-                        <div class="transaction-tab" onclick="showTransactionType('referrals')">Рефералы</div>
+                        <div class="transaction-tab active" onclick="showTransactionType('all')">All</div>
+                        <div class="transaction-tab" onclick="showTransactionType('deposits')">Deposits</div>
+                        <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Withdrawals</div>
+                        <div class="transaction-tab" onclick="showTransactionType('referrals')">Referrals</div>
                         <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
                     </div>
                     
                     <div id="transaction-history-assets">
                         <div style="text-align: center; color: var(--gray); padding: 20px 0;">
-                            Транзакции не найдены
+                            No transactions found
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Страница команды -->
+        <!-- Team Page -->
         <div id="teamPage" class="page">
             <div class="simple-header">
                 <div class="back-btn" onclick="showPage('mainPage')">
                     <i class="fas fa-arrow-left"></i>
                 </div>
-                <div class="page-title">Команда</div>
+                <div class="page-title">Team</div>
                 <div style="width: 40px;"></div>
             </div>
 
@@ -926,15 +986,15 @@
                 <div class="referral-stats">
                     <div class="referral-stat">
                         <div class="stats-value" id="gen1-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);">1-е поколение</div>
+                        <div class="stats-label" style="color: var(--dark);">1st Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen2-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);">2-е поколение</div>
+                        <div class="stats-label" style="color: var(--dark);">2nd Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen3-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);">3-е поколение</div>
+                        <div class="stats-label" style="color: var(--dark);">3rd Generation</div>
                     </div>
                 </div>
             </div>
@@ -943,15 +1003,15 @@
                 <div class="referral-stats">
                     <div class="referral-stat">
                         <div class="stats-value" id="gen1-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);">8% от 1-го поколения</div>
+                        <div class="stats-label" style="color: var(--dark);">8% from 1st Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen2-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);">3% от 2-го поколения</div>
+                        <div class="stats-label" style="color: var(--dark);">3% from 2nd Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen3-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);">1% от 3-го поколения</div>
+                        <div class="stats-label" style="color: var(--dark);">1% from 3rd Generation</div>
                     </div>
                 </div>
             </div>
@@ -959,20 +1019,20 @@
             <div class="uni-card">
                 <div class="referral-list" id="referral-list">
                     <div style="text-align: center; color: var(--gray); padding: 20px 0;">
-                        Рефералы будут отображаться здесь
+                        Referrals will appear here
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Страница VIP -->
+        <!-- VIP Page -->
         <div id="vipPage" class="page">
             <div class="simple-header">
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">VIP Пакеты</div>
-                <div style="width: 120px;"></div>
+                <div class="page-title">VIP Packages</div>
+                <div style="width: 132px;"></div>
             </div>
 
             <div class="uni-card">
@@ -987,8 +1047,8 @@
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <div>
-                        <div style="font-weight:600;">+2.5% доход</div>
-                        <div style="font-size:12px; color:var(--gray);">К заработку</div>
+                        <div style="font-weight:600;">+2.5% income</div>
+                        <div style="font-size:12px; color:var(--gray);">To earnings</div>
                     </div>
                 </div>
                 <div class="vip-benefit">
@@ -996,37 +1056,37 @@
                         <i class="fas fa-users"></i>
                     </div>
                     <div>
-                        <div style="font-weight:600;">+8% реф.</div>
-                        <div style="font-size:12px; color:var(--gray);">На команду</div>
+                        <div style="font-weight:600;">+8% referral</div>
+                        <div style="font-size:12px; color:var(--gray);">For team</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Страница заработка -->
+        <!-- Earn Page -->
         <div id="earnPage" class="page">
             <div class="simple-header">
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
                 <div class="page-title">Quantification</div>
-                <div style="width: 120px;"></div>
+                <div style="width: 132px;"></div>
             </div>
 
             <div class="uni-card">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 14px; opacity: 0.9;">Текущий статус</div>
+                    <div style="font-size: 14px; opacity: 0.9;">Current Status</div>
                     <div style="font-size: 24px; font-weight: 600; margin: 10px 0;">VIP 0</div>
-                    <div style="font-size: 14px; opacity: 0.9;">Для доступа к премиум функциям приобретите пакет</div>
+                    <div style="font-size: 14px; opacity: 0.9;">Purchase a package to access premium features</div>
                 </div>
             </div>
 
             <div class="income-display">
-                <div style="font-size:14px;">Доступно для забора</div>
+                <div style="font-size:14px;">Available for withdrawal</div>
                 <div style="font-size:32px; font-weight:600; margin: 10px 0;" id="available-income">0.00 USDT</div>
-                <div style="font-size:14px;" id="today-percent">+0.0% за сегодня</div>
+                <div style="font-size:14px;" id="today-percent">+0.0% today</div>
                 <button class="uni-button uni-button-success" id="claim-button" onclick="startTradingProcess()" style="margin-top: 15px; background: var(--accent);">
-                    <i class="fas fa-bolt"></i> ЗАБРАТЬ ДОХОД
+                    <i class="fas fa-bolt"></i> CLAIM INCOME
                 </button>
                 <div style="font-size:12px; margin-top: 10px;" id="claim-timer"></div>
             </div>
@@ -1037,65 +1097,65 @@
                         <div class="step-icon" id="step-1">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="step-label">Анализ</div>
+                        <div class="step-label">Analysis</div>
                     </div>
                     <div class="process-step">
                         <div class="step-icon" id="step-2">
                             <i class="fas fa-cog"></i>
                         </div>
-                        <div class="step-label">Обработка</div>
+                        <div class="step-label">Processing</div>
                     </div>
                     <div class="process-step">
                         <div class="step-icon" id="step-3">
                             <i class="fas fa-check"></i>
                         </div>
-                        <div class="step-label">Завершение</div>
+                        <div class="step-label">Completion</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Страница истории -->
+        <!-- History Page -->
         <div id="historyPage" class="page">
             <div class="simple-header">
                 <div class="back-btn" onclick="showPage('mainPage')">
                     <i class="fas fa-arrow-left"></i>
                 </div>
-                <div class="page-title">История</div>
+                <div class="page-title">History</div>
                 <div style="width: 40px;"></div>
             </div>
 
             <div class="uni-card">
                 <div class="transaction-tabs">
-                    <div class="transaction-tab active" onclick="showTransactionType('all')">Все</div>
-                    <div class="transaction-tab" onclick="showTransactionType('deposits')">Пополнения</div>
-                    <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Вывод</div>
-                    <div class="transaction-tab" onclick="showTransactionType('referrals')">Рефералы</div>
+                    <div class="transaction-tab active" onclick="showTransactionType('all')">All</div>
+                    <div class="transaction-tab" onclick="showTransactionType('deposits')">Deposits</div>
+                    <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Withdrawals</div>
+                    <div class="transaction-tab" onclick="showTransactionType('referrals')">Referrals</div>
                     <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
                 </div>
                 
                 <div id="transaction-history">
                     <div style="text-align: center; color: var(--gray); padding: 20px 0;">
-                        Транзакции не найдены
+                        No transactions found
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Страница профиля -->
+        <!-- Profile Page -->
         <div id="profilePage" class="page">
             <div class="simple-header">
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">Профиль</div>
-                <div style="width: 120px;"></div>
+                <div class="page-title">Profile</div>
+                <div style="width: 132px;"></div>
             </div>
 
             <div class="uni-card">
                 <div style="text-align: center;">
                     <div class="user-avatar" style="width: 60px; height: 60px; font-size: 24px; margin: 0 auto 10px;">U</div>
-                    <div style="font-weight:600; font-size:18px;" id="profile-name">Пользователь</div>
+                    <div style="font-weight:600; font-size:18px;" id="profile-name">User</div>
                     <div style="background: var(--light); padding: 6px 12px; border-radius: 15px; font-size: 12px; color: var(--gray); display: inline-flex; align-items: center; gap: 6px; margin-top: 5px;">
                         ID: <span id="profile-id">BLK2839475</span>
                         <i class="fas fa-copy" style="cursor: pointer;" onclick="copyToClipboard('profile-id')"></i>
@@ -1109,35 +1169,61 @@
                     </div>
                     
                     <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Сменить пароль</label>
-                        <input type="password" class="uni-input" placeholder="Текущий пароль">
-                        <input type="password" class="uni-input" placeholder="Новый пароль">
-                        <input type="password" class="uni-input" placeholder="Подтвердите пароль">
-                        <button class="uni-button" onclick="updatePassword()" style="margin-top: 10px;">Обновить пароль</button>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Change Password</label>
+                        <input type="password" class="uni-input" placeholder="Current Password">
+                        <input type="password" class="uni-input" placeholder="New Password">
+                        <input type="password" class="uni-input" placeholder="Confirm Password">
+                        <button class="uni-button" onclick="updatePassword()" style="margin-top: 10px;">Update Password</button>
+                    </div>
+                </div>
+                
+                <div class="verification-section">
+                    <div class="verification-title">Identity Verification</div>
+                    
+                    <div class="verification-status">
+                        <div class="status-icon" id="phone-status">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight:600;">Phone Number</div>
+                            <div style="font-size:12px; color:var(--gray);" id="phone-text">Not verified</div>
+                        </div>
+                        <button class="verification-button" onclick="verifyPhone()" id="phone-button">Verify</button>
+                    </div>
+                    
+                    <div class="verification-status">
+                        <div class="status-icon" id="id-status">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight:600;">ID/Passport</div>
+                            <div style="font-size:12px; color:var(--gray);" id="id-text">Not verified</div>
+                        </div>
+                        <button class="verification-button" onclick="verifyID()" id="id-button">Verify</button>
                     </div>
                 </div>
                 
                 <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </div>
 
-        <!-- Реферальный экран -->
+        <!-- Referral Page -->
         <div id="referralPage" class="page">
             <div class="simple-header">
                 <div class="back-btn" onclick="showPage('mainPage')">
                     <i class="fas fa-arrow-left"></i>
                 </div>
-                <div class="page-title">Пригласить друзей</div>
+                <div class="page-title">Invite Friends</div>
                 <div style="width: 40px;"></div>
             </div>
 
             <div class="referral-screen">
                 <div class="uni-card">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;">Пригласите друзей</div>
-                        <div style="color: var(--gray);">Приглашайте друзей и получайте доход с 3 поколений рефералов</div>
+                        <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;">Invite Friends</div>
+                        <div style="color: var(--gray);">Invite friends and earn income from 3 referral generations</div>
                     </div>
                     
                     <div class="referral-link-container">
@@ -1145,35 +1231,35 @@
                             https://uipath.app/ref/BLK2839475
                         </div>
                         <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
-                            Копировать
+                            Copy
                         </button>
                     </div>
                     
                     <div style="margin-top: 30px;">
-                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); text-align: center;">Ваши бонусы</div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); text-align: center;">Your Bonuses</div>
                         <div class="referral-stats">
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">8%</div>
-                                <div class="stats-label" style="color: var(--dark);">1-е поколение</div>
+                                <div class="stats-label" style="color: var(--dark);">1st Generation</div>
                             </div>
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">3%</div>
-                                <div class="stats-label" style="color: var(--dark);">2-е поколение</div>
+                                <div class="stats-label" style="color: var(--dark);">2nd Generation</div>
                             </div>
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">1%</div>
-                                <div class="stats-label" style="color: var(--dark);">3-е поколение</div>
+                                <div class="stats-label" style="color: var(--dark);">3rd Generation</div>
                             </div>
                         </div>
                     </div>
 
                     <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
-                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">Как это работает:</div>
+                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">How it works:</div>
                         <div style="font-size: 14px; color: var(--gray); text-align: left;">
-                            • 8% от депозитов 1-го поколения<br>
-                            • 3% от депозитов 2-го поколения<br>
-                            • 1% от депозитов 3-го поколения<br>
-                            • Доход начисляется моментально
+                            • 8% from 1st generation deposits<br>
+                            • 3% from 2nd generation deposits<br>
+                            • 1% from 3rd generation deposits<br>
+                            • Income credited instantly
                         </div>
                     </div>
                 </div>
@@ -1184,9 +1270,9 @@
         <div class="uni-tabbar">
             <div class="uni-tabbar-item active" onclick="showPage('mainPage')">
                 <div class="uni-tabbar-icon">
-                    <img src="assets/home.png" alt="Главная">
+                    <img src="assets/home.png" alt="Home">
                 </div>
-                <div>Главная</div>
+                <div>Home</div>
             </div>
             <div class="uni-tabbar-item" onclick="showPage('vipPage')">
                 <div class="uni-tabbar-icon">
@@ -1202,21 +1288,21 @@
             </div>
             <div class="uni-tabbar-item" onclick="showPage('assetsPage')">
                 <div class="uni-tabbar-icon">
-                    <img src="assets/asset.png" alt="Активы">
+                    <img src="assets/asset.png" alt="Assets">
                 </div>
-                <div>Активы</div>
+                <div>Assets</div>
             </div>
             <div class="uni-tabbar-item" onclick="showPage('profilePage')">
                 <div class="uni-tabbar-icon">
-                    <img src="assets/Profile.png" alt="Профиль">
+                    <img src="assets/Profile.png" alt="Profile">
                 </div>
-                <div>Профиль</div>
+                <div>Profile</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Данные VIP пакетов
+        // VIP packages data
         const vipPackages = [
             { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false },
             { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, active: false },
@@ -1226,18 +1312,20 @@
             { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, active: false }
         ];
 
-        // Состояние приложения
+        // App state
         let appState = {
             user: {
                 id: 'BLK2839475',
-                name: 'Пользователь',
+                name: 'User',
                 email: 'user@example.com',
                 balance: 3.10,
                 level: 1,
                 vipLevel: 0,
                 purchasedVIPs: [],
                 lastClaimDate: null,
-                referralCode: 'BLK2839475'
+                referralCode: 'BLK2839475',
+                phoneVerified: false,
+                idVerified: false
             },
             referrals: {
                 gen1: [],
@@ -1245,12 +1333,12 @@
                 gen3: []
             },
             transactions: [
-                { id: 1, type: 'bonus', title: 'Начальный бонус', date: 'Сегодня, 14:30', amount: 3.10, positive: true }
+                { id: 1, type: 'bonus', title: 'Welcome Bonus', date: 'Today, 14:30', amount: 3.10, positive: true }
             ],
             totalIncome: 0
         };
 
-        // Загрузка состояния из localStorage
+        // Load state from localStorage
         function loadState() {
             const savedState = localStorage.getItem('uipathAppState');
             const userData = localStorage.getItem('uipathUserData');
@@ -1270,10 +1358,16 @@
                 if (parsedState.user && parsedState.user.purchasedVIPs) {
                     appState.user.purchasedVIPs = parsedState.user.purchasedVIPs;
                 }
+                if (parsedState.user && parsedState.user.phoneVerified !== undefined) {
+                    appState.user.phoneVerified = parsedState.user.phoneVerified;
+                }
+                if (parsedState.user && parsedState.user.idVerified !== undefined) {
+                    appState.user.idVerified = parsedState.user.idVerified;
+                }
             }
         }
 
-        // Сохранение состояния в localStorage
+        // Save state to localStorage
         function saveState() {
             localStorage.setItem('uipathAppState', JSON.stringify({
                 referrals: appState.referrals,
@@ -1281,14 +1375,16 @@
                 totalIncome: appState.totalIncome,
                 user: {
                     lastClaimDate: appState.user.lastClaimDate,
-                    purchasedVIPs: appState.user.purchasedVIPs
+                    purchasedVIPs: appState.user.purchasedVIPs,
+                    phoneVerified: appState.user.phoneVerified,
+                    idVerified: appState.user.idVerified
                 }
             }));
             
             localStorage.setItem('uipathUserData', JSON.stringify(appState.user));
         }
 
-        // Инициализация приложения
+        // Initialize app
         function initApp() {
             loadState();
             renderVIPPackages();
@@ -1296,9 +1392,10 @@
             updateClaimButton();
             startTimer();
             startCarousel();
+            updateVerificationStatus();
         }
 
-        // Карусель на главной
+        // Carousel on main page
         function startCarousel() {
             let currentSlide = 0;
             const slides = document.querySelectorAll('.carousel-slide');
@@ -1310,7 +1407,7 @@
             }, 5000);
         }
 
-        // Управление видео
+        // Video control
         function toggleVideo() {
             const video = document.getElementById('promoVideo');
             const playBtn = document.querySelector('.play-btn');
@@ -1324,23 +1421,23 @@
             }
         }
 
-        // Показать реферальный экран
+        // Show referral screen
         function showReferralScreen() {
             showPage('referralPage');
         }
 
-        // Показать тип транзакций
+        // Show transaction type
         function showTransactionType(type) {
             const tabs = document.querySelectorAll('.transaction-tab');
             tabs.forEach(tab => tab.classList.remove('active'));
             
             event.target.classList.add('active');
             
-            // Фильтрация транзакций по типу
+            // Filter transactions by type
             updateTransactionsHistory(type);
         }
 
-        // Обновление истории транзакций
+        // Update transaction history
         function updateTransactionsHistory(type = 'all') {
             const transactionHistory = document.getElementById('transaction-history');
             const transactionHistoryAssets = document.getElementById('transaction-history-assets');
@@ -1365,7 +1462,7 @@
             }
             
             if (filteredTransactions.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Транзакции не найдены</div>';
+                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No transactions found</div>';
                 return;
             }
             
@@ -1425,7 +1522,7 @@
             });
         }
 
-        // Рендер VIP пакетов
+        // Render VIP packages
         function renderVIPPackages() {
             const packagesList = document.getElementById('vip-packages-list');
             packagesList.innerHTML = '';
@@ -1443,10 +1540,10 @@
                     <div>
                         <div style="font-weight:600; font-size:16px;">VIP ${pkg.level}</div>
                         <div style="font-size:14px;">${formatCurrency(pkg.price)} USDT</div>
-                        <div style="font-size:12px; opacity:0.9;">+${formatCurrency(pkg.dailyIncome)} USDT/день</div>
+                        <div style="font-size:12px; opacity:0.9;">+${formatCurrency(pkg.dailyIncome)} USDT/day</div>
                     </div>
                     <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: ${isPurchased ? 'white' : 'white'}; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
-                        ${isPurchased ? 'АКТИВЕН' : 'КУПИТЬ'}
+                        ${isPurchased ? 'ACTIVE' : 'BUY'}
                     </div>
                 `;
                 
@@ -1454,82 +1551,82 @@
             });
         }
 
-        // Покупка VIP пакета
+        // Purchase VIP package
         function purchaseVIPPackage(pkg) {
             if (appState.user.purchasedVIPs.includes(pkg.id)) return;
             
             if (appState.user.balance < pkg.price) {
-                alert('Недостаточно средств для покупки этого пакета');
+                alert('Insufficient funds to purchase this package');
                 return;
             }
             
-            if (confirm(`Вы уверены, что хотите купить VIP ${pkg.level} за ${formatCurrency(pkg.price)} USDT?`)) {
-                // Списание средств
+            if (confirm(`Are you sure you want to buy VIP ${pkg.level} for ${formatCurrency(pkg.price)} USDT?`)) {
+                // Deduct funds
                 appState.user.balance -= pkg.price;
                 appState.user.purchasedVIPs.push(pkg.id);
                 appState.user.vipLevel = Math.max(appState.user.vipLevel, pkg.level);
                 
-                // Добавляем транзакцию
+                // Add transaction
                 appState.transactions.unshift({
                     id: appState.transactions.length + 1,
                     type: 'vip_purchase',
-                    title: `Покупка VIP ${pkg.level}`,
-                    date: 'Только что',
+                    title: `VIP ${pkg.level} Purchase`,
+                    date: 'Just now',
                     amount: pkg.price,
                     positive: false
                 });
                 
-                // Сохранение состояния
+                // Save state
                 saveState();
                 
-                // Обновление UI
+                // Update UI
                 updateUI();
                 renderVIPPackages();
                 
-                alert(`VIP ${pkg.level} успешно приобретен!`);
+                alert(`VIP ${pkg.level} successfully purchased!`);
             }
         }
 
-        // Форматирование валюты
+        // Format currency
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('ru-RU', {
+            return new Intl.NumberFormat('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }).format(amount);
         }
 
-        // Обновление UI
+        // Update UI
         function updateUI() {
-            // Обновление баланса
+            // Update balance
             document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
             
-            // Обновление имени пользователя
+            // Update user name
             document.getElementById('profile-name').textContent = appState.user.name;
             
-            // Обновление ID пользователя
+            // Update user ID
             document.getElementById('profile-id').textContent = appState.user.id;
             
-            // Обновление реферальной ссылки
+            // Update referral link
             document.getElementById('referral-link').textContent = `https://uipath.app/ref/${appState.user.referralCode}`;
             
-            // Обновление экрана команды
+            // Update team screen
             updateTeamScreen();
             
-            // Обновление экрана заработка
+            // Update earn screen
             updateEarnScreen();
             
-            // Обновление истории транзакций
+            // Update transaction history
             updateTransactionsHistory('all');
         }
 
-        // Обновление экрана команды
+        // Update team screen
         function updateTeamScreen() {
-            // Обновление статистики рефералов
+            // Update referral stats
             document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
             document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
             document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
             
-            // Расчет доходов от рефералов
+            // Calculate referral income
             const gen1Income = appState.referrals.gen1.reduce((sum, ref) => sum + (ref.income || 0), 0);
             const gen2Income = appState.referrals.gen2.reduce((sum, ref) => sum + (ref.income || 0), 0);
             const gen3Income = appState.referrals.gen3.reduce((sum, ref) => sum + (ref.income || 0), 0);
@@ -1538,16 +1635,16 @@
             document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
             document.getElementById('gen3-income').textContent = `${formatCurrency(gen3Income)} USDT`;
             
-            // Обновление списка рефералов
+            // Update referral list
             const referralList = document.getElementById('referral-list');
             referralList.innerHTML = '';
             
             if (appState.referrals.gen1.length === 0) {
-                referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Рефералы будут отображаться здесь</div>';
+                referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Referrals will appear here</div>';
                 return;
             }
             
-            // Показываем рефералов 1-го поколения
+            // Show 1st generation referrals
             appState.referrals.gen1.forEach(ref => {
                 const referralItem = document.createElement('div');
                 referralItem.className = 'referral-item';
@@ -1556,7 +1653,7 @@
                         <div class="referral-avatar">${ref.name.charAt(0)}</div>
                         <div>
                             <div class="name" style="font-weight:600;">${ref.name}</div>
-                            <div class="date" style="font-size:11px; color:var(--gray);">Присоединился: ${ref.date}</div>
+                            <div class="date" style="font-size:11px; color:var(--gray);">Joined: ${ref.date}</div>
                         </div>
                     </div>
                     <div class="referral-income" style="font-weight:600; color:var(--success);">+${formatCurrency(ref.income)} USDT</div>
@@ -1565,9 +1662,9 @@
             });
         }
 
-        // Обновление экрана заработка
+        // Update earn screen
         function updateEarnScreen() {
-            // Расчет доступного дохода
+            // Calculate available income
             let availableIncome = 0;
             appState.user.purchasedVIPs.forEach(vipId => {
                 const pkg = vipPackages.find(p => p.id === vipId);
@@ -1578,20 +1675,93 @@
             
             document.getElementById('available-income').textContent = `${formatCurrency(availableIncome)} USDT`;
             
-            // Расчет процента дохода
+            // Calculate income percentage
             let percentage = 0;
             if (appState.user.balance > 0) {
                 percentage = (availableIncome / appState.user.balance) * 100;
             }
-            document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% за сегодня`;
+            document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
         }
 
-        // Обновление кнопки забора дохода
+        // Update verification status
+        function updateVerificationStatus() {
+            const phoneStatus = document.getElementById('phone-status');
+            const phoneText = document.getElementById('phone-text');
+            const phoneButton = document.getElementById('phone-button');
+            
+            const idStatus = document.getElementById('id-status');
+            const idText = document.getElementById('id-text');
+            const idButton = document.getElementById('id-button');
+            
+            // Phone verification
+            if (appState.user.phoneVerified) {
+                phoneStatus.className = 'status-icon verified';
+                phoneStatus.innerHTML = '<i class="fas fa-check"></i>';
+                phoneText.textContent = 'Verified';
+                phoneButton.textContent = 'Verified';
+                phoneButton.disabled = true;
+                phoneButton.style.background = '#c7c7cc';
+            } else {
+                phoneStatus.className = 'status-icon';
+                phoneStatus.innerHTML = '<i class="fas fa-times"></i>';
+                phoneText.textContent = 'Not verified';
+                phoneButton.textContent = 'Verify';
+                phoneButton.disabled = false;
+                phoneButton.style.background = '';
+            }
+            
+            // ID verification
+            if (appState.user.idVerified) {
+                idStatus.className = 'status-icon verified';
+                idStatus.innerHTML = '<i class="fas fa-check"></i>';
+                idText.textContent = 'Verified';
+                idButton.textContent = 'Verified';
+                idButton.disabled = true;
+                idButton.style.background = '#c7c7cc';
+            } else {
+                idStatus.className = 'status-icon';
+                idStatus.innerHTML = '<i class="fas fa-times"></i>';
+                idText.textContent = 'Not verified';
+                idButton.textContent = 'Verify';
+                idButton.disabled = false;
+                idButton.style.background = '';
+            }
+        }
+
+        // Verify phone
+        function verifyPhone() {
+            const phoneNumber = prompt('Please enter your phone number for verification:');
+            if (phoneNumber) {
+                // Simulate verification process
+                setTimeout(() => {
+                    appState.user.phoneVerified = true;
+                    saveState();
+                    updateVerificationStatus();
+                    alert('Phone number verified successfully!');
+                }, 1500);
+            }
+        }
+
+        // Verify ID
+        function verifyID() {
+            const idNumber = prompt('Please enter your ID or Passport number:');
+            if (idNumber) {
+                // Simulate verification process
+                setTimeout(() => {
+                    appState.user.idVerified = true;
+                    saveState();
+                    updateVerificationStatus();
+                    alert('ID/Passport verified successfully!');
+                }, 1500);
+            }
+        }
+
+        // Update claim button
         function updateClaimButton() {
             const claimButton = document.getElementById('claim-button');
             const claimTimer = document.getElementById('claim-timer');
             
-            // Расчет доступного дохода
+            // Calculate available income
             let availableIncome = 0;
             appState.user.purchasedVIPs.forEach(vipId => {
                 const pkg = vipPackages.find(p => p.id === vipId);
@@ -1602,46 +1772,46 @@
             
             if (availableIncome === 0) {
                 claimButton.disabled = true;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> НЕТ ДОСТУПНОГО ДОХОДА';
-                claimTimer.textContent = 'Купите VIP пакет для получения дохода';
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> NO AVAILABLE INCOME';
+                claimTimer.textContent = 'Buy a VIP package to earn income';
                 return;
             }
             
-            // Проверка времени (22:00 UTC логика)
+            // Check time (22:00 UTC logic)
             const now = new Date();
             const utcHours = now.getUTCHours();
             const canClaim = utcHours >= 22;
             
             if (canClaim) {
                 claimButton.disabled = false;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ЗАБРАТЬ ДОХОД';
-                claimTimer.textContent = 'Доступно для забора';
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
+                claimTimer.textContent = 'Available for claim';
             } else {
                 claimButton.disabled = true;
                 const hoursLeft = 21 - utcHours;
                 const minutesLeft = 60 - now.getUTCMinutes();
-                claimTimer.textContent = `Доступно в 22:00 UTC (через ${hoursLeft}ч ${minutesLeft}м)`;
+                claimTimer.textContent = `Available at 22:00 UTC (in ${hoursLeft}h ${minutesLeft}m)`;
             }
         }
 
-        // Таймер для обновления кнопки забора дохода
+        // Timer for claim button update
         function startTimer() {
             setInterval(updateClaimButton, 60000);
         }
 
-        // Процесс получения дохода
+        // Income claim process
         function startTradingProcess() {
             const claimBtn = document.getElementById('claim-button');
             const steps = [1, 2, 3];
             
             if (claimBtn.disabled) return;
             
-            // Начинаем процесс
+            // Start process
             claimBtn.disabled = true;
             claimBtn.classList.add('processing');
-            claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> АНАЛИЗ РЫНКА...';
+            claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
             
-            // Расчет дохода
+            // Calculate income
             let dailyIncome = 0;
             appState.user.purchasedVIPs.forEach(vipId => {
                 const pkg = vipPackages.find(p => p.id === vipId);
@@ -1650,22 +1820,22 @@
                 }
             });
             
-            // Анимация процесса
+            // Process animation
             steps.forEach((step, index) => {
                 setTimeout(() => {
                     const stepIcon = document.getElementById(`step-${step}`);
                     stepIcon.classList.add('active');
                     
                     if (step === 1) {
-                        claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> ОБРАБОТКА ДАННЫХ...';
+                        claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
                     } else if (step === 2) {
-                        claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ВЫПОЛНЕНИЕ СДЕЛОК...';
+                        claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
                     } else if (step === 3) {
-                        claimBtn.innerHTML = '<i class="fas fa-check"></i> ДОХОД ЗАБРАН!';
+                        claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
                         claimBtn.classList.remove('processing');
                         claimBtn.classList.add('completed');
                         
-                        // Обновление баланса и транзакций
+                        // Update balance and transactions
                         appState.user.balance += dailyIncome;
                         appState.totalIncome += dailyIncome;
                         appState.user.lastClaimDate = new Date();
@@ -1673,19 +1843,19 @@
                         appState.transactions.unshift({
                             id: appState.transactions.length + 1,
                             type: 'daily_income',
-                            title: 'Ежедневный доход от Quantification',
-                            date: 'Только что',
+                            title: 'Daily Quantification Income',
+                            date: 'Just now',
                             amount: dailyIncome,
                             positive: true
                         });
                         
-                        // Сохранение состояния
+                        // Save state
                         saveState();
                         
-                        // Обновление UI
+                        // Update UI
                         updateUI();
                         
-                        // Сброс через 3 секунды
+                        // Reset after 3 seconds
                         setTimeout(() => {
                             resetTradingProcess();
                         }, 3000);
@@ -1699,7 +1869,7 @@
             const steps = [1, 2, 3];
             
             claimBtn.classList.remove('processing', 'completed');
-            claimBtn.innerHTML = '<i class="fas fa-bolt"></i> ЗАБРАТЬ ДОХОД';
+            claimBtn.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
             
             steps.forEach(step => {
                 const stepIcon = document.getElementById(`step-${step}`);
@@ -1709,20 +1879,20 @@
             updateClaimButton();
         }
 
-        // Функция переключения экранов
+        // Page switching function
         function showPage(pageId) {
-            // Скрываем все экраны
+            // Hide all pages
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
             
-            // Показываем нужный экран
+            // Show target page
             document.getElementById(pageId).classList.add('active');
             
-            // Обновляем активное состояние в навбаре
+            // Update nav active state
             updateNavActiveState(pageId);
             
-            // Обновляем историю транзакций если перешли на эту страницу
+            // Update transaction history if navigating to these pages
             if (pageId === 'historyPage' || pageId === 'assetsPage') {
                 updateTransactionsHistory('all');
             }
@@ -1747,20 +1917,20 @@
             }
         }
 
-        // Копирование в буфер обмена
+        // Copy to clipboard
         function copyToClipboard(elementId) {
             const element = document.getElementById(elementId);
             let text = element.textContent || element.innerText;
             
-            // Если это ID, убираем префикс "ID: "
+            // If it's ID, remove "ID: " prefix
             if (elementId === 'profile-id') {
                 text = appState.user.id;
             }
             
             navigator.clipboard.writeText(text).then(() => {
-                // Показываем уведомление об успешном копировании
+                // Show success notification
                 const originalText = element.textContent;
-                element.textContent = 'Скопировано!';
+                element.textContent = 'Copied!';
                 setTimeout(() => {
                     element.textContent = originalText;
                 }, 2000);
@@ -1768,11 +1938,11 @@
         }
 
         function updatePassword() {
-            alert('Функция смены пароля будет реализована в следующем обновлении');
+            alert('Password change feature will be implemented in the next update');
         }
 
         function logout() {
-            if (confirm('Вы уверены, что хотите выйти?')) {
+            if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('uipathUserLoggedIn');
                 localStorage.removeItem('uipathAccessToken');
                 localStorage.removeItem('uipathUser');
@@ -1780,7 +1950,7 @@
             }
         }
 
-        // Инициализация приложения при загрузке
+        // Initialize app on load
         window.onload = initApp;
     </script>
 </body>
