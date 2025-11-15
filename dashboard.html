@@ -133,6 +133,37 @@
             z-index: 5;
         }
 
+        /* Simple header for other pages */
+        .simple-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            height: 80px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            flex: 1;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
         /* Main page styles */
         .mission-section {
             padding: 15px;
@@ -166,7 +197,7 @@
             height: 180px;
             overflow: hidden;
             border-radius: 10px;
-            margin: 15px 0;
+            margin: 15px;
         }
 
         .carousel-slide {
@@ -675,9 +706,9 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Основное приложение -->
-        <div id="mainApp" class="page active">
-            <!-- Header -->
+        <!-- Главная страница -->
+        <div id="mainPage" class="page active">
+            <!-- Header с видео -->
             <div class="uni-header">
                 <div class="logo">
                     <img src="assets/logo.png" alt="Belk">
@@ -695,275 +726,143 @@
                 </div>
             </div>
 
-            <!-- Главная страница -->
-            <div id="mainPage" class="page active">
-                <div class="uni-card">
-                    <div class="action-grid">
-                        <div class="action-item" onclick="showPage('assetsPage')">
-                            <div class="action-icon">
-                                <img src="assets/deposit.png" alt="Пополнение">
-                            </div>
-                            <div>Пополнение</div>
+            <div class="uni-card">
+                <div class="action-grid">
+                    <div class="action-item" onclick="showPage('assetsPage')">
+                        <div class="action-icon">
+                            <img src="assets/deposit.png" alt="Пополнение">
                         </div>
-                        <div class="action-item" onclick="showPage('assetsPage')">
-                            <div class="action-icon">
-                                <img src="assets/withdraw.png" alt="Вывод">
-                            </div>
-                            <div>Вывод</div>
-                        </div>
-                        <div class="action-item" onclick="showPage('teamPage')">
-                            <div class="action-icon">
-                                <img src="assets/team.png" alt="Команда">
-                            </div>
-                            <div>Команда</div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-icon">
-                                <img src="assets/telegram.png" alt="Телеграм">
-                            </div>
-                            <div>Телеграм</div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-icon">
-                                <img src="assets/task.png" alt="Центр задач">
-                            </div>
-                            <div>Центр задач</div>
-                        </div>
-                        <div class="action-item" onclick="showPage('historyPage')">
-                            <div class="action-icon">
-                                <img src="assets/history.png" alt="История">
-                            </div>
-                            <div>История</div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-icon">
-                                <img src="assets/download.png" alt="Скачать">
-                            </div>
-                            <div>Скачать</div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-icon">
-                                <img src="assets/license.png" alt="Лицензия">
-                            </div>
-                            <div>Лицензия</div>
-                        </div>
+                        <div>Пополнение</div>
                     </div>
-                </div>
-
-                <div class="mission-section">
-                    <div class="marquee-container">
-                        <div class="marquee-content">
-                            <i class="fas fa-info-circle"></i> Belk - инновационная платформа для пассивного дохода. VIP 1: 20 USDT | VIP 2: 100 USDT | VIP 3: 300 USDT | VIP 4: 1000 USDT | VIP 5: 3000 USDT | VIP 6: 5000 USDT. Присоединяйтесь к нашей реферальной программе и получайте доход с 3 поколений!
+                    <div class="action-item" onclick="showPage('assetsPage')">
+                        <div class="action-icon">
+                            <img src="assets/withdraw.png" alt="Вывод">
                         </div>
+                        <div>Вывод</div>
                     </div>
-                </div>
-
-                <div class="carousel">
-                    <div class="carousel-slide active" style="background-image: url('assets/our.png');"></div>
-                    <div class="carousel-slide" style="background-image: url('assets/our1.png');"></div>
-                    <div class="carousel-slide" style="background-image: url('assets/our2.png');"></div>
-                    <div class="carousel-slide" style="background-image: url('assets/our3.png');"></div>
-                </div>
-
-                <div class="auto-monitoring">
-                    <div class="monitoring-item">
-                        <img src="assets/quant-system.gif" alt="Система Quant 1">
+                    <div class="action-item" onclick="showPage('teamPage')">
+                        <div class="action-icon">
+                            <img src="assets/team.png" alt="Команда">
+                        </div>
+                        <div>Команда</div>
                     </div>
-                    <div class="monitoring-item">
-                        <img src="assets/quant-system2.gif" alt="Система Quant 2">
+                    <div class="action-item">
+                        <div class="action-icon">
+                            <img src="assets/telegram.png" alt="Телеграм">
+                        </div>
+                        <div>Телеграм</div>
                     </div>
-                    <div class="monitoring-item">
-                        <img src="assets/quant-system3.gif" alt="Система Quant 3">
+                    <div class="action-item">
+                        <div class="action-icon">
+                            <img src="assets/task.png" alt="Центр задач">
+                        </div>
+                        <div>Центр задач</div>
                     </div>
-                    <div class="monitoring-item">
-                        <img src="assets/quant-system4.gif" alt="Система Quant 4">
+                    <div class="action-item" onclick="showPage('historyPage')">
+                        <div class="action-icon">
+                            <img src="assets/history.png" alt="История">
+                        </div>
+                        <div>История</div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-icon">
+                            <img src="assets/download.png" alt="Скачать">
+                        </div>
+                        <div>Скачать</div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-icon">
+                            <img src="assets/license.png" alt="Лицензия">
+                        </div>
+                        <div>Лицензия</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Страница активов -->
-            <div id="assetsPage" class="page">
-                <div class="balance-card">
-                    <div class="balance-label">Общий баланс</div>
-                    <div class="balance-amount" id="total-balance">3,10 USDT</div>
-                    <div class="balance-details">
-                        <div class="balance-detail">
-                            <div class="balance-label">От рефералов</div>
-                            <div class="stats-value">0.00 USDT</div>
-                        </div>
-                        <div class="balance-detail">
-                            <div class="balance-label">От бонусов</div>
-                            <div class="stats-value">3.10 USDT</div>
-                        </div>
-                        <div class="balance-detail">
-                            <div class="balance-label">От Quantification</div>
-                            <div class="stats-value">0.00 USDT</div>
-                        </div>
-                        <div class="balance-detail">
-                            <div class="balance-label">Доступно</div>
-                            <div class="stats-value">3.10 USDT</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="uni-card">
-                    <div class="assets-buttons">
-                        <div class="assets-button">
-                            <div class="assets-button-icon">
-                                <img src="assets/deposit.png" alt="Пополнение">
-                            </div>
-                            <div>Пополнить</div>
-                        </div>
-                        <div class="assets-button">
-                            <div class="assets-button-icon">
-                                <img src="assets/withdraw.png" alt="Вывод">
-                            </div>
-                            <div>Вывести</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ИСТОРИЯ ТРАНЗАКЦИЙ В АКТИВАХ -->
-                <div class="uni-card">
-                    <div class="history-section">
-                        <div class="history-title">История транзакций</div>
-                        <div class="transaction-tabs">
-                            <div class="transaction-tab active" onclick="showTransactionType('all')">Все</div>
-                            <div class="transaction-tab" onclick="showTransactionType('deposits')">Пополнения</div>
-                            <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Вывод</div>
-                            <div class="transaction-tab" onclick="showTransactionType('referrals')">Рефералы</div>
-                            <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
-                        </div>
-                        
-                        <div id="transaction-history-assets">
-                            <!-- Transactions will be populated by JavaScript -->
-                        </div>
+            <div class="mission-section">
+                <div class="marquee-container">
+                    <div class="marquee-content">
+                        <i class="fas fa-info-circle"></i> Belk - инновационная платформа для пассивного дохода. VIP 1: 20 USDT | VIP 2: 100 USDT | VIP 3: 300 USDT | VIP 4: 1000 USDT | VIP 5: 3000 USDT | VIP 6: 5000 USDT. Присоединяйтесь к нашей реферальной программе и получайте доход с 3 поколений!
                     </div>
                 </div>
             </div>
 
-            <!-- Страница команды -->
-            <div id="teamPage" class="page">
-                <div class="uni-card">
-                    <div class="referral-stats">
-                        <div class="referral-stat">
-                            <div class="stats-value" id="gen1-count">0</div>
-                            <div class="stats-label" style="color: var(--dark);">1-е поколение</div>
-                        </div>
-                        <div class="referral-stat">
-                            <div class="stats-value" id="gen2-count">0</div>
-                            <div class="stats-label" style="color: var(--dark);">2-е поколение</div>
-                        </div>
-                        <div class="referral-stat">
-                            <div class="stats-value" id="gen3-count">0</div>
-                            <div class="stats-label" style="color: var(--dark);">3-е поколение</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="carousel">
+                <div class="carousel-slide active" style="background-image: url('assets/our.png');"></div>
+                <div class="carousel-slide" style="background-image: url('assets/our1.png');"></div>
+                <div class="carousel-slide" style="background-image: url('assets/our2.png');"></div>
+                <div class="carousel-slide" style="background-image: url('assets/our3.png');"></div>
+            </div>
 
-                <div class="uni-card">
-                    <div class="referral-stats">
-                        <div class="referral-stat">
-                            <div class="stats-value" id="gen1-income">0 USDT</div>
-                            <div class="stats-label" style="color: var(--dark);">8% от 1-го поколения</div>
-                        </div>
-                        <div class="referral-stat">
-                            <div class="stats-value" id="gen2-income">0 USDT</div>
-                            <div class="stats-label" style="color: var(--dark);">3% от 2-го поколения</div>
-                        </div>
-                        <div class="referral-stat">
-                            <div class="stats-value" id="gen3-income">0 USDT</div>
-                            <div class="stats-label" style="color: var(--dark);">1% от 3-го поколения</div>
-                        </div>
-                    </div>
+            <div class="auto-monitoring">
+                <div class="monitoring-item">
+                    <img src="assets/quant-system.gif" alt="Система Quant 1">
                 </div>
+                <div class="monitoring-item">
+                    <img src="assets/quant-system2.gif" alt="Система Quant 2">
+                </div>
+                <div class="monitoring-item">
+                    <img src="assets/quant-system3.gif" alt="Система Quant 3">
+                </div>
+                <div class="monitoring-item">
+                    <img src="assets/quant-system4.gif" alt="Система Quant 4">
+                </div>
+            </div>
+        </div>
 
-                <div class="uni-card">
-                    <div class="referral-list" id="referral-list">
-                        <div style="text-align: center; color: var(--gray); padding: 20px 0;">
-                            Рефералы будут отображаться здесь
-                        </div>
+        <!-- Страница активов -->
+        <div id="assetsPage" class="page">
+            <div class="simple-header">
+                <div class="back-btn" onclick="showPage('mainPage')">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">Активы</div>
+                <div style="width: 40px;"></div> <!-- Для выравнивания -->
+            </div>
+
+            <div class="balance-card">
+                <div class="balance-label">Общий баланс</div>
+                <div class="balance-amount" id="total-balance">3,10 USDT</div>
+                <div class="balance-details">
+                    <div class="balance-detail">
+                        <div class="balance-label">От рефералов</div>
+                        <div class="stats-value">0.00 USDT</div>
+                    </div>
+                    <div class="balance-detail">
+                        <div class="balance-label">От бонусов</div>
+                        <div class="stats-value">3.10 USDT</div>
+                    </div>
+                    <div class="balance-detail">
+                        <div class="balance-label">От Quantification</div>
+                        <div class="stats-value">0.00 USDT</div>
+                    </div>
+                    <div class="balance-detail">
+                        <div class="balance-label">Доступно</div>
+                        <div class="stats-value">3.10 USDT</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Страница VIP -->
-            <div id="vipPage" class="page">
-                <div class="uni-card">
-                    <div class="vip-packages" id="vip-packages-list">
-                        <!-- VIP packages will be populated by JavaScript -->
+            <div class="uni-card">
+                <div class="assets-buttons">
+                    <div class="assets-button">
+                        <div class="assets-button-icon">
+                            <img src="assets/deposit.png" alt="Пополнение">
+                        </div>
+                        <div>Пополнить</div>
                     </div>
-                </div>
-
-                <div class="uni-card">
-                    <div class="vip-benefit">
-                        <div class="vip-benefit-icon">
-                            <i class="fas fa-chart-line"></i>
+                    <div class="assets-button">
+                        <div class="assets-button-icon">
+                            <img src="assets/withdraw.png" alt="Вывод">
                         </div>
-                        <div>
-                            <div style="font-weight:600;">+2.5% доход</div>
-                            <div style="font-size:12px; color:var(--gray);">К заработку</div>
-                        </div>
-                    </div>
-                    <div class="vip-benefit">
-                        <div class="vip-benefit-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight:600;">+8% реф.</div>
-                            <div style="font-size:12px; color:var(--gray);">На команду</div>
-                        </div>
+                        <div>Вывести</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Страница заработка -->
-            <div id="earnPage" class="page">
-                <div class="uni-card">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <div style="font-size: 14px; opacity: 0.9;">Текущий статус</div>
-                        <div style="font-size: 24px; font-weight: 600; margin: 10px 0;">VIP 0</div>
-                        <div style="font-size: 14px; opacity: 0.9;">Для доступа к премиум функциям приобретите пакет</div>
-                    </div>
-                </div>
-
-                <div class="income-display">
-                    <div style="font-size:14px;">Доступно для забора</div>
-                    <div style="font-size:32px; font-weight:600; margin: 10px 0;" id="available-income">0.00 USDT</div>
-                    <div style="font-size:14px;" id="today-percent">+0.0% за сегодня</div>
-                    <button class="uni-button uni-button-success" id="claim-button" onclick="startTradingProcess()" style="margin-top: 15px; background: var(--accent);">
-                        <i class="fas fa-bolt"></i> ЗАБРАТЬ ДОХОД
-                    </button>
-                    <div style="font-size:12px; margin-top: 10px;" id="claim-timer"></div>
-                </div>
-
-                <div style="position: relative; margin: 20px 0;">
-                    <div class="process-steps">
-                        <div class="process-step">
-                            <div class="step-icon" id="step-1">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div class="step-label">Анализ</div>
-                        </div>
-                        <div class="process-step">
-                            <div class="step-icon" id="step-2">
-                                <i class="fas fa-cog"></i>
-                            </div>
-                            <div class="step-label">Обработка</div>
-                        </div>
-                        <div class="process-step">
-                            <div class="step-icon" id="step-3">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="step-label">Завершение</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Страница истории -->
-            <div id="historyPage" class="page">
-                <div class="uni-card">
+            <div class="uni-card">
+                <div class="history-section">
+                    <div class="history-title">История транзакций</div>
                     <div class="transaction-tabs">
                         <div class="transaction-tab active" onclick="showTransactionType('all')">Все</div>
                         <div class="transaction-tab" onclick="showTransactionType('deposits')">Пополнения</div>
@@ -972,135 +871,319 @@
                         <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
                     </div>
                     
-                    <div id="transaction-history">
-                        <!-- Transactions will be populated by JavaScript -->
+                    <div id="transaction-history-assets">
+                        <div style="text-align: center; color: var(--gray); padding: 20px 0;">
+                            Транзакции не найдены
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница команды -->
+        <div id="teamPage" class="page">
+            <div class="simple-header">
+                <div class="back-btn" onclick="showPage('mainPage')">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">Команда</div>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="uni-card">
+                <div class="referral-stats">
+                    <div class="referral-stat">
+                        <div class="stats-value" id="gen1-count">0</div>
+                        <div class="stats-label" style="color: var(--dark);">1-е поколение</div>
+                    </div>
+                    <div class="referral-stat">
+                        <div class="stats-value" id="gen2-count">0</div>
+                        <div class="stats-label" style="color: var(--dark);">2-е поколение</div>
+                    </div>
+                    <div class="referral-stat">
+                        <div class="stats-value" id="gen3-count">0</div>
+                        <div class="stats-label" style="color: var(--dark);">3-е поколение</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Страница профиля -->
-            <div id="profilePage" class="page">
-                <div class="uni-card">
-                    <div style="text-align: center;">
-                        <div class="user-avatar" style="width: 60px; height: 60px; font-size: 24px; margin: 0 auto 10px;">U</div>
-                        <div style="font-weight:600; font-size:18px;" id="profile-name">Пользователь</div>
-                        <div style="background: var(--light); padding: 6px 12px; border-radius: 15px; font-size: 12px; color: var(--gray); display: inline-flex; align-items: center; gap: 6px; margin-top: 5px;">
-                            ID: <span id="profile-id">BLK2839475</span>
-                            <i class="fas fa-copy" style="cursor: pointer;" onclick="copyToClipboard('profile-id')"></i>
-                        </div>
+            <div class="uni-card">
+                <div class="referral-stats">
+                    <div class="referral-stat">
+                        <div class="stats-value" id="gen1-income">0 USDT</div>
+                        <div class="stats-label" style="color: var(--dark);">8% от 1-го поколения</div>
                     </div>
+                    <div class="referral-stat">
+                        <div class="stats-value" id="gen2-income">0 USDT</div>
+                        <div class="stats-label" style="color: var(--dark);">3% от 2-го поколения</div>
+                    </div>
+                    <div class="referral-stat">
+                        <div class="stats-value" id="gen3-income">0 USDT</div>
+                        <div class="stats-label" style="color: var(--dark);">1% от 3-го поколения</div>
+                    </div>
+                </div>
+            </div>
 
-                    <div style="margin-top: 20px;">
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Email</label>
-                            <input type="email" id="email" class="uni-input" value="user@example.com" readonly>
+            <div class="uni-card">
+                <div class="referral-list" id="referral-list">
+                    <div style="text-align: center; color: var(--gray); padding: 20px 0;">
+                        Рефералы будут отображаться здесь
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница VIP -->
+        <div id="vipPage" class="page">
+            <div class="simple-header">
+                <div class="back-btn" onclick="showPage('mainPage')">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">VIP Пакеты</div>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="uni-card">
+                <div class="vip-packages" id="vip-packages-list">
+                    <!-- VIP packages will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="uni-card">
+                <div class="vip-benefit">
+                    <div class="vip-benefit-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:600;">+2.5% доход</div>
+                        <div style="font-size:12px; color:var(--gray);">К заработку</div>
+                    </div>
+                </div>
+                <div class="vip-benefit">
+                    <div class="vip-benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:600;">+8% реф.</div>
+                        <div style="font-size:12px; color:var(--gray);">На команду</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница заработка -->
+        <div id="earnPage" class="page">
+            <div class="simple-header">
+                <div class="back-btn" onclick="showPage('mainPage')">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">Quantification</div>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="uni-card">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 14px; opacity: 0.9;">Текущий статус</div>
+                    <div style="font-size: 24px; font-weight: 600; margin: 10px 0;">VIP 0</div>
+                    <div style="font-size: 14px; opacity: 0.9;">Для доступа к премиум функциям приобретите пакет</div>
+                </div>
+            </div>
+
+            <div class="income-display">
+                <div style="font-size:14px;">Доступно для забора</div>
+                <div style="font-size:32px; font-weight:600; margin: 10px 0;" id="available-income">0.00 USDT</div>
+                <div style="font-size:14px;" id="today-percent">+0.0% за сегодня</div>
+                <button class="uni-button uni-button-success" id="claim-button" onclick="startTradingProcess()" style="margin-top: 15px; background: var(--accent);">
+                    <i class="fas fa-bolt"></i> ЗАБРАТЬ ДОХОД
+                </button>
+                <div style="font-size:12px; margin-top: 10px;" id="claim-timer"></div>
+            </div>
+
+            <div style="position: relative; margin: 20px 0; padding: 0 15px;">
+                <div class="process-steps">
+                    <div class="process-step">
+                        <div class="step-icon" id="step-1">
+                            <i class="fas fa-chart-line"></i>
                         </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Сменить пароль</label>
-                            <input type="password" class="uni-input" placeholder="Текущий пароль">
-                            <input type="password" class="uni-input" placeholder="Новый пароль">
-                            <input type="password" class="uni-input" placeholder="Подтвердите пароль">
-                            <button class="uni-button" onclick="updatePassword()" style="margin-top: 10px;">Обновить пароль</button>
+                        <div class="step-label">Анализ</div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-icon" id="step-2">
+                            <i class="fas fa-cog"></i>
                         </div>
+                        <div class="step-label">Обработка</div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-icon" id="step-3">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-label">Завершение</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница истории -->
+        <div id="historyPage" class="page">
+            <div class="simple-header">
+                <div class="back-btn" onclick="showPage('mainPage')">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">История</div>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="uni-card">
+                <div class="transaction-tabs">
+                    <div class="transaction-tab active" onclick="showTransactionType('all')">Все</div>
+                    <div class="transaction-tab" onclick="showTransactionType('deposits')">Пополнения</div>
+                    <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Вывод</div>
+                    <div class="transaction-tab" onclick="showTransactionType('referrals')">Рефералы</div>
+                    <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
+                </div>
+                
+                <div id="transaction-history">
+                    <div style="text-align: center; color: var(--gray); padding: 20px 0;">
+                        Транзакции не найдены
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница профиля -->
+        <div id="profilePage" class="page">
+            <div class="simple-header">
+                <div class="back-btn" onclick="showPage('mainPage')">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">Профиль</div>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="uni-card">
+                <div style="text-align: center;">
+                    <div class="user-avatar" style="width: 60px; height: 60px; font-size: 24px; margin: 0 auto 10px;">U</div>
+                    <div style="font-weight:600; font-size:18px;" id="profile-name">Пользователь</div>
+                    <div style="background: var(--light); padding: 6px 12px; border-radius: 15px; font-size: 12px; color: var(--gray); display: inline-flex; align-items: center; gap: 6px; margin-top: 5px;">
+                        ID: <span id="profile-id">BLK2839475</span>
+                        <i class="fas fa-copy" style="cursor: pointer;" onclick="copyToClipboard('profile-id')"></i>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Email</label>
+                        <input type="email" id="email" class="uni-input" value="user@example.com" readonly>
                     </div>
                     
-                    <button class="logout-btn" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> Выйти
-                    </button>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Сменить пароль</label>
+                        <input type="password" class="uni-input" placeholder="Текущий пароль">
+                        <input type="password" class="uni-input" placeholder="Новый пароль">
+                        <input type="password" class="uni-input" placeholder="Подтвердите пароль">
+                        <button class="uni-button" onclick="updatePassword()" style="margin-top: 10px;">Обновить пароль</button>
+                    </div>
                 </div>
+                
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+        </div>
+
+        <!-- Реферальный экран -->
+        <div id="referralPage" class="page">
+            <div class="simple-header">
+                <div class="back-btn" onclick="showPage('mainPage')">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">Пригласить друзей</div>
+                <div style="width: 40px;"></div>
             </div>
 
-            <!-- Реферальный экран -->
-            <div id="referralPage" class="page">
-                <div class="referral-screen">
-                    <div class="uni-card">
-                        <div style="text-align: center; margin-bottom: 20px;">
-                            <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;">Пригласите друзей</div>
-                            <div style="color: var(--gray);">Приглашайте друзей и получайте доход с 3 поколений рефералов</div>
+            <div class="referral-screen">
+                <div class="uni-card">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;">Пригласите друзей</div>
+                        <div style="color: var(--gray);">Приглашайте друзей и получайте доход с 3 поколений рефералов</div>
+                    </div>
+                    
+                    <div class="referral-link-container">
+                        <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--dark);" id="referral-link">
+                            https://belk.app/ref/BLK2839475
                         </div>
-                        
-                        <div class="referral-link-container">
-                            <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--dark);" id="referral-link">
-                                https://belk.app/ref/BLK2839475
+                        <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
+                            Копировать
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); text-align: center;">Ваши бонусы</div>
+                        <div class="referral-stats">
+                            <div class="referral-stat">
+                                <div class="stats-value" style="color: var(--primary);">8%</div>
+                                <div class="stats-label" style="color: var(--dark);">1-е поколение</div>
                             </div>
-                            <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
-                                Копировать
-                            </button>
-                        </div>
-                        
-                        <div style="margin-top: 30px;">
-                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); text-align: center;">Ваши бонусы</div>
-                            <div class="referral-stats">
-                                <div class="referral-stat">
-                                    <div class="stats-value" style="color: var(--primary);">8%</div>
-                                    <div class="stats-label" style="color: var(--dark);">1-е поколение</div>
-                                </div>
-                                <div class="referral-stat">
-                                    <div class="stats-value" style="color: var(--primary);">3%</div>
-                                    <div class="stats-label" style="color: var(--dark);">2-е поколение</div>
-                                </div>
-                                <div class="referral-stat">
-                                    <div class="stats-value" style="color: var(--primary);">1%</div>
-                                    <div class="stats-label" style="color: var(--dark);">3-е поколение</div>
-                                </div>
+                            <div class="referral-stat">
+                                <div class="stats-value" style="color: var(--primary);">3%</div>
+                                <div class="stats-label" style="color: var(--dark);">2-е поколение</div>
+                            </div>
+                            <div class="referral-stat">
+                                <div class="stats-value" style="color: var(--primary);">1%</div>
+                                <div class="stats-label" style="color: var(--dark);">3-е поколение</div>
                             </div>
                         </div>
+                    </div>
 
-                        <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
-                            <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">Как это работает:</div>
-                            <div style="font-size: 14px; color: var(--gray); text-align: left;">
-                                • 8% от депозитов 1-го поколения<br>
-                                • 3% от депозитов 2-го поколения<br>
-                                • 1% от депозитов 3-го поколения<br>
-                                • Доход начисляется моментально
-                            </div>
+                    <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
+                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">Как это работает:</div>
+                        <div style="font-size: 14px; color: var(--gray); text-align: left;">
+                            • 8% от депозитов 1-го поколения<br>
+                            • 3% от депозитов 2-го поколения<br>
+                            • 1% от депозитов 3-го поколения<br>
+                            • Доход начисляется моментально
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Tab Bar -->
-            <div class="uni-tabbar">
-                <div class="uni-tabbar-item active" onclick="showPage('mainPage')">
-                    <div class="uni-tabbar-icon">
-                        <img src="assets/home.png" alt="Главная">
-                    </div>
-                    <div>Главная</div>
+        <!-- Tab Bar -->
+        <div class="uni-tabbar">
+            <div class="uni-tabbar-item active" onclick="showPage('mainPage')">
+                <div class="uni-tabbar-icon">
+                    <img src="assets/home.png" alt="Главная">
                 </div>
-                <div class="uni-tabbar-item" onclick="showPage('vipPage')">
-                    <div class="uni-tabbar-icon">
-                        <img src="assets/VIP.png" alt="VIP">
-                    </div>
-                    <div>VIP</div>
+                <div>Главная</div>
+            </div>
+            <div class="uni-tabbar-item" onclick="showPage('vipPage')">
+                <div class="uni-tabbar-icon">
+                    <img src="assets/VIP.png" alt="VIP">
                 </div>
-                <div class="uni-tabbar-item" onclick="showPage('earnPage')">
-                    <div class="uni-tabbar-center">
-                        <img src="assets/quant.png" alt="Quantification">
-                    </div>
-                    <div style="font-weight:600">Quantification</div>
+                <div>VIP</div>
+            </div>
+            <div class="uni-tabbar-item" onclick="showPage('earnPage')">
+                <div class="uni-tabbar-center">
+                    <img src="assets/quant.png" alt="Quantification">
                 </div>
-                <div class="uni-tabbar-item" onclick="showPage('assetsPage')">
-                    <div class="uni-tabbar-icon">
-                        <img src="assets/asset.png" alt="Активы">
-                    </div>
-                    <div>Активы</div>
+                <div style="font-weight:600">Quantification</div>
+            </div>
+            <div class="uni-tabbar-item" onclick="showPage('assetsPage')">
+                <div class="uni-tabbar-icon">
+                    <img src="assets/asset.png" alt="Активы">
                 </div>
-                <div class="uni-tabbar-item" onclick="showPage('profilePage')">
-                    <div class="uni-tabbar-icon">
-                        <img src="assets/Profile.png" alt="Профиль">
-                    </div>
-                    <div>Профиль</div>
+                <div>Активы</div>
+            </div>
+            <div class="uni-tabbar-item" onclick="showPage('profilePage')">
+                <div class="uni-tabbar-icon">
+                    <img src="assets/Profile.png" alt="Профиль">
                 </div>
+                <div>Профиль</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Supabase configuration
-        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
-
         // Данные VIP пакетов
         const vipPackages = [
             { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false },
@@ -1174,79 +1257,13 @@
         }
 
         // Инициализация приложения
-        async function initApp() {
-            const token = localStorage.getItem('belkAccessToken');
-            const isLoggedIn = localStorage.getItem('belkUserLoggedIn');
-            
-            if (!token && !isLoggedIn) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // Загрузка данных
+        function initApp() {
             loadState();
-            
-            // Если есть токен, загружаем данные из Supabase
-            if (token) {
-                await loadUserDataFromSupabase(token);
-            }
-            
             renderVIPPackages();
             updateUI();
             updateClaimButton();
             startTimer();
             startCarousel();
-        }
-
-        // Загрузка данных пользователя из Supabase
-        async function loadUserDataFromSupabase(token) {
-            try {
-                // Получение данных пользователя
-                const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    if (userData.length > 0) {
-                        appState.user = { ...appState.user, ...userData[0] };
-                    }
-                }
-
-                // Получение транзакций
-                const transactionsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?user_id=eq.${appState.user.id}`, {
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                if (transactionsResponse.ok) {
-                    const transactionsData = await transactionsResponse.json();
-                    appState.transactions = transactionsData;
-                }
-
-                // Получение рефералов
-                const referralsResponse = await fetch(`${SUPABASE_URL}/rest/v1/referrals?referrer_id=eq.${appState.user.id}`, {
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                if (referralsResponse.ok) {
-                    const referralsData = await referralsResponse.json();
-                    // Обработка рефералов по поколениям
-                    appState.referrals.gen1 = referralsData.filter(ref => ref.generation === 1);
-                    appState.referrals.gen2 = referralsData.filter(ref => ref.generation === 2);
-                    appState.referrals.gen3 = referralsData.filter(ref => ref.generation === 3);
-                }
-            } catch (error) {
-                console.error('Error loading data from Supabase:', error);
-            }
         }
 
         // Карусель на главной
@@ -1452,15 +1469,10 @@
         // Обновление UI
         function updateUI() {
             // Обновление баланса
-            document.getElementById('currentBalance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
             document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
             
             // Обновление имени пользователя
-            document.getElementById('user-name').textContent = appState.user.name;
             document.getElementById('profile-name').textContent = appState.user.name;
-            
-            // Обновление аватара
-            document.getElementById('user-avatar').textContent = appState.user.name.charAt(0);
             
             // Обновление ID пользователя
             document.getElementById('profile-id').textContent = appState.user.id;
@@ -1540,8 +1552,6 @@
                 percentage = (availableIncome / appState.user.balance) * 100;
             }
             document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% за сегодня`;
-            
-            document.getElementById('total-income').textContent = `+${formatCurrency(appState.totalIncome)} USDT`;
         }
 
         // Обновление кнопки забора дохода
@@ -1671,9 +1681,7 @@
         function showPage(pageId) {
             // Скрываем все экраны
             document.querySelectorAll('.page').forEach(page => {
-                if (page.id !== 'mainApp') {
-                    page.classList.remove('active');
-                }
+                page.classList.remove('active');
             });
             
             // Показываем нужный экран
