@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belk - Вход</title>
+    <title>Belk</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -44,10 +44,24 @@
         .login-header {
             background: var(--primary);
             color: white;
-            padding: 44px 15px 15px;
-            text-align: center;
-            font-size: 17px;
-            font-weight: 600;
+            padding: 20px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+        }
+
+        .logo {
+            width: 140px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .login-content {
@@ -56,34 +70,6 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-        }
-
-        .login-logo {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .login-logo-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            color: white;
-            font-size: 32px;
-        }
-
-        .login-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .login-subtitle {
-            font-size: 14px;
-            color: var(--gray);
         }
 
         .login-form {
@@ -95,6 +81,7 @@
             background: var(--light);
             padding: 2px;
             margin-bottom: 20px;
+            border-radius: 5px;
         }
 
         .form-tab {
@@ -102,6 +89,7 @@
             padding: 12px;
             text-align: center;
             cursor: pointer;
+            border-radius: 5px;
         }
 
         .form-tab.active {
@@ -127,6 +115,7 @@
             margin: 8px 0;
             font-size: 16px;
             background: var(--white);
+            border-radius: 5px;
         }
 
         .uni-button {
@@ -139,6 +128,7 @@
             margin: 10px 0;
             cursor: pointer;
             font-weight: 600;
+            border-radius: 5px;
         }
 
         .uni-button:hover {
@@ -158,21 +148,72 @@
             margin-top: 5px;
             display: none;
         }
+
+        .success-animation {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: var(--success);
+            stroke-miterlimit: 10;
+            margin: 0 auto;
+            box-shadow: inset 0px 0px 0px var(--success);
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: var(--success);
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes scale {
+            0%, 100% { transform: none; }
+            50% { transform: scale3d(1.1, 1.1, 1); }
+        }
+
+        @keyframes fill {
+            100% { box-shadow: inset 0px 0px 0px 40px var(--success); }
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>Belk</h1>
+            <div class="logo">
+                <!-- Замените на ваш логотип -->
+                <div style="color: white; font-size: 24px; font-weight: bold;">BELK</div>
+            </div>
         </div>
 
         <div class="login-content">
-            <div class="login-logo">
-                <div class="login-logo-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="login-title">Добро пожаловать</div>
-                <div class="login-subtitle">AI Трейдинг Платформа</div>
+            <div class="success-animation" id="successAnimation">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
             </div>
 
             <div class="login-form">
@@ -211,9 +252,32 @@
                     </div>
 
                     <div class="form-group">
+                        <label class="form-label">Телефон</label>
+                        <input type="tel" id="registerPhone" class="uni-input" placeholder="Введите номер телефона">
+                        <div class="error-message" id="registerPhoneError">Введите номер телефона</div>
+                    </div>
+
+                    <div class="form-group">
                         <label class="form-label">Пароль</label>
                         <input type="password" id="registerPassword" class="uni-input" placeholder="Введите пароль">
                         <div class="error-message" id="registerPasswordError">Пароль от 6 символов</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Подтвердите пароль</label>
+                        <input type="password" id="registerConfirmPassword" class="uni-input" placeholder="Подтвердите пароль">
+                        <div class="error-message" id="registerConfirmPasswordError">Пароли не совпадают</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Payment Password</label>
+                        <input type="password" id="registerPaymentPassword" class="uni-input" placeholder="Введите payment password">
+                        <div class="error-message" id="registerPaymentPasswordError">Payment password от 4 символов</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Реферальный код (необязательно)</label>
+                        <input type="text" id="registerReferralCode" class="uni-input" placeholder="Введите реферальный код">
                     </div>
 
                     <button class="uni-button" onclick="register()">Зарегистрироваться</button>
@@ -227,6 +291,10 @@
     </div>
 
     <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
+
         function showTab(tabName) {
             document.getElementById('loginTab').classList.remove('active');
             document.getElementById('registerTab').classList.remove('active');
@@ -250,7 +318,14 @@
             });
         }
 
-        function login() {
+        function showSuccessAnimation() {
+            document.getElementById('successAnimation').style.display = 'block';
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        }
+
+        async function login() {
             hideAllErrors();
             
             const email = document.getElementById('loginEmail').value;
@@ -269,26 +344,54 @@
             
             if (!isValid) return;
             
-            const userData = localStorage.getItem('belkUserData');
-            if (userData) {
-                const user = JSON.parse(userData);
-                if (user.email === email && user.password === password) {
-                    localStorage.setItem('belkUserLoggedIn', 'true');
-                    window.location.href = 'dashboard.html';
+            try {
+                // Supabase login logic
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.user) {
+                    localStorage.setItem('belkUser', JSON.stringify(data.user));
+                    localStorage.setItem('belkAccessToken', data.access_token);
+                    showSuccessAnimation();
                 } else {
-                    alert('Неверные данные');
+                    alert('Неверные данные для входа');
                 }
-            } else {
-                alert('Пользователь не найден');
+            } catch (error) {
+                console.error('Login error:', error);
+                // Fallback to local storage if Supabase fails
+                const userData = localStorage.getItem('belkUserData');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    if (user.email === email && user.password === password) {
+                        localStorage.setItem('belkUserLoggedIn', 'true');
+                        showSuccessAnimation();
+                    } else {
+                        alert('Неверные данные для входа');
+                    }
+                } else {
+                    alert('Пользователь не найден');
+                }
             }
         }
 
-        function register() {
+        async function register() {
             hideAllErrors();
             
             const username = document.getElementById('registerUsername').value;
             const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
             const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const paymentPassword = document.getElementById('registerPaymentPassword').value;
+            const referralCode = document.getElementById('registerReferralCode').value;
             
             let isValid = true;
             
@@ -302,44 +405,152 @@
                 isValid = false;
             }
             
+            if (!phone) {
+                document.getElementById('registerPhoneError').style.display = 'block';
+                isValid = false;
+            }
+            
             if (password.length < 6) {
                 document.getElementById('registerPasswordError').style.display = 'block';
                 isValid = false;
             }
             
+            if (password !== confirmPassword) {
+                document.getElementById('registerConfirmPasswordError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (paymentPassword.length < 4) {
+                document.getElementById('registerPaymentPasswordError').style.display = 'block';
+                isValid = false;
+            }
+            
             if (!isValid) return;
             
+            try {
+                // Supabase registration logic
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY
+                    },
+                    body: JSON.stringify({ 
+                        email, 
+                        password,
+                        user_metadata: {
+                            username,
+                            phone,
+                            payment_password: paymentPassword
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.user) {
+                    // Create user profile in database
+                    await createUserProfile(data.user.id, username, email, phone, paymentPassword, referralCode);
+                    showSuccessAnimation();
+                } else {
+                    // Fallback to local storage
+                    createLocalUser(username, email, phone, password, paymentPassword, referralCode);
+                    showSuccessAnimation();
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                // Fallback to local storage
+                createLocalUser(username, email, phone, password, paymentPassword, referralCode);
+                showSuccessAnimation();
+            }
+        }
+
+        function createLocalUser(username, email, phone, password, paymentPassword, referralCode) {
             const userId = 'BLK' + Math.floor(1000000 + Math.random() * 9000000);
             
             const userData = {
                 id: userId,
                 name: username,
                 email: email,
+                phone: phone,
                 password: password,
+                payment_password: paymentPassword,
                 balance: 3.10,
                 vipLevel: 0,
                 purchasedVIPs: [],
-                referralCode: userId
+                referralCode: userId,
+                referred_by: referralCode || null
             };
             
             localStorage.setItem('belkUserData', JSON.stringify(userData));
+            localStorage.setItem('belkUserLoggedIn', 'true');
             
             const appState = {
                 referrals: { gen1: [], gen2: [], gen3: [] },
                 transactions: [
-                    { id: 1, type: 'deposit', title: 'Начальный бонус', date: 'Сегодня, 14:30', amount: 3.10, positive: true }
+                    { id: 1, type: 'bonus', title: 'Начальный бонус', date: 'Сегодня, 14:30', amount: 3.10, positive: true }
                 ],
                 totalIncome: 0
             };
             
             localStorage.setItem('belkAppState', JSON.stringify(appState));
-            
-            localStorage.setItem('belkUserLoggedIn', 'true');
-            window.location.href = 'dashboard.html';
+        }
+
+        async function createUserProfile(userId, username, email, phone, paymentPassword, referralCode) {
+            try {
+                const userRefCode = generateReferralCode();
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    },
+                    body: JSON.stringify({
+                        id: userId,
+                        username,
+                        email,
+                        phone,
+                        payment_password: paymentPassword,
+                        referral_code: userRefCode,
+                        referred_by: referralCode || null,
+                        balance: 3.10,
+                        vip_level: 0,
+                        created_at: new Date().toISOString()
+                    })
+                });
+                
+                // Create initial transaction
+                await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        type: 'bonus',
+                        title: 'Начальный бонус',
+                        date: 'Сегодня, 14:30',
+                        amount: 3.10,
+                        positive: true,
+                        created_at: new Date().toISOString()
+                    })
+                });
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Profile creation error:', error);
+            }
+        }
+
+        function generateReferralCode() {
+            return 'BLK' + Math.floor(1000000 + Math.random() * 9000000);
         }
 
         window.onload = function() {
-            if (localStorage.getItem('belkUserLoggedIn') === 'true') {
+            if (localStorage.getItem('belkAccessToken') || localStorage.getItem('belkUserLoggedIn') === 'true') {
                 window.location.href = 'dashboard.html';
             }
         };
