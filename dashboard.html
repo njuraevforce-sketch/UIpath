@@ -12,17 +12,20 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Helvetica Neue UltraLight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
         :root {
-            --primary: #007aff;
+            --primary: #ff7b25; /* Оранжевый */
+            --primary-light: #ff9d57;
+            --secondary: #0a505e; /* Темный сине-зеленый */
+            --secondary-light: #1a7a8c;
             --success: #4cd964;
             --danger: #ff3b30;
             --warning: #ffcc00;
             --info: #5ac8fa;
             --dark: #1c1c1e;
-            --light: #f2f2f7;
+            --light: #f8f8f8;
             --gray: #8e8e93;
             --white: #ffffff;
         }
@@ -32,6 +35,18 @@
             color: #000;
             line-height: 1.6;
             font-size: 16px;
+            font-weight: 200;
+        }
+
+        h1, h2, h3, h4, h5, h6, 
+        .uni-header, 
+        .page-header div:first-child div:first-child,
+        .uni-modal-title,
+        .vip-package div:first-child div:first-child,
+        .income-display div:nth-child(2),
+        .promo-card div:first-child {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 700;
         }
 
         .uni-container {
@@ -53,7 +68,7 @@
         }
 
         .uni-header {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
             padding: 44px 15px 15px;
             text-align: center;
@@ -98,7 +113,7 @@
             width: 50px;
             height: 50px;
             border-radius: 8px;
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -106,7 +121,7 @@
         }
 
         .uni-button {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
             border: none;
             padding: 12px 24px;
@@ -115,11 +130,19 @@
             width: 100%;
             margin: 10px 0;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .uni-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .uni-button:disabled {
             background: #c7c7cc;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .uni-button-success {
@@ -137,23 +160,11 @@
 
         .uni-card {
             background: white;
-            border-radius: 0;
+            border-radius: 12px;
             padding: 15px;
-            margin: 10px 0;
+            margin: 10px 15px;
             position: relative;
-        }
-
-        .uni-card:after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            height: 1px;
-            border-bottom: 1px solid #e5e5e5;
-            color: #e5e5e5;
-            transform-origin: 0 100%;
-            transform: scaleY(0.5);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .uni-input {
@@ -167,11 +178,12 @@
         }
 
         .uni-badge {
-            background: var(--danger);
+            background: var(--primary);
             color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
+            padding: 4px 10px;
+            border-radius: 12px;
             font-size: 12px;
+            font-weight: 600;
         }
 
         /* Belk специфичные стили в UNI-APP стиле */
@@ -179,7 +191,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -199,34 +211,48 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .action-item:hover {
+            transform: translateY(-5px);
         }
 
         .action-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: var(--light);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 5px;
-            font-size: 18px;
+            margin-bottom: 8px;
+            font-size: 20px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .action-icon:hover {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
         }
 
         .income-display {
             text-align: center;
-            padding: 20px;
-            background: var(--primary);
+            padding: 25px;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
             color: white;
-            margin: 15px 0;
+            margin: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.3);
         }
 
         .vip-card {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
+            padding: 20px;
+            margin: 10px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 123, 37, 0.3);
         }
 
         .page-header {
@@ -271,8 +297,14 @@
         .referral-stat {
             background: var(--light);
             padding: 12px;
-            border-radius: 5px;
+            border-radius: 8px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .referral-stat:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .promo-grid {
@@ -285,17 +317,26 @@
             flex: 1;
             padding: 15px;
             color: #fff;
-            border-radius: 5px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .promo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
         .video-player {
             height: 200px;
-            background: var(--light);
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 15px 0;
             position: relative;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .play-btn {
@@ -306,6 +347,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            background: white;
         }
 
         .video-controls {
@@ -337,21 +384,52 @@
         .vip-packages {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .vip-package {
-            background: var(--light);
-            padding: 15px;
-            border-radius: 5px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .vip-package:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
         }
 
         .vip-package.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 6px 15px rgba(255, 123, 37, 0.3);
+        }
+
+        .vip-package-featured {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vip-package-featured::before {
+            content: "ПОПУЛЯРНЫЙ";
+            position: absolute;
+            top: 10px;
+            right: -30px;
             background: var(--primary);
             color: white;
+            padding: 3px 30px;
+            font-size: 10px;
+            transform: rotate(45deg);
+            font-weight: bold;
         }
 
         .process-steps {
@@ -432,11 +510,12 @@
         }
 
         .team-banner {
-            background: linear-gradient(90deg, #f7c84a, #ffb84d);
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-            color: #000;
+            background: linear-gradient(90deg, var(--primary-light), var(--primary));
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 123, 37, 0.3);
         }
 
         .referral-list {
@@ -461,7 +540,7 @@
             width: 35px;
             height: 35px;
             border-radius: 50%;
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -488,10 +567,11 @@
 
         .uni-modal-content {
             background: white;
-            border-radius: 10px;
+            border-radius: 15px;
             padding: 20px;
             width: 90%;
             max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .uni-modal-title {
@@ -514,10 +594,15 @@
             border: none;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .uni-modal-button:hover {
+            transform: translateY(-2px);
         }
 
         .uni-modal-button.primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
         }
 
@@ -532,7 +617,6 @@
         <!-- Header -->
         <div class="uni-header">
             <h1>Belk</h1>
-            <div>Баланс: <span id="currentBalance">100.00 USDT</span></div>
         </div>
 
         <!-- Главная страница -->
@@ -543,10 +627,8 @@
                         <div class="user-avatar" id="user-avatar">U</div>
                         <div>
                             <div style="font-weight:600" id="user-name">Пользователь</div>
-                            <div style="font-size:12px; color:var(--gray)">Уровень <span id="user-level">1</span></div>
                         </div>
                     </div>
-                    <div class="uni-badge" id="vip-badge">VIP 0</div>
                 </div>
 
                 <div class="video-player">
@@ -566,49 +648,49 @@
                 <h3 style="margin-bottom: 15px;">Быстрые действия</h3>
                 <div class="action-grid">
                     <div class="action-item" onclick="showPage('assetsPage')">
-                        <div class="action-icon" style="color: #ffd24a;">
+                        <div class="action-icon">
                             <i class="fas fa-wallet"></i>
                         </div>
                         <div>Активы</div>
                     </div>
                     <div class="action-item">
-                        <div class="action-icon" style="color: #06a5d9;">
+                        <div class="action-icon">
                             <i class="fab fa-telegram"></i>
                         </div>
                         <div>Telegram</div>
                     </div>
                     <div class="action-item" onclick="showPage('teamPage')">
-                        <div class="action-icon" style="color: #1b6aaf;">
+                        <div class="action-icon">
                             <i class="fas fa-users"></i>
                         </div>
                         <div>Команда</div>
                     </div>
                     <div class="action-item">
-                        <div class="action-icon" style="color: #56bff1;">
+                        <div class="action-icon">
                             <i class="fas fa-user-plus"></i>
                         </div>
                         <div>Пригласить</div>
                     </div>
                     <div class="action-item" onclick="showPage('vipPage')">
-                        <div class="action-icon" style="color: #ffd700;">
+                        <div class="action-icon">
                             <i class="fas fa-crown"></i>
                         </div>
                         <div>VIP</div>
                     </div>
                     <div class="action-item">
-                        <div class="action-icon" style="color: #07a7e1;">
+                        <div class="action-icon">
                             <i class="fas fa-question-circle"></i>
                         </div>
                         <div>Помощь</div>
                     </div>
                     <div class="action-item">
-                        <div class="action-icon" style="color: #1aa0ff;">
+                        <div class="action-icon">
                             <i class="fas fa-download"></i>
                         </div>
                         <div>Скачать</div>
                     </div>
                     <div class="action-item">
-                        <div class="action-icon" style="color: #7ea9db;">
+                        <div class="action-icon">
                             <i class="fas fa-file-alt"></i>
                         </div>
                         <div>Лицензия</div>
@@ -616,11 +698,11 @@
                 </div>
 
                 <div class="promo-grid">
-                    <div class="promo-card" style="background: linear-gradient(90deg, #24b0ff, #17a1ff);" onclick="showPage('teamPage')">
+                    <div class="promo-card" style="background: linear-gradient(135deg, var(--primary), var(--primary-light));" onclick="showPage('teamPage')">
                         <div style="font-weight:700;font-size:14px">Пригласить друзей</div>
                         <div style="font-size:12px;opacity:0.95;margin-top:4px">Бонус за приглашение</div>
                     </div>
-                    <div class="promo-card" style="background: linear-gradient(120deg, #48c5ff, #6b4dfa);" onclick="showPage('earnPage')">
+                    <div class="promo-card" style="background: linear-gradient(135deg, var(--secondary), var(--secondary-light));" onclick="showPage('earnPage')">
                         <div style="font-weight:700;font-size:14px">Центр заданий</div>
                         <div style="font-size:12px;opacity:0.95;margin-top:4px">Выполняйте задания</div>
                     </div>
@@ -633,38 +715,23 @@
                     У вас пока нет активных пакетов
                 </div>
             </div>
-
-            <div class="uni-card">
-                <h3 style="margin-bottom: 15px;">Статистика</h3>
-                <div class="uni-grid">
-                    <div>Всего инвестировано: <br><strong><span id="totalInvested">0 USDT</span></strong></div>
-                    <div>Всего заработано: <br><strong><span id="totalEarned">0 USDT</span></strong></div>
-                </div>
-            </div>
         </div>
 
         <!-- Страница активов -->
         <div id="assetsPage" class="uni-page">
             <div class="page-header">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="back-button" onclick="showPage('mainPage')">
-                        <i class="fas fa-arrow-left"></i>
-                    </div>
                     <div>
                         <div style="font-weight:600">Активы</div>
                         <div style="font-size:12px; color:var(--gray)">Управление средствами</div>
                     </div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-weight:700" id="assets-balance">100 USDT</div>
-                    <div style="font-size:12px; color:var(--gray)">Баланс</div>
                 </div>
             </div>
 
             <div class="uni-card">
                 <div style="text-align: center; padding: 20px 0;">
                     <div style="color:var(--gray); font-size:14px;">Общий баланс</div>
-                    <div style="font-size:28px; font-weight:700; margin: 10px 0;" id="total-balance">100 USDT</div>
+                    <div style="font-size:28px; font-weight:700; margin: 10px 0;" id="total-balance">3,10 USDT</div>
                     <div style="color:var(--gray); font-size:12px;" id="today-income">+0.00 USDT за сегодня</div>
                 </div>
 
@@ -703,17 +770,10 @@
         <div id="teamPage" class="uni-page">
             <div class="page-header">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="back-button" onclick="showPage('mainPage')">
-                        <i class="fas fa-arrow-left"></i>
-                    </div>
                     <div>
                         <div style="font-weight:600">Команда</div>
                         <div style="font-size:12px; color:var(--gray)">Обзор команды</div>
                     </div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-weight:700" id="team-balance">100 USDT</div>
-                    <div style="font-size:12px; color:var(--gray)">Баланс</div>
                 </div>
             </div>
 
@@ -782,15 +842,11 @@
         <div id="vipPage" class="uni-page">
             <div class="page-header">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="back-button" onclick="showPage('mainPage')">
-                        <i class="fas fa-arrow-left"></i>
-                    </div>
                     <div>
                         <div style="font-weight:600">VIP Статус</div>
                         <div style="font-size:12px; color:var(--gray)">Премиум возможности</div>
                     </div>
                 </div>
-                <div class="uni-badge" id="user-vip-level">VIP 0</div>
             </div>
 
             <div class="uni-card">
@@ -803,22 +859,22 @@
             <div class="uni-card">
                 <h3 style="margin-bottom: 15px;">Ваши VIP преимущества</h3>
                 <div class="uni-grid">
-                    <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 5px;">
+                    <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 8px; transition: all 0.3s ease;">
                         <i class="fas fa-chart-line" style="font-size: 20px; color: var(--primary); margin-bottom: 8px;"></i>
                         <div style="font-weight:600;">+15% доход</div>
                         <div style="font-size:11px; color:var(--gray);">К заработку</div>
                     </div>
-                    <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 5px;">
+                    <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 8px; transition: all 0.3s ease;">
                         <i class="fas fa-users" style="font-size: 20px; color: var(--primary); margin-bottom: 8px;"></i>
                         <div style="font-weight:600;">+10% реф.</div>
                         <div style="font-size:11px; color:var(--gray);">На команду</div>
                     </div>
-                    <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 5px;">
+                    <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 8px; transition: all 0.3s ease;">
                         <i class="fas fa-gift" style="font-size: 20px; color: var(--primary); margin-bottom: 8px;"></i>
                         <div style="font-weight:600;">Бонусы</div>
                         <div style="font-size:11px; color:var(--gray);">Ежедневные</div>
                     </div>
-                    <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 5px;">
+                    <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 8px; transition: all 0.3s ease;">
                         <i class="fas fa-shield-alt" style="font-size: 20px; color: var(--primary); margin-bottom: 8px;"></i>
                         <div style="font-weight:600;">Приоритет</div>
                         <div style="font-size:11px; color:var(--gray);">Поддержка</div>
@@ -831,17 +887,10 @@
         <div id="earnPage" class="uni-page">
             <div class="page-header">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="back-button" onclick="showPage('mainPage')">
-                        <i class="fas fa-arrow-left"></i>
-                    </div>
                     <div>
                         <div style="font-weight:600">AI Трейдинг</div>
                         <div style="font-size:12px; color:var(--gray)">Автоматический заработок</div>
                     </div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-weight:700" id="earn-balance">100 USDT</div>
-                    <div style="font-size:12px; color:var(--gray)">Баланс</div>
                 </div>
             </div>
 
@@ -903,15 +952,11 @@
         <div id="profilePage" class="uni-page">
             <div class="page-header">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="back-button" onclick="showPage('mainPage')">
-                        <i class="fas fa-arrow-left"></i>
-                    </div>
                     <div>
                         <div style="font-weight:600">Профиль</div>
                         <div style="font-size:12px; color:var(--gray)">Управление аккаунтом</div>
                     </div>
                 </div>
-                <div></div>
             </div>
 
             <div class="uni-card">
@@ -1041,12 +1086,12 @@
     <script>
         // Данные VIP пакетов
         const vipPackages = [
-            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false },
-            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, active: false },
-            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, active: false },
-            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, active: false },
-            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, active: false },
-            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, active: false }
+            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false, featured: false },
+            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, active: false, featured: true },
+            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, active: false, featured: false },
+            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, active: false, featured: false },
+            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, active: false, featured: false },
+            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, active: false, featured: false }
         ];
 
         // Состояние приложения
@@ -1056,7 +1101,7 @@
                 name: 'Пользователь',
                 email: 'user@example.com',
                 phone: '+7 (900) 123-45-67',
-                balance: 100,
+                balance: 3.10,
                 level: 1,
                 vipLevel: 0,
                 purchasedVIPs: [],
@@ -1135,7 +1180,9 @@
             vipPackages.forEach(pkg => {
                 const isPurchased = appState.user.purchasedVIPs.includes(pkg.id);
                 const packageElement = document.createElement('div');
-                packageElement.className = `vip-package ${isPurchased ? 'active' : ''}`;
+                let className = `vip-package ${isPurchased ? 'active' : ''}`;
+                if (pkg.featured) className += ' vip-package-featured';
+                packageElement.className = className;
                 packageElement.onclick = () => showVIPPurchaseModal(pkg);
                 
                 packageElement.innerHTML = `
@@ -1240,10 +1287,6 @@
         // Обновление UI
         function updateUI() {
             // Обновление баланса
-            document.getElementById('currentBalance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-            document.getElementById('assets-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-            document.getElementById('team-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-            document.getElementById('earn-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
             document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
             
             // Обновление имени пользователя
@@ -1252,13 +1295,6 @@
             
             // Обновление аватара
             document.getElementById('user-avatar').textContent = appState.user.name.charAt(0);
-            
-            // Обновление уровня пользователя
-            document.getElementById('user-level').textContent = appState.user.level;
-            
-            // Обновление VIP уровня
-            document.getElementById('user-vip-level').textContent = `VIP ${appState.user.vipLevel}`;
-            document.getElementById('vip-badge').textContent = `VIP ${appState.user.vipLevel}`;
             
             // Обновление ID пользователя
             document.getElementById('profile-id').textContent = appState.user.id;
