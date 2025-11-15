@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belk</title>
+    <title>Uipath</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -48,12 +48,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100px;
+            height: 120px;
         }
 
         .logo {
-            width: 140px;
-            height: 50px;
+            width: 220px;
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -99,6 +99,7 @@
 
         .form-group {
             margin-bottom: 15px;
+            position: relative;
         }
 
         .form-label {
@@ -116,6 +117,21 @@
             font-size: 16px;
             background: var(--white);
             border-radius: 5px;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
         }
 
         .uni-button {
@@ -203,8 +219,7 @@
     <div class="login-container">
         <div class="login-header">
             <div class="logo">
-                <!-- Замените на ваш логотип -->
-                <div style="color: white; font-size: 24px; font-weight: bold;">BELK</div>
+                <img src="assets/logo.png" alt="Uipath">
             </div>
         </div>
 
@@ -218,75 +233,89 @@
 
             <div class="login-form">
                 <div class="form-tabs">
-                    <div class="form-tab active" id="loginTab" onclick="showTab('login')">Вход</div>
-                    <div class="form-tab" id="registerTab" onclick="showTab('register')">Регистрация</div>
+                    <div class="form-tab active" id="loginTab" onclick="showTab('login')">Login</div>
+                    <div class="form-tab" id="registerTab" onclick="showTab('register')">Register</div>
                 </div>
 
                 <div id="loginForm">
                     <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="text" id="loginEmail" class="uni-input" placeholder="Введите email">
-                        <div class="error-message" id="loginEmailError">Введите email</div>
+                        <label class="form-label">Username</label>
+                        <input type="text" id="loginUsername" class="uni-input" placeholder="Enter username">
+                        <div class="error-message" id="loginUsernameError">Enter username</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Пароль</label>
-                        <input type="password" id="loginPassword" class="uni-input" placeholder="Введите пароль">
-                        <div class="error-message" id="loginPasswordError">Введите пароль</div>
+                        <label class="form-label">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="loginPassword" class="uni-input" placeholder="Enter password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="loginPasswordError">Enter password</div>
                     </div>
 
-                    <button class="uni-button" onclick="login()">Войти</button>
+                    <button class="uni-button" onclick="login()">Login</button>
                 </div>
 
                 <div id="registerForm" style="display: none;">
                     <div class="form-group">
-                        <label class="form-label">Имя</label>
-                        <input type="text" id="registerUsername" class="uni-input" placeholder="Введите имя">
-                        <div class="error-message" id="registerUsernameError">Введите имя</div>
+                        <label class="form-label">Username</label>
+                        <input type="text" id="registerUsername" class="uni-input" placeholder="Enter username">
+                        <div class="error-message" id="registerUsernameError">Enter username</div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="email" id="registerEmail" class="uni-input" placeholder="Введите email">
-                        <div class="error-message" id="registerEmailError">Введите email</div>
+                        <input type="email" id="registerEmail" class="uni-input" placeholder="Enter email">
+                        <div class="error-message" id="registerEmailError">Enter email</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Телефон</label>
-                        <input type="tel" id="registerPhone" class="uni-input" placeholder="Введите номер телефона">
-                        <div class="error-message" id="registerPhoneError">Введите номер телефона</div>
+                        <label class="form-label">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="registerPassword" class="uni-input" placeholder="Enter password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('registerPassword')">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="registerPasswordError">Password must be at least 6 characters</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Пароль</label>
-                        <input type="password" id="registerPassword" class="uni-input" placeholder="Введите пароль">
-                        <div class="error-message" id="registerPasswordError">Пароль от 6 символов</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Подтвердите пароль</label>
-                        <input type="password" id="registerConfirmPassword" class="uni-input" placeholder="Подтвердите пароль">
-                        <div class="error-message" id="registerConfirmPasswordError">Пароли не совпадают</div>
+                        <label class="form-label">Confirm Password</label>
+                        <div class="password-container">
+                            <input type="password" id="registerConfirmPassword" class="uni-input" placeholder="Confirm password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('registerConfirmPassword')">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="registerConfirmPasswordError">Passwords don't match</div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Payment Password</label>
-                        <input type="password" id="registerPaymentPassword" class="uni-input" placeholder="Введите payment password">
-                        <div class="error-message" id="registerPaymentPasswordError">Payment password от 4 символов</div>
+                        <div class="password-container">
+                            <input type="password" id="registerPaymentPassword" class="uni-input" placeholder="Enter payment password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('registerPaymentPassword')">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="registerPaymentPasswordError">Payment password must be at least 4 characters</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Реферальный код (необязательно)</label>
-                        <input type="text" id="registerReferralCode" class="uni-input" placeholder="Введите реферальный код">
+                        <label class="form-label">Referral Code (optional)</label>
+                        <input type="text" id="registerReferralCode" class="uni-input" placeholder="Enter referral code">
                     </div>
 
-                    <button class="uni-button" onclick="register()">Зарегистрироваться</button>
+                    <button class="uni-button" onclick="register()">Register</button>
                 </div>
             </div>
         </div>
 
         <div class="login-footer">
-            © 2023 Belk
+            © 2023 Uipath
         </div>
     </div>
 
@@ -318,22 +347,37 @@
             });
         }
 
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentNode.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         function showSuccessAnimation() {
             document.getElementById('successAnimation').style.display = 'block';
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
-            }, 2000);
+            }, 1500);
         }
 
         async function login() {
             hideAllErrors();
             
-            const email = document.getElementById('loginEmail').value;
+            const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
             let isValid = true;
             
-            if (!email) {
-                document.getElementById('loginEmailError').style.display = 'block';
+            if (!username) {
+                document.getElementById('loginUsernameError').style.display = 'block';
                 isValid = false;
             }
             
@@ -345,40 +389,22 @@
             if (!isValid) return;
             
             try {
-                // Supabase login logic
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_KEY
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.user) {
-                    localStorage.setItem('belkUser', JSON.stringify(data.user));
-                    localStorage.setItem('belkAccessToken', data.access_token);
-                    showSuccessAnimation();
+                // Check local storage first
+                const userData = localStorage.getItem('uipathUserData');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    if (user.name === username && user.password === password) {
+                        localStorage.setItem('uipathUserLoggedIn', 'true');
+                        showSuccessAnimation();
+                    } else {
+                        alert('Invalid login credentials');
+                    }
                 } else {
-                    alert('Неверные данные для входа');
+                    alert('User not found');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                // Fallback to local storage if Supabase fails
-                const userData = localStorage.getItem('belkUserData');
-                if (userData) {
-                    const user = JSON.parse(userData);
-                    if (user.email === email && user.password === password) {
-                        localStorage.setItem('belkUserLoggedIn', 'true');
-                        showSuccessAnimation();
-                    } else {
-                        alert('Неверные данные для входа');
-                    }
-                } else {
-                    alert('Пользователь не найден');
-                }
+                alert('Login error occurred');
             }
         }
 
@@ -387,7 +413,6 @@
             
             const username = document.getElementById('registerUsername').value;
             const email = document.getElementById('registerEmail').value;
-            const phone = document.getElementById('registerPhone').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('registerConfirmPassword').value;
             const paymentPassword = document.getElementById('registerPaymentPassword').value;
@@ -402,11 +427,6 @@
             
             if (!email) {
                 document.getElementById('registerEmailError').style.display = 'block';
-                isValid = false;
-            }
-            
-            if (!phone) {
-                document.getElementById('registerPhoneError').style.display = 'block';
                 isValid = false;
             }
             
@@ -428,129 +448,50 @@
             if (!isValid) return;
             
             try {
-                // Supabase registration logic
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_KEY
-                    },
-                    body: JSON.stringify({ 
-                        email, 
-                        password,
-                        user_metadata: {
-                            username,
-                            phone,
-                            payment_password: paymentPassword
-                        }
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.user) {
-                    // Create user profile in database
-                    await createUserProfile(data.user.id, username, email, phone, paymentPassword, referralCode);
-                    showSuccessAnimation();
-                } else {
-                    // Fallback to local storage
-                    createLocalUser(username, email, phone, password, paymentPassword, referralCode);
-                    showSuccessAnimation();
-                }
+                // Create user in local storage
+                createLocalUser(username, email, password, paymentPassword, referralCode);
+                showSuccessAnimation();
             } catch (error) {
                 console.error('Registration error:', error);
-                // Fallback to local storage
-                createLocalUser(username, email, phone, password, paymentPassword, referralCode);
+                createLocalUser(username, email, password, paymentPassword, referralCode);
                 showSuccessAnimation();
             }
         }
 
-        function createLocalUser(username, email, phone, password, paymentPassword, referralCode) {
+        function createLocalUser(username, email, password, paymentPassword, referralCode) {
             const userId = 'BLK' + Math.floor(1000000 + Math.random() * 9000000);
             
             const userData = {
                 id: userId,
                 name: username,
                 email: email,
-                phone: phone,
                 password: password,
                 payment_password: paymentPassword,
                 balance: 3.10,
                 vipLevel: 0,
                 purchasedVIPs: [],
                 referralCode: userId,
-                referred_by: referralCode || null
+                referred_by: referralCode || null,
+                phoneVerified: false,
+                idVerified: false
             };
             
-            localStorage.setItem('belkUserData', JSON.stringify(userData));
-            localStorage.setItem('belkUserLoggedIn', 'true');
+            localStorage.setItem('uipathUserData', JSON.stringify(userData));
+            localStorage.setItem('uipathUserLoggedIn', 'true');
             
             const appState = {
                 referrals: { gen1: [], gen2: [], gen3: [] },
                 transactions: [
-                    { id: 1, type: 'bonus', title: 'Начальный бонус', date: 'Сегодня, 14:30', amount: 3.10, positive: true }
+                    { id: 1, type: 'bonus', title: 'Registration Bonus', date: 'Today, 14:30', amount: 3.10, positive: true }
                 ],
                 totalIncome: 0
             };
             
-            localStorage.setItem('belkAppState', JSON.stringify(appState));
-        }
-
-        async function createUserProfile(userId, username, email, phone, paymentPassword, referralCode) {
-            try {
-                const userRefCode = generateReferralCode();
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    },
-                    body: JSON.stringify({
-                        id: userId,
-                        username,
-                        email,
-                        phone,
-                        payment_password: paymentPassword,
-                        referral_code: userRefCode,
-                        referred_by: referralCode || null,
-                        balance: 3.10,
-                        vip_level: 0,
-                        created_at: new Date().toISOString()
-                    })
-                });
-                
-                // Create initial transaction
-                await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        type: 'bonus',
-                        title: 'Начальный бонус',
-                        date: 'Сегодня, 14:30',
-                        amount: 3.10,
-                        positive: true,
-                        created_at: new Date().toISOString()
-                    })
-                });
-                
-                return await response.json();
-            } catch (error) {
-                console.error('Profile creation error:', error);
-            }
-        }
-
-        function generateReferralCode() {
-            return 'BLK' + Math.floor(1000000 + Math.random() * 9000000);
+            localStorage.setItem('uipathAppState', JSON.stringify(appState));
         }
 
         window.onload = function() {
-            if (localStorage.getItem('belkAccessToken') || localStorage.getItem('belkUserLoggedIn') === 'true') {
+            if (localStorage.getItem('uipathUserLoggedIn') === 'true') {
                 window.location.href = 'dashboard.html';
             }
         };
