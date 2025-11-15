@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belk - Вход</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #0a505e;
+            --primary-light: #0d6a7c;
+            --accent: #ff9d00;
+            --success: #4cd964;
+            --danger: #ff3b30;
+            --dark: #1c1c1e;
+            --light: #f8f9fa;
+            --gray: #8e8e93;
+            --white: #ffffff;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            height: 100vh;
+        }
+
+        .login-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-header {
+            background: var(--primary);
+            color: white;
+            padding: 44px 15px 15px;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .login-content {
+            flex: 1;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-logo-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 32px;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .login-form {
+            margin-bottom: 30px;
+        }
+
+        .form-tabs {
+            display: flex;
+            background: var(--light);
+            padding: 2px;
+            margin-bottom: 20px;
+        }
+
+        .form-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .form-tab.active {
+            background: var(--white);
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .uni-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e5e5e5;
+            margin: 8px 0;
+            font-size: 16px;
+            background: var(--white);
+        }
+
+        .uni-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .uni-button:hover {
+            background: var(--primary-light);
+        }
+
+        .login-footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 12px;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Belk</h1>
+        </div>
+
+        <div class="login-content">
+            <div class="login-logo">
+                <div class="login-logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="login-title">Добро пожаловать</div>
+                <div class="login-subtitle">AI Трейдинг Платформа</div>
+            </div>
+
+            <div class="login-form">
+                <div class="form-tabs">
+                    <div class="form-tab active" id="loginTab" onclick="showTab('login')">Вход</div>
+                    <div class="form-tab" id="registerTab" onclick="showTab('register')">Регистрация</div>
+                </div>
+
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="text" id="loginEmail" class="uni-input" placeholder="Введите email">
+                        <div class="error-message" id="loginEmailError">Введите email</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" id="loginPassword" class="uni-input" placeholder="Введите пароль">
+                        <div class="error-message" id="loginPasswordError">Введите пароль</div>
+                    </div>
+
+                    <button class="uni-button" onclick="login()">Войти</button>
+                </div>
+
+                <div id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Имя</label>
+                        <input type="text" id="registerUsername" class="uni-input" placeholder="Введите имя">
+                        <div class="error-message" id="registerUsernameError">Введите имя</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="registerEmail" class="uni-input" placeholder="Введите email">
+                        <div class="error-message" id="registerEmailError">Введите email</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" id="registerPassword" class="uni-input" placeholder="Введите пароль">
+                        <div class="error-message" id="registerPasswordError">Пароль от 6 символов</div>
+                    </div>
+
+                    <button class="uni-button" onclick="register()">Зарегистрироваться</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            © 2023 Belk
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            document.getElementById('loginTab').classList.remove('active');
+            document.getElementById('registerTab').classList.remove('active');
+            
+            if (tabName === 'login') {
+                document.getElementById('loginTab').classList.add('active');
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+            } else {
+                document.getElementById('registerTab').classList.add('active');
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            }
+            
+            hideAllErrors();
+        }
+
+        function hideAllErrors() {
+            document.querySelectorAll('.error-message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+        }
+
+        function login() {
+            hideAllErrors();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            let isValid = true;
+            
+            if (!email) {
+                document.getElementById('loginEmailError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!password) {
+                document.getElementById('loginPasswordError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            const userData = localStorage.getItem('belkUserData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                if (user.email === email && user.password === password) {
+                    localStorage.setItem('belkUserLoggedIn', 'true');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('Неверные данные');
+                }
+            } else {
+                alert('Пользователь не найден');
+            }
+        }
+
+        function register() {
+            hideAllErrors();
+            
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            let isValid = true;
+            
+            if (!username) {
+                document.getElementById('registerUsernameError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!email) {
+                document.getElementById('registerEmailError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (password.length < 6) {
+                document.getElementById('registerPasswordError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            const userId = 'BLK' + Math.floor(1000000 + Math.random() * 9000000);
+            
+            const userData = {
+                id: userId,
+                name: username,
+                email: email,
+                password: password,
+                balance: 3.10,
+                vipLevel: 0,
+                purchasedVIPs: [],
+                referralCode: userId
+            };
+            
+            localStorage.setItem('belkUserData', JSON.stringify(userData));
+            
+            const appState = {
+                referrals: { gen1: [], gen2: [], gen3: [] },
+                transactions: [
+                    { id: 1, type: 'deposit', title: 'Начальный бонус', date: 'Сегодня, 14:30', amount: 3.10, positive: true }
+                ],
+                totalIncome: 0
+            };
+            
+            localStorage.setItem('belkAppState', JSON.stringify(appState));
+            
+            localStorage.setItem('belkUserLoggedIn', 'true');
+            window.location.href = 'dashboard.html';
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem('belkUserLoggedIn') === 'true') {
+                window.location.href = 'dashboard.html';
+            }
+        };
+    </script>
+</body>
+</html>
