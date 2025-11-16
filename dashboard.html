@@ -864,6 +864,110 @@
             font-weight: 600;
             color: var(--success);
         }
+
+        /* Custom Alert Styles */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .custom-alert {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .custom-alert-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-alert-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .custom-alert-message {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        .custom-alert-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .custom-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .custom-confirm {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .custom-confirm-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .custom-confirm-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .custom-confirm-button.confirm {
+            background: var(--primary);
+            color: white;
+        }
+
+        .custom-confirm-button.cancel {
+            background: var(--light);
+            color: var(--dark);
+        }
     </style>
 </head>
 <body>
@@ -1126,7 +1230,9 @@
                     <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">VIP Package Rules:</div>
                     <div style="font-size: 14px; color: var(--gray); text-align: left;">
                         • The purchase price of VIP packages will be returned exactly after 29 days.<br>
-                        • On the 30th day, the full price of the VIP package will be returned to your balance.
+                        • On the 30th day, the full price of the VIP package will be returned to your balance.<br>
+                        • Each VIP package generates daily income for 30 days.<br>
+                        • Higher VIP packages have higher daily income percentages.
                     </div>
                 </div>
             </div>
@@ -1154,7 +1260,7 @@
                 <div style="font-size:14px;">Available for withdrawal</div>
                 <div style="font-size:32px; font-weight:600; margin: 10px 0;" id="available-income">0.00 USDT</div>
                 <div style="font-size:14px;" id="today-percent">+0.0% today</div>
-                <button class="uni-button uni-button-success" id="claim-button" onclick="startTradingProcess()" style="margin-top: 15px; background: var(--accent);">
+                <button class="uni-button uni-button-success" id="claim-button" onclick="claimDailyIncome()" style="margin-top: 15px; background: var(--accent);">
                     <i class="fas fa-bolt"></i> CLAIM INCOME
                 </button>
                 <div style="font-size:12px; margin-top: 10px;" id="claim-timer"></div>
@@ -1453,14 +1559,18 @@
     </div>
 
     <script>
-        // VIP packages data
+        // Supabase configuration
+        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
+
+        // VIP packages data with correct daily income and 30-day duration
         const vipPackages = [
-            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, active: false, bgImage: 'assets/vip1.png', icon: 'assets/vip1-icon.png' },
-            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, active: false, bgImage: 'assets/vip2.png', icon: 'assets/vip2-icon.png' },
-            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, active: false, bgImage: 'assets/vip3.png', icon: 'assets/vip3-icon.png' },
-            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, active: false, bgImage: 'assets/vip4.png', icon: 'assets/vip4-icon.png' },
-            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, active: false, bgImage: 'assets/vip5.png', icon: 'assets/vip5-icon.png' },
-            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, active: false, bgImage: 'assets/vip6.png', icon: 'assets/vip6-icon.png' }
+            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, duration: 30, bgImage: 'assets/vip1.png', icon: 'assets/vip1-icon.png' },
+            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, duration: 30, bgImage: 'assets/vip2.png', icon: 'assets/vip2-icon.png' },
+            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, duration: 30, bgImage: 'assets/vip3.png', icon: 'assets/vip3-icon.png' },
+            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, duration: 30, bgImage: 'assets/vip4.png', icon: 'assets/vip4-icon.png' },
+            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, duration: 30, bgImage: 'assets/vip5.png', icon: 'assets/vip5-icon.png' },
+            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, duration: 30, bgImage: 'assets/vip6.png', icon: 'assets/vip6-icon.png' }
         ];
 
         // App state
@@ -1470,13 +1580,12 @@
                 name: 'User',
                 email: 'user@example.com',
                 balance: 3.10,
-                level: 1,
-                vipLevel: 0,
+                vip_level: 0,
                 purchasedVIPs: [],
-                lastClaimDate: null,
-                referralCode: 'BLK2839475',
-                phoneVerified: false,
-                idVerified: false
+                last_claim_date: null,
+                referral_code: 'BLK2839475',
+                phone_verified: false,
+                id_verified: false
             },
             referrals: {
                 gen1: [],
@@ -1486,11 +1595,134 @@
             transactions: [
                 { id: 1, type: 'bonus', title: 'Registration Bonus', date: 'Today, 14:30', amount: 3.10, positive: true }
             ],
-            totalIncome: 0
+            totalIncome: 0,
+            activeVipPackages: []
         };
 
-        // Load state from localStorage
-        function loadState() {
+        // Custom alert function
+        function showCustomAlert(message, type = 'info') {
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-alert-overlay';
+            
+            overlay.innerHTML = `
+                <div class="custom-alert">
+                    <div class="custom-alert-icon">
+                        <img src="assets/quant.png" alt="Uipath">
+                    </div>
+                    <div class="custom-alert-message">${message}</div>
+                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+
+        // Custom confirm function
+        function showCustomConfirm(message, confirmCallback, cancelCallback = null) {
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-confirm-overlay';
+            
+            overlay.innerHTML = `
+                <div class="custom-confirm">
+                    <div class="custom-alert-icon">
+                        <img src="assets/quant.png" alt="Uipath">
+                    </div>
+                    <div class="custom-alert-message">${message}</div>
+                    <div class="custom-confirm-buttons">
+                        <button class="custom-confirm-button cancel" onclick="this.closest('.custom-confirm-overlay').remove(); ${cancelCallback ? cancelCallback() : ''}">Cancel</button>
+                        <button class="custom-confirm-button confirm" onclick="this.closest('.custom-confirm-overlay').remove(); ${confirmCallback()}">Confirm</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+
+        // Supabase database functions
+        async function supabaseFetch(table, query = '*') {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=${query}`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Supabase fetch error:', error);
+                // Fallback to localStorage if Supabase is not available
+                const localData = localStorage.getItem(`supabase_${table}`);
+                return localData ? JSON.parse(localData) : [];
+            }
+        }
+
+        async function supabaseInsert(table, data) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                // Also store locally as backup
+                const localData = localStorage.getItem(`supabase_${table}`);
+                const existingData = localData ? JSON.parse(localData) : [];
+                existingData.push({...data, id: result[0]?.id || Date.now()});
+                localStorage.setItem(`supabase_${table}`, JSON.stringify(existingData));
+                
+                return result;
+            } catch (error) {
+                console.error('Supabase insert error:', error);
+                // Fallback to localStorage
+                const localData = localStorage.getItem(`supabase_${table}`);
+                const existingData = localData ? JSON.parse(localData) : [];
+                const newId = existingData.length > 0 ? Math.max(...existingData.map(item => item.id)) + 1 : 1;
+                const newData = {...data, id: newId};
+                existingData.push(newData);
+                localStorage.setItem(`supabase_${table}`, JSON.stringify(existingData));
+                return [newData];
+            }
+        }
+
+        async function supabaseUpdate(table, data, column, value) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${value}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                // Also update local storage
+                const localData = localStorage.getItem(`supabase_${table}`);
+                if (localData) {
+                    const existingData = JSON.parse(localData);
+                    const index = existingData.findIndex(item => item[column] === value);
+                    if (index !== -1) {
+                        existingData[index] = {...existingData[index], ...data};
+                        localStorage.setItem(`supabase_${table}`, JSON.stringify(existingData));
+                    }
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Supabase update error:', error);
+                return null;
+            }
+        }
+
+        // Load state from localStorage and Supabase
+        async function loadState() {
             const savedState = localStorage.getItem('uipathAppState');
             const userData = localStorage.getItem('uipathUserData');
             
@@ -1503,18 +1735,40 @@
                 if (parsedState.referrals) appState.referrals = parsedState.referrals;
                 if (parsedState.transactions) appState.transactions = parsedState.transactions;
                 if (parsedState.totalIncome !== undefined) appState.totalIncome = parsedState.totalIncome;
-                if (parsedState.user && parsedState.user.lastClaimDate) {
-                    appState.user.lastClaimDate = new Date(parsedState.user.lastClaimDate);
+                if (parsedState.user && parsedState.user.last_claim_date) {
+                    appState.user.last_claim_date = new Date(parsedState.user.last_claim_date);
                 }
                 if (parsedState.user && parsedState.user.purchasedVIPs) {
                     appState.user.purchasedVIPs = parsedState.user.purchasedVIPs;
                 }
-                if (parsedState.user && parsedState.user.phoneVerified !== undefined) {
-                    appState.user.phoneVerified = parsedState.user.phoneVerified;
+                if (parsedState.user && parsedState.user.phone_verified !== undefined) {
+                    appState.user.phone_verified = parsedState.user.phone_verified;
                 }
-                if (parsedState.user && parsedState.user.idVerified !== undefined) {
-                    appState.user.idVerified = parsedState.user.idVerified;
+                if (parsedState.user && parsedState.user.id_verified !== undefined) {
+                    appState.user.id_verified = parsedState.user.id_verified;
                 }
+            }
+            
+            // Load data from Supabase
+            try {
+                // Load user's VIP purchases
+                const vipPurchases = await supabaseFetch('vip_purchases');
+                appState.activeVipPackages = vipPurchases.filter(purchase => 
+                    purchase.user_id === appState.user.id && purchase.active === true
+                );
+                
+                // Load transactions
+                const transactions = await supabaseFetch('transactions');
+                appState.transactions = transactions.filter(t => t.user_id === appState.user.id);
+                
+                // Load referrals
+                const referrals = await supabaseFetch('referrals');
+                appState.referrals.gen1 = referrals.filter(ref => ref.referrer_id === appState.user.id && ref.level === 1);
+                appState.referrals.gen2 = referrals.filter(ref => ref.referrer_id === appState.user.id && ref.level === 2);
+                appState.referrals.gen3 = referrals.filter(ref => ref.referrer_id === appState.user.id && ref.level === 3);
+                
+            } catch (error) {
+                console.error('Error loading data from Supabase:', error);
             }
         }
 
@@ -1525,10 +1779,10 @@
                 transactions: appState.transactions,
                 totalIncome: appState.totalIncome,
                 user: {
-                    lastClaimDate: appState.user.lastClaimDate,
+                    last_claim_date: appState.user.last_claim_date,
                     purchasedVIPs: appState.user.purchasedVIPs,
-                    phoneVerified: appState.user.phoneVerified,
-                    idVerified: appState.user.idVerified
+                    phone_verified: appState.user.phone_verified,
+                    id_verified: appState.user.id_verified
                 }
             }));
             
@@ -1536,8 +1790,9 @@
         }
 
         // Initialize app
-        function initApp() {
-            loadState();
+        async function initApp() {
+            await loadState();
+            await checkExpiredVIPPackages();
             renderVIPPackages();
             updateUI();
             updateClaimButton();
@@ -1644,6 +1899,10 @@
                         iconClass = 'deposit';
                         icon = 'fa-coins';
                         break;
+                    case 'deposit_return':
+                        iconClass = 'deposit';
+                        icon = 'fa-undo';
+                        break;
                     default:
                         iconClass = 'deposit';
                         icon = 'fa-coins';
@@ -1656,7 +1915,7 @@
                         </div>
                         <div>
                             <div style="font-weight:600;">${transaction.title}</div>
-                            <div style="font-size:12px; color:var(--gray);">${transaction.date}</div>
+                            <div style="font-size:12px; color:var(--gray);">${transaction.date || formatDate(new Date(transaction.created_at))}</div>
                         </div>
                     </div>
                     <div style="font-weight:600; color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};">
@@ -1688,6 +1947,7 @@
                         <div style="font-weight:600; font-size:16px; color: white;">VIP ${pkg.level}</div>
                         <div style="font-size:14px; color: white;">${formatCurrency(pkg.price)} USDT</div>
                         <div style="font-size:12px; opacity:0.9; color: white;">+${formatCurrency(pkg.dailyIncome)} USDT/day</div>
+                        <div style="font-size:10px; opacity:0.8; color: white;">${pkg.percentage}% daily for 30 days</div>
                     </div>
                     <div class="vip-icon">
                         <img src="${pkg.icon}" alt="VIP ${pkg.level}">
@@ -1702,38 +1962,146 @@
         }
 
         // Purchase VIP package
-        function purchaseVIPPackage(pkg) {
-            if (appState.user.purchasedVIPs.includes(pkg.id)) return;
-            
-            if (appState.user.balance < pkg.price) {
-                alert('Insufficient funds to purchase this package');
+        async function purchaseVIPPackage(pkg) {
+            if (appState.user.purchasedVIPs.includes(pkg.id)) {
+                showCustomAlert('You already own this VIP package');
                 return;
             }
             
-            if (confirm(`Are you sure you want to buy VIP ${pkg.level} for ${formatCurrency(pkg.price)} USDT?`)) {
-                // Deduct funds
-                appState.user.balance -= pkg.price;
-                appState.user.purchasedVIPs.push(pkg.id);
-                appState.user.vipLevel = Math.max(appState.user.vipLevel, pkg.level);
+            if (appState.user.balance < pkg.price) {
+                showCustomAlert('Insufficient funds to purchase this package');
+                return;
+            }
+            
+            showCustomConfirm(
+                `Are you sure you want to buy VIP ${pkg.level} for ${formatCurrency(pkg.price)} USDT? You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days, then your deposit will be returned.`,
+                () => {
+                    processVIPPurchase(pkg);
+                }
+            );
+        }
+
+        async function processVIPPurchase(pkg) {
+            try {
+                // Calculate expiration date (30 days from now)
+                const purchaseDate = new Date();
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + pkg.duration);
                 
-                // Add transaction
-                appState.transactions.unshift({
-                    id: appState.transactions.length + 1,
-                    type: 'vip_purchase',
-                    title: `VIP ${pkg.level} Purchase`,
-                    date: 'Just now',
-                    amount: pkg.price,
-                    positive: false
-                });
+                // Create VIP purchase record in database
+                const vipPurchaseData = {
+                    user_id: appState.user.id,
+                    vip_package_id: pkg.id,
+                    purchase_date: purchaseDate.toISOString(),
+                    expiry_date: expiryDate.toISOString(),
+                    active: true,
+                    deposit_returned: false
+                };
                 
-                // Save state
-                saveState();
+                const result = await supabaseInsert('vip_purchases', vipPurchaseData);
                 
-                // Update UI
-                updateUI();
-                renderVIPPackages();
+                if (result) {
+                    // Update user balance
+                    const newBalance = appState.user.balance - pkg.price;
+                    await supabaseUpdate('users', { balance: newBalance }, 'id', appState.user.id);
+                    
+                    // Update VIP level
+                    const newVipLevel = Math.max(appState.user.vip_level, pkg.level);
+                    await supabaseUpdate('users', { vip_level: newVipLevel }, 'id', appState.user.id);
+                    
+                    // Add transaction
+                    const transactionData = {
+                        user_id: appState.user.id,
+                        type: 'vip_purchase',
+                        title: `VIP ${pkg.level} Purchase`,
+                        amount: pkg.price,
+                        positive: false,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    await supabaseInsert('transactions', transactionData);
+                    
+                    // Process referral income for uplines
+                    await processReferralIncome(appState.user.id, pkg.price);
+                    
+                    // Update local state
+                    appState.user.balance = newBalance;
+                    appState.user.vip_level = newVipLevel;
+                    appState.user.purchasedVIPs.push(pkg.id);
+                    appState.activeVipPackages.push({
+                        ...vipPurchaseData,
+                        id: result[0]?.id || Date.now()
+                    });
+                    
+                    // Save state and update UI
+                    saveState();
+                    updateUI();
+                    renderVIPPackages();
+                    
+                    showCustomAlert(`VIP ${pkg.level} successfully purchased! You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days, then your ${formatCurrency(pkg.price)} USDT deposit will be returned.`);
+                }
+            } catch (error) {
+                console.error('Purchase error:', error);
+                showCustomAlert('Purchase failed. Please try again.');
+            }
+        }
+
+        // Process referral income for 3 generations
+        async function processReferralIncome(userId, amount) {
+            try {
+                // Get user's referrals (find who referred this user)
+                const referrals = await supabaseFetch('referrals');
+                const userReferrals = referrals.filter(ref => ref.referred_id === userId);
                 
-                alert(`VIP ${pkg.level} successfully purchased!`);
+                for (const referral of userReferrals) {
+                    let bonusPercentage = 0;
+                    
+                    switch(referral.level) {
+                        case 1: bonusPercentage = 0.08; break; // 8%
+                        case 2: bonusPercentage = 0.03; break; // 3%
+                        case 3: bonusPercentage = 0.01; break; // 1%
+                    }
+                    
+                    const bonusAmount = amount * bonusPercentage;
+                    
+                    if (bonusAmount > 0) {
+                        // Update referrer's balance
+                        await updateUserBalance(referral.referrer_id, bonusAmount);
+                        
+                        // Add referral transaction
+                        const transactionData = {
+                            user_id: referral.referrer_id,
+                            type: 'referral',
+                            title: `Referral Income (Level ${referral.level})`,
+                            amount: bonusAmount,
+                            positive: true,
+                            created_at: new Date().toISOString()
+                        };
+                        
+                        await supabaseInsert('transactions', transactionData);
+                        
+                        // Update local state if the referrer is current user
+                        if (referral.referrer_id === appState.user.id) {
+                            appState.user.balance += bonusAmount;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Referral income processing error:', error);
+            }
+        }
+
+        async function updateUserBalance(userId, amount) {
+            try {
+                const users = await supabaseFetch('users');
+                const user = users.find(u => u.id === userId);
+                
+                if (user) {
+                    const newBalance = parseFloat(user.balance) + amount;
+                    await supabaseUpdate('users', { balance: newBalance }, 'id', userId);
+                }
+            } catch (error) {
+                console.error('Error updating user balance:', error);
             }
         }
 
@@ -1743,6 +2111,16 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }).format(amount);
+        }
+
+        // Format date
+        function formatDate(date) {
+            return new Intl.DateTimeFormat('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
         }
 
         // Update UI
@@ -1757,8 +2135,8 @@
             document.getElementById('profile-id').textContent = appState.user.id;
             
             // Update referral link
-            document.getElementById('referral-link').textContent = `https://uipath.app/ref/${appState.user.referralCode}`;
-            document.getElementById('team-referral-link').textContent = `https://uipath.app/ref/${appState.user.referralCode}`;
+            document.getElementById('referral-link').textContent = `https://uipath.app/ref/${appState.user.referral_code}`;
+            document.getElementById('team-referral-link').textContent = `https://uipath.app/ref/${appState.user.referral_code}`;
             
             // Update team screen
             updateTeamScreen();
@@ -1778,9 +2156,9 @@
             document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
             
             // Calculate referral income
-            const gen1Income = appState.referrals.gen1.reduce((sum, ref) => sum + (ref.income || 0), 0);
-            const gen2Income = appState.referrals.gen2.reduce((sum, ref) => sum + (ref.income || 0), 0);
-            const gen3Income = appState.referrals.gen3.reduce((sum, ref) => sum + (ref.income || 0), 0);
+            const gen1Income = calculateReferralIncome(1);
+            const gen2Income = calculateReferralIncome(2);
+            const gen3Income = calculateReferralIncome(3);
             
             document.getElementById('gen1-income').textContent = `${formatCurrency(gen1Income)} USDT`;
             document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
@@ -1799,39 +2177,66 @@
             appState.referrals.gen1.forEach(ref => {
                 const referralItem = document.createElement('div');
                 referralItem.className = 'referral-item';
+                
+                // Get referral user data
+                const referralIncome = calculateReferralIncomeForUser(ref.referred_id);
+                
                 referralItem.innerHTML = `
                     <div class="referral-info">
-                        <div class="referral-avatar">${ref.name.charAt(0)}</div>
+                        <div class="referral-avatar">${ref.referred_id.substring(3, 5)}</div>
                         <div>
-                            <div class="name" style="font-weight:600;">${ref.name}</div>
-                            <div class="date" style="font-size:11px; color:var(--gray);">Joined: ${ref.date}</div>
+                            <div class="name" style="font-weight:600;">User ${ref.referred_id}</div>
+                            <div class="date" style="font-size:11px; color:var(--gray);">Level 1</div>
                         </div>
                     </div>
-                    <div class="referral-income" style="font-weight:600; color:var(--success);">+${formatCurrency(ref.income)} USDT</div>
+                    <div class="referral-income" style="font-weight:600; color:var(--success);">+${formatCurrency(referralIncome)} USDT</div>
                 `;
                 referralList.appendChild(referralItem);
             });
         }
 
+        function calculateReferralIncome(level) {
+            // This would normally calculate based on actual referral purchases
+            // For now, we'll use a simple calculation
+            const baseAmount = level === 1 ? 10 : level === 2 ? 5 : 2;
+            return appState.referrals[`gen${level}`].length * baseAmount;
+        }
+
+        function calculateReferralIncomeForUser(userId) {
+            // Simple calculation for demo
+            return Math.random() * 20 + 5;
+        }
+
         // Update earn screen
         function updateEarnScreen() {
-            // Calculate available income
-            let availableIncome = 0;
-            appState.user.purchasedVIPs.forEach(vipId => {
-                const pkg = vipPackages.find(p => p.id === vipId);
-                if (pkg) {
-                    availableIncome += pkg.dailyIncome;
+            // Calculate available income from active VIP packages
+            let dailyIncome = 0;
+            appState.activeVipPackages.forEach(purchase => {
+                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                if (vipPackage) {
+                    dailyIncome += vipPackage.dailyIncome;
                 }
             });
             
-            document.getElementById('available-income').textContent = `${formatCurrency(availableIncome)} USDT`;
+            document.getElementById('available-income').textContent = `${formatCurrency(dailyIncome)} USDT`;
             
             // Calculate income percentage
             let percentage = 0;
-            if (appState.user.balance > 0) {
-                percentage = (availableIncome / appState.user.balance) * 100;
+            const totalInvested = appState.activeVipPackages.reduce((sum, purchase) => {
+                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                return sum + (vipPackage ? vipPackage.price : 0);
+            }, 0);
+            
+            if (totalInvested > 0) {
+                percentage = (dailyIncome / totalInvested) * 100;
             }
             document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
+            
+            // Update VIP level display
+            const vipLevelDisplay = document.querySelector('#earnPage .uni-card div:nth-child(2)');
+            if (vipLevelDisplay) {
+                vipLevelDisplay.textContent = `VIP ${appState.user.vip_level}`;
+            }
         }
 
         // Update verification status
@@ -1845,7 +2250,7 @@
             const idButton = document.getElementById('id-button');
             
             // Phone verification
-            if (appState.user.phoneVerified) {
+            if (appState.user.phone_verified) {
                 phoneStatus.className = 'status-icon verified';
                 phoneStatus.innerHTML = '<i class="fas fa-check"></i>';
                 phoneText.textContent = 'Verified';
@@ -1862,7 +2267,7 @@
             }
             
             // ID verification
-            if (appState.user.idVerified) {
+            if (appState.user.id_verified) {
                 idStatus.className = 'status-icon verified';
                 idStatus.innerHTML = '<i class="fas fa-check"></i>';
                 idText.textContent = 'Verified';
@@ -1885,10 +2290,10 @@
             if (phoneNumber) {
                 // Simulate verification process
                 setTimeout(() => {
-                    appState.user.phoneVerified = true;
+                    appState.user.phone_verified = true;
                     saveState();
                     updateVerificationStatus();
-                    alert('Phone number verified successfully!');
+                    showCustomAlert('Phone number verified successfully!');
                 }, 1500);
             }
         }
@@ -1899,10 +2304,10 @@
             if (idNumber) {
                 // Simulate verification process
                 setTimeout(() => {
-                    appState.user.idVerified = true;
+                    appState.user.id_verified = true;
                     saveState();
                     updateVerificationStatus();
-                    alert('ID/Passport verified successfully!');
+                    showCustomAlert('ID/Passport verified successfully!');
                 }, 1500);
             }
         }
@@ -1914,10 +2319,10 @@
             
             // Calculate available income
             let availableIncome = 0;
-            appState.user.purchasedVIPs.forEach(vipId => {
-                const pkg = vipPackages.find(p => p.id === vipId);
-                if (pkg) {
-                    availableIncome += pkg.dailyIncome;
+            appState.activeVipPackages.forEach(purchase => {
+                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                if (vipPackage) {
+                    availableIncome += vipPackage.dailyIncome;
                 }
             });
             
@@ -1930,6 +2335,17 @@
             
             // Check time (22:00 UTC logic)
             const now = new Date();
+            const lastClaim = appState.user.last_claim_date ? new Date(appState.user.last_claim_date) : null;
+            
+            // Check if already claimed today
+            if (lastClaim && isSameDay(now, lastClaim)) {
+                claimButton.disabled = true;
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ALREADY CLAIMED TODAY';
+                claimTimer.textContent = 'Next claim available tomorrow at 22:00 UTC';
+                return;
+            }
+            
+            // Check if it's the correct time (22:00 UTC)
             const utcHours = now.getUTCHours();
             const canClaim = utcHours >= 22;
             
@@ -1945,74 +2361,106 @@
             }
         }
 
+        // Check if two dates are the same day
+        function isSameDay(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() &&
+                   date1.getMonth() === date2.getMonth() &&
+                   date1.getDate() === date2.getDate();
+        }
+
         // Timer for claim button update
         function startTimer() {
             setInterval(updateClaimButton, 60000);
         }
 
-        // Income claim process
-        function startTradingProcess() {
+        // Daily income claim
+        async function claimDailyIncome() {
             const claimBtn = document.getElementById('claim-button');
-            const steps = [1, 2, 3];
             
             if (claimBtn.disabled) return;
+            
+            // Calculate daily income
+            let dailyIncome = 0;
+            appState.activeVipPackages.forEach(purchase => {
+                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                if (vipPackage) {
+                    dailyIncome += vipPackage.dailyIncome;
+                }
+            });
+            
+            if (dailyIncome === 0) {
+                showCustomAlert('No available income to claim. Purchase a VIP package to start earning.');
+                return;
+            }
+            
+            // Start claim process with animation
+            await startTradingProcess(dailyIncome);
+        }
+
+        // Trading process with animation
+        async function startTradingProcess(dailyIncome) {
+            const claimBtn = document.getElementById('claim-button');
+            const steps = [1, 2, 3];
             
             // Start process
             claimBtn.disabled = true;
             claimBtn.classList.add('processing');
             claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
             
-            // Calculate income
-            let dailyIncome = 0;
-            appState.user.purchasedVIPs.forEach(vipId => {
-                const pkg = vipPackages.find(p => p.id === vipId);
-                if (pkg) {
-                    dailyIncome += pkg.dailyIncome;
-                }
-            });
-            
             // Process animation
-            steps.forEach((step, index) => {
-                setTimeout(() => {
-                    const stepIcon = document.getElementById(`step-${step}`);
-                    stepIcon.classList.add('active');
+            for (let i = 0; i < steps.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                const step = steps[i];
+                const stepIcon = document.getElementById(`step-${step}`);
+                stepIcon.classList.add('active');
+                
+                if (step === 1) {
+                    claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
+                } else if (step === 2) {
+                    claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
+                } else if (step === 3) {
+                    claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
+                    claimBtn.classList.remove('processing');
+                    claimBtn.classList.add('completed');
                     
-                    if (step === 1) {
-                        claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
-                    } else if (step === 2) {
-                        claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
-                    } else if (step === 3) {
-                        claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
-                        claimBtn.classList.remove('processing');
-                        claimBtn.classList.add('completed');
-                        
-                        // Update balance and transactions
-                        appState.user.balance += dailyIncome;
-                        appState.totalIncome += dailyIncome;
-                        appState.user.lastClaimDate = new Date();
-                        
-                        appState.transactions.unshift({
-                            id: appState.transactions.length + 1,
-                            type: 'daily_income',
-                            title: 'Daily Quantification Income',
-                            date: 'Just now',
-                            amount: dailyIncome,
-                            positive: true
-                        });
-                        
-                        // Save state
-                        saveState();
-                        
-                        // Update UI
-                        updateUI();
-                        
-                        // Reset after 3 seconds
-                        setTimeout(() => {
-                            resetTradingProcess();
-                        }, 3000);
-                    }
-                }, (index + 1) * 1500);
-            });
+                    // Update balance and transactions in database
+                    const newBalance = appState.user.balance + dailyIncome;
+                    await supabaseUpdate('users', 
+                        { balance: newBalance, last_claim_date: new Date().toISOString() }, 
+                        'id', appState.user.id
+                    );
+                    
+                    // Add income transaction
+                    const transactionData = {
+                        user_id: appState.user.id,
+                        type: 'daily_income',
+                        title: 'Daily Quantification Income',
+                        amount: dailyIncome,
+                        positive: true,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    await supabaseInsert('transactions', transactionData);
+                    
+                    // Update local state
+                    appState.user.balance = newBalance;
+                    appState.user.last_claim_date = new Date();
+                    appState.totalIncome += dailyIncome;
+                    appState.transactions.unshift(transactionData);
+                    
+                    // Save state and update UI
+                    saveState();
+                    updateUI();
+                    
+                    showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
+                    
+                    // Reset after 3 seconds
+                    setTimeout(() => {
+                        resetTradingProcess();
+                    }, 3000);
+                }
+            }
         }
 
         function resetTradingProcess() {
@@ -2028,6 +2476,54 @@
             });
             
             updateClaimButton();
+        }
+
+        // Check and process expired VIP packages (return deposits)
+        async function checkExpiredVIPPackages() {
+            try {
+                const now = new Date();
+                
+                for (const purchase of appState.activeVipPackages) {
+                    if (purchase.active && new Date(purchase.expiry_date) <= now && !purchase.deposit_returned) {
+                        // Return deposit to user
+                        const vipPackage = vipPackages.find(vp => vp.id === purchase.vip_package_id);
+                        if (vipPackage) {
+                            await updateUserBalance(purchase.user_id, vipPackage.price);
+                            
+                            // Mark as returned and inactive
+                            await supabaseUpdate('vip_purchases', 
+                                { active: false, deposit_returned: true }, 
+                                'id', purchase.id
+                            );
+                            
+                            // Add transaction for deposit return
+                            const transactionData = {
+                                user_id: purchase.user_id,
+                                type: 'deposit_return',
+                                title: `VIP ${vipPackage.level} Deposit Return`,
+                                amount: vipPackage.price,
+                                positive: true,
+                                created_at: new Date().toISOString()
+                            };
+                            
+                            await supabaseInsert('transactions', transactionData);
+                            
+                            // Update local state
+                            appState.user.balance += vipPackage.price;
+                            purchase.active = false;
+                            purchase.deposit_returned = true;
+                            
+                            showCustomAlert(`Your VIP ${vipPackage.level} package has expired and your ${formatCurrency(vipPackage.price)} USDT deposit has been returned!`);
+                        }
+                    }
+                }
+                
+                // Remove inactive packages from active list
+                appState.activeVipPackages = appState.activeVipPackages.filter(p => p.active);
+                
+            } catch (error) {
+                console.error('Error checking expired packages:', error);
+            }
         }
 
         // Page switching function
@@ -2085,20 +2581,25 @@
                 setTimeout(() => {
                     element.textContent = originalText;
                 }, 2000);
+            }).catch(() => {
+                showCustomAlert('Failed to copy to clipboard');
             });
         }
 
         function updatePassword() {
-            alert('Password change feature will be implemented in the next update');
+            showCustomAlert('Password change feature will be implemented in the next update');
         }
 
         function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('uipathUserLoggedIn');
-                localStorage.removeItem('uipathAccessToken');
-                localStorage.removeItem('uipathUser');
-                window.location.href = 'index.html';
-            }
+            showCustomConfirm(
+                'Are you sure you want to logout?',
+                () => {
+                    localStorage.removeItem('uipathUserLoggedIn');
+                    localStorage.removeItem('uipathAccessToken');
+                    localStorage.removeItem('uipathUser');
+                    window.location.href = 'index.html';
+                }
+            );
         }
 
         // Initialize app on load
