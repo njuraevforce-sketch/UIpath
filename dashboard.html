@@ -1567,6 +1567,36 @@
             transactions: []
         };
 
+        // 🔥 НОВАЯ ФУНКЦИЯ: Вызов PostgreSQL функций через REST API
+        async function callPostgresFunction(functionName, params = {}) {
+            console.log(`[POSTGRES FUNCTION] Calling ${functionName}`, params);
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'params=single-object'
+                    },
+                    body: JSON.stringify(params)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log(`[POSTGRES FUNCTION SUCCESS] ${functionName}:`, result);
+                return result;
+            } catch (error) {
+                console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, error);
+                throw error;
+            }
+        }
+
         // 🔥 ИСПРАВЛЕННАЯ ЛОГИКА ВРЕМЕНИ - строго 22:00 UTC
         function getCurrentIncomeWindow() {
             const now = new Date();
@@ -1804,52 +1834,9 @@
         async function processExpiredVipPackages() {
             console.log('[EXPIRY CHECK] Starting expired packages check');
             try {
-                const now = new Date();
-                let processedCount = 0;
-                
-                for (const purchase of appState.activeVipPackages) {
-                    const purchaseDate = new Date(purchase.purchase_date);
-                    const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-                    
-                    console.log(`[EXPIRY CHECK] Package ${purchase.vip_package_id}: purchase=${purchaseDate.toISOString()}, expiry=${expiryDate.toISOString()}, now=${now.toISOString()}, expired=${now >= expiryDate}, deposit_returned=${purchase.deposit_returned}`);
-                    
-                    // Если пакет просрочен и депозит еще не возвращен
-                    if (now >= expiryDate && !purchase.deposit_returned) {
-                        const vipPackage = vipPackages.find(vp => vp.id === purchase.vip_package_id);
-                        if (vipPackage) {
-                            // Возвращаем депозит
-                            const newBalance = appState.user.balance + vipPackage.price;
-                            await safeSupabaseUpdate('users', { balance: newBalance }, 'id', appState.currentUserId);
-                            
-                            // Отмечаем что депозит возвращен и пакет неактивен
-                            await safeSupabaseUpdate('vip_purchases', 
-                                { active: false, deposit_returned: true }, 
-                                'id', purchase.id
-                            );
-                            
-                            const transactionData = {
-                                user_id: appState.currentUserId,
-                                type: 'deposit_return',
-                                title: `VIP ${vipPackage.level} Deposit Return`,
-                                amount: vipPackage.price,
-                                positive: true,
-                                created_at: new Date().toISOString()
-                            };
-                            
-                            await safeSupabaseInsert('transactions', transactionData);
-                            
-                            appState.user.balance = newBalance;
-                            purchase.active = false;
-                            purchase.deposit_returned = true;
-                            processedCount++;
-                            
-                            console.log(`[EXPIRY CHECK] Returned deposit for VIP ${vipPackage.level}: ${vipPackage.price} USDT`);
-                            showCustomAlert(`Your VIP ${vipPackage.level} package has expired and your ${formatCurrency(vipPackage.price)} USDT deposit has been returned! To continue earning, purchase the package again.`);
-                        }
-                    }
-                }
-                
-                console.log(`[EXPIRY CHECK] Completed. Processed: ${processedCount}`);
+                // 🔥 ВЫЗЫВАЕМ ФУНКЦИЮ БАЗЫ ДАННЫХ вместо ручной обработки
+                await callPostgresFunction('auto_return_deposits');
+                console.log('[EXPIRY CHECK] Database function executed');
                 
             } catch (error) {
                 console.error('[EXPIRY CHECK ERROR]:', error);
@@ -2043,134 +2030,25 @@
         async function purchaseVIPPackage(pkg) {
             console.log(`[VIP PURCHASE] Attempting to purchase VIP ${pkg.level}`);
             
-            // Проверяем достаточно ли средств
-            if (appState.user.balance < pkg.price) {
-                console.log(`[VIP PURCHASE] Insufficient funds: balance=${appState.user.balance}, price=${pkg.price}`);
-                showCustomAlert('Insufficient funds to purchase this package');
-                return;
-            }
-            
-            showCustomConfirm(
-                `Are you sure you want to buy VIP ${pkg.level} for ${formatCurrency(pkg.price)} USDT? You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days, then your deposit will be returned and package expires.`,
-                () => {
-                    console.log(`[VIP PURCHASE] User confirmed purchase of VIP ${pkg.level}`);
-                    processVIPPurchase(pkg);
-                }
-            );
-        }
-
-        async function processVIPPurchase(pkg) {
-            console.log(`[VIP PROCESS] Processing purchase of VIP ${pkg.level}`);
+            // 🔥 ВЫЗЫВАЕМ ФУНКЦИЮ БАЗЫ ДАННЫХ вместо ручной обработки
             try {
-                const purchaseDate = new Date();
-                const expiryDate = new Date();
-                expiryDate.setDate(expiryDate.getDate() + pkg.duration);
+                const result = await callPostgresFunction('purchase_vip_package', {
+                    p_user_id: appState.currentUserId,
+                    p_vip_package_id: pkg.id
+                });
                 
-                const vipPurchaseData = {
-                    user_id: appState.currentUserId,
-                    vip_package_id: pkg.id,
-                    purchase_date: purchaseDate.toISOString(),
-                    expiry_date: expiryDate.toISOString(),
-                    active: true,
-                    deposit_returned: false
-                };
-                
-                const result = await safeSupabaseInsert('vip_purchases', vipPurchaseData);
-                
-                if (result) {
-                    const newBalance = appState.user.balance - pkg.price;
-                    await safeSupabaseUpdate('users', { balance: newBalance }, 'id', appState.currentUserId);
-                    
-                    const newVipLevel = Math.max(appState.user.vip_level, pkg.level);
-                    await safeSupabaseUpdate('users', { vip_level: newVipLevel }, 'id', appState.currentUserId);
-                    
-                    const transactionData = {
-                        user_id: appState.currentUserId,
-                        type: 'vip_purchase',
-                        title: `VIP ${pkg.level} Purchase`,
-                        amount: pkg.price,
-                        positive: false,
-                        created_at: new Date().toISOString()
-                    };
-                    
-                    await safeSupabaseInsert('transactions', transactionData);
-                    
-                    // Начисляем реферальный доход
-                    await processReferralIncome(appState.currentUserId, pkg.price);
-                    
-                    appState.user.balance = newBalance;
-                    appState.user.vip_level = newVipLevel;
-                    appState.activeVipPackages.push({
-                        ...vipPurchaseData,
-                        id: result[0]?.id || Date.now()
-                    });
-                    
-                    appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: appState.currentUserId });
-                    
+                if (result.success) {
+                    // Обновляем состояние приложения
+                    await loadAllData();
                     updateUI();
                     renderVIPPackages();
-                    
-                    console.log(`[VIP PROCESS] Successfully purchased VIP ${pkg.level}`);
-                    showCustomAlert(`VIP ${pkg.level} successfully purchased! You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days.`);
+                    showCustomAlert(result.message);
+                } else {
+                    showCustomAlert(result.message);
                 }
             } catch (error) {
-                console.error('[VIP PROCESS ERROR]:', error);
+                console.error('[VIP PURCHASE ERROR]:', error);
                 showCustomAlert('Purchase failed. Please try again.');
-            }
-        }
-
-        async function processReferralIncome(userId, amount) {
-            console.log(`[REFERRAL INCOME] Processing referral income for user ${userId}, amount: ${amount}`);
-            try {
-                const referrals = await safeSupabaseFetch('referrals', '*', { referred_id: userId });
-                console.log(`[REFERRAL INCOME] Found ${referrals.length} referral relationships`);
-                
-                for (const referral of referrals) {
-                    let bonusPercentage = 0;
-                    
-                    switch(referral.level) {
-                        case 1: bonusPercentage = 0.08; break;
-                        case 2: bonusPercentage = 0.03; break;
-                        case 3: bonusPercentage = 0.01; break;
-                    }
-                    
-                    const bonusAmount = amount * bonusPercentage;
-                    console.log(`[REFERRAL INCOME] Level ${referral.level}: ${bonusPercentage*100}% of ${amount} = ${bonusAmount}`);
-                    
-                    if (bonusAmount > 0) {
-                        await updateUserBalance(referral.referrer_id, bonusAmount);
-                        
-                        const transactionData = {
-                            user_id: referral.referrer_id,
-                            type: 'referral',
-                            title: `Referral Income (Level ${referral.level})`,
-                            amount: bonusAmount,
-                            positive: true,
-                            created_at: new Date().toISOString()
-                        };
-                        
-                        await safeSupabaseInsert('transactions', transactionData);
-                        console.log(`[REFERRAL INCOME] Paid ${bonusAmount} to referrer ${referral.referrer_id}`);
-                    }
-                }
-            } catch (error) {
-                console.error('[REFERRAL INCOME ERROR]:', error);
-            }
-        }
-
-        async function updateUserBalance(userId, amount) {
-            console.log(`[BALANCE UPDATE] Updating balance for user ${userId}, amount: ${amount}`);
-            try {
-                const users = await safeSupabaseFetch('users', '*', { id: userId });
-                
-                if (users.length > 0) {
-                    const user = users[0];
-                    const newBalance = parseFloat(user.balance) + amount;
-                    await safeSupabaseUpdate('users', { balance: newBalance }, 'id', userId);
-                    console.log(`[BALANCE UPDATE] User ${userId} new balance: ${newBalance}`);
-                }
-            } catch (error) {
-                console.error('[BALANCE UPDATE ERROR]:', error);
             }
         }
 
@@ -2297,31 +2175,26 @@
                     claimBtn.classList.remove('processing');
                     claimBtn.classList.add('completed');
                     
-                    const newBalance = appState.user.balance + dailyIncome;
-                    await safeSupabaseUpdate('users', 
-                        { balance: newBalance, last_claim_date: new Date().toISOString() }, 
-                        'id', appState.currentUserId
-                    );
-                    
-                    const transactionData = {
-                        user_id: appState.currentUserId,
-                        type: 'daily_income',
-                        title: 'Daily Quantification Income',
-                        amount: dailyIncome,
-                        positive: true,
-                        created_at: new Date().toISOString()
-                    };
-                    
-                    await safeSupabaseInsert('transactions', transactionData);
-                    
-                    appState.user.balance = newBalance;
-                    appState.user.last_claim_date = new Date();
-                    appState.transactions.unshift(transactionData);
-                    
-                    updateUI();
-                    
-                    console.log(`[TRADING PROCESS] Income claimed: ${dailyIncome}, new balance: ${newBalance}`);
-                    showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
+                    // 🔥 ВЫЗЫВАЕМ ФУНКЦИЮ БАЗЫ ДАННЫХ для забора дохода
+                    try {
+                        const result = await callPostgresFunction('claim_daily_income', {
+                            p_user_id: appState.currentUserId
+                        });
+                        
+                        if (result.success) {
+                            // Обновляем состояние приложения
+                            await loadAllData();
+                            updateUI();
+                            
+                            console.log(`[TRADING PROCESS] Income claimed: ${dailyIncome}`);
+                            showCustomAlert(`Successfully claimed ${formatCurrency(result.amount)} USDT daily income!`);
+                        } else {
+                            showCustomAlert(result.message);
+                        }
+                    } catch (error) {
+                        console.error('[CLAIM INCOME ERROR]:', error);
+                        showCustomAlert('Failed to claim income. Please try again.');
+                    }
                     
                     setTimeout(() => {
                         resetTradingProcess();
