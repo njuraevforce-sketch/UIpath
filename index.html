@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uipath</title>
+    <title>Uipath - Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -359,7 +359,7 @@
         </div>
 
         <div class="login-footer">
-            © 2023 Uipath
+            © 2025 Uipath - Financial Entertainment Platform
         </div>
     </div>
 
@@ -367,6 +367,25 @@
         // Supabase configuration
         const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
+
+        // Get URL parameter safely
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Auto-fill referral code from URL
+        window.onload = function() {
+            const refCode = getUrlParameter('ref');
+            if (refCode) {
+                document.getElementById('registerReferralCode').value = refCode;
+            }
+            
+            // Check if user is already logged in
+            if (sessionStorage.getItem('currentUserId')) {
+                window.location.href = 'dashboard.html';
+            }
+        };
 
         // Custom alert function
         function showCustomAlert(message, type = 'info') {
@@ -427,33 +446,48 @@
         function showSuccessAnimation() {
             document.getElementById('successAnimation').style.display = 'block';
             setTimeout(() => {
-                // После регистрации сразу переходим на дашборд
                 window.location.href = 'dashboard.html';
             }, 1500);
         }
 
-        // Generate referral code
+        // Generate secure referral code
         function generateReferralCode() {
-            return 'BLK' + Math.floor(1000000 + Math.random() * 9000000);
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let result = 'UI';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
         }
 
-        // Supabase database functions
-        async function supabaseFetch(table, query = '*') {
+        // Safe Supabase fetch with error handling
+        async function safeSupabaseFetch(table, query = '*', filters = null) {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=${query}`, {
+                let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
+                
+                if (filters) {
+                    Object.keys(filters).forEach(key => {
+                        url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
+                    });
+                }
+                
+                const response = await fetch(url, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return await response.json();
             } catch (error) {
                 console.error('Supabase fetch error:', error);
-                return null;
+                throw error;
             }
         }
 
-        async function supabaseInsert(table, data) {
+        // Safe Supabase insert
+        async function safeSupabaseInsert(table, data) {
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
                     method: 'POST',
@@ -465,16 +499,19 @@
                     },
                     body: JSON.stringify(data)
                 });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return await response.json();
             } catch (error) {
                 console.error('Supabase insert error:', error);
-                return null;
+                throw error;
             }
         }
 
-        async function supabaseUpdate(table, data, column, value) {
+        // Safe Supabase update
+        async function safeSupabaseUpdate(table, data, column, value) {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${value}`, {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
                     method: 'PATCH',
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -484,17 +521,19 @@
                     },
                     body: JSON.stringify(data)
                 });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return await response.json();
             } catch (error) {
                 console.error('Supabase update error:', error);
-                return null;
+                throw error;
             }
         }
 
         async function login() {
             hideAllErrors();
             
-            const username = document.getElementById('loginUsername').value;
+            const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
             let isValid = true;
             
@@ -511,32 +550,33 @@
             if (!isValid) return;
             
             try {
-                // Check user in database
-                const users = await supabaseFetch('users', 'id,name,email,password,balance,vip_level,referral_code,referred_by,phone_verified,id_verified');
-                const user = users.find(u => u.name === username && u.password === password);
+                // Check user in database safely
+                const users = await safeSupabaseFetch('users', 'id,name,email,password,balance,vip_level,referral_code,referred_by,phone_verified,id_verified,last_claim_date', { name: username });
+                
+                const user = users.find(u => u.password === password);
                 
                 if (user) {
-                    localStorage.setItem('uipathUserData', JSON.stringify(user));
-                    localStorage.setItem('uipathUserLoggedIn', 'true');
+                    // Store only user ID in sessionStorage
+                    sessionStorage.setItem('currentUserId', user.id);
                     showSuccessAnimation();
                 } else {
                     showCustomAlert('Invalid login credentials');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showCustomAlert('Login error occurred');
+                showCustomAlert('Login error occurred. Please try again.');
             }
         }
 
         async function register() {
             hideAllErrors();
             
-            const username = document.getElementById('registerUsername').value;
-            const email = document.getElementById('registerEmail').value;
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('registerConfirmPassword').value;
             const paymentPassword = document.getElementById('registerPaymentPassword').value;
-            const referralCode = document.getElementById('registerReferralCode').value;
+            const referralCode = document.getElementById('registerReferralCode').value.trim();
             
             let isValid = true;
             
@@ -545,7 +585,7 @@
                 isValid = false;
             }
             
-            if (!email) {
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 document.getElementById('registerEmailError').style.display = 'block';
                 isValid = false;
             }
@@ -568,33 +608,47 @@
             if (!isValid) return;
             
             try {
-                // Check if username or email already exists
-                const users = await supabaseFetch('users', 'name,email');
-                const existingUser = users.find(u => u.name === username || u.email === email);
+                // Check if username or email already exists safely
+                const existingUsers = await safeSupabaseFetch('users', 'name,email');
+                const existingUser = existingUsers.find(u => u.name === username || u.email === email);
                 
                 if (existingUser) {
                     showCustomAlert('Username or email already exists');
                     return;
                 }
 
-                // Create user in database
+                // Generate unique user ID
                 const userId = generateReferralCode();
+                
+                // Verify referral code if provided
+                let referredBy = null;
+                if (referralCode) {
+                    const referrers = await safeSupabaseFetch('users', 'id', { referral_code: referralCode });
+                    if (referrers.length > 0) {
+                        referredBy = referrers[0].id;
+                    } else {
+                        showCustomAlert('Invalid referral code');
+                        return;
+                    }
+                }
+
+                // Create user in database
                 const userData = {
                     id: userId,
                     name: username,
                     email: email,
                     password: password,
                     payment_password: paymentPassword,
-                    balance: 3.00, // Бонус за регистрацию 3 USDT
+                    balance: 3.00, // Registration bonus
                     vip_level: 0,
                     referral_code: userId,
-                    referred_by: referralCode || null,
+                    referred_by: referredBy,
                     phone_verified: false,
                     id_verified: false,
                     created_at: new Date().toISOString()
                 };
                 
-                const result = await supabaseInsert('users', userData);
+                const result = await safeSupabaseInsert('users', userData);
                 
                 if (result) {
                     // Create registration bonus transaction
@@ -607,70 +661,72 @@
                         created_at: new Date().toISOString()
                     };
                     
-                    await supabaseInsert('transactions', transactionData);
+                    await safeSupabaseInsert('transactions', transactionData);
                     
-                    // If referred, process referral tree
-                    if (referralCode) {
-                        await buildReferralTree(referralCode, userId);
+                    // Build referral tree if referred
+                    if (referredBy) {
+                        await buildReferralTree(referredBy, userId);
                     }
                     
-                    localStorage.setItem('uipathUserData', JSON.stringify(userData));
-                    localStorage.setItem('uipathUserLoggedIn', 'true');
+                    // Store only user ID in sessionStorage
+                    sessionStorage.setItem('currentUserId', userId);
                     
-                    // Показываем сообщение о бонусе и переходим на дашборд
                     showCustomAlert('Congratulations! You received 3.00 USDT registration bonus!');
                     setTimeout(() => {
                         showSuccessAnimation();
                     }, 2000);
-                } else {
-                    showCustomAlert('Registration failed. Please try again.');
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                showCustomAlert('Registration error occurred');
+                showCustomAlert('Registration error occurred. Please try again.');
             }
         }
 
-        // Build referral tree for 3 generations
+        // Build referral tree for 3 generations safely
         async function buildReferralTree(referralCode, newUserId) {
             try {
                 // Find direct referrer (level 1)
-                const users = await supabaseFetch('users', 'id,referral_code,referred_by');
-                const directReferrer = users.find(u => u.referral_code === referralCode);
+                const directReferrer = await safeSupabaseFetch('users', 'id,referred_by', { id: referralCode });
                 
-                if (directReferrer) {
+                if (directReferrer.length > 0) {
+                    const referrer = directReferrer[0];
+                    
                     // Add level 1 referral
                     const referralData1 = {
-                        referrer_id: directReferrer.id,
+                        referrer_id: referrer.id,
                         referred_id: newUserId,
                         level: 1,
                         created_at: new Date().toISOString()
                     };
-                    await supabaseInsert('referrals', referralData1);
+                    await safeSupabaseInsert('referrals', referralData1);
                     
                     // Find level 2 referrer (referrer of direct referrer)
-                    if (directReferrer.referred_by) {
-                        const level2Referrer = users.find(u => u.referral_code === directReferrer.referred_by);
-                        if (level2Referrer) {
+                    if (referrer.referred_by) {
+                        const level2Referrers = await safeSupabaseFetch('users', 'id,referred_by', { id: referrer.referred_by });
+                        if (level2Referrers.length > 0) {
+                            const level2Referrer = level2Referrers[0];
+                            
                             const referralData2 = {
                                 referrer_id: level2Referrer.id,
                                 referred_id: newUserId,
                                 level: 2,
                                 created_at: new Date().toISOString()
                             };
-                            await supabaseInsert('referrals', referralData2);
+                            await safeSupabaseInsert('referrals', referralData2);
                             
                             // Find level 3 referrer (referrer of level 2 referrer)
                             if (level2Referrer.referred_by) {
-                                const level3Referrer = users.find(u => u.referral_code === level2Referrer.referred_by);
-                                if (level3Referrer) {
+                                const level3Referrers = await safeSupabaseFetch('users', 'id', { id: level2Referrer.referred_by });
+                                if (level3Referrers.length > 0) {
+                                    const level3Referrer = level3Referrers[0];
+                                    
                                     const referralData3 = {
                                         referrer_id: level3Referrer.id,
                                         referred_id: newUserId,
                                         level: 3,
                                         created_at: new Date().toISOString()
                                     };
-                                    await supabaseInsert('referrals', referralData3);
+                                    await safeSupabaseInsert('referrals', referralData3);
                                 }
                             }
                         }
@@ -680,12 +736,6 @@
                 console.error('Referral tree building error:', error);
             }
         }
-
-        window.onload = function() {
-            if (localStorage.getItem('uipathUserLoggedIn') === 'true') {
-                window.location.href = 'dashboard.html';
-            }
-        };
     </script>
 </body>
 </html>
