@@ -203,7 +203,6 @@
             }
         }
 
-        /* Custom Alert Styles */
         .custom-alert-overlay {
             position: fixed;
             top: 0;
@@ -364,31 +363,26 @@
     </div>
 
     <script>
-        // Supabase configuration
         const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
 
-        // Get URL parameter safely
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
-        // Auto-fill referral code from URL
         window.onload = function() {
             const refCode = getUrlParameter('ref');
             if (refCode) {
                 document.getElementById('registerReferralCode').value = refCode;
             }
             
-            // Check if user is already logged in
             if (sessionStorage.getItem('currentUserId')) {
                 window.location.href = 'dashboard.html';
             }
         };
 
-        // Custom alert function
-        function showCustomAlert(message, type = 'info') {
+        function showCustomAlert(message) {
             const overlay = document.createElement('div');
             overlay.className = 'custom-alert-overlay';
             
@@ -450,7 +444,6 @@
             }, 1500);
         }
 
-        // Generate secure referral code
         function generateReferralCode() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let result = 'UI';
@@ -460,7 +453,6 @@
             return result;
         }
 
-        // Safe Supabase fetch with error handling
         async function safeSupabaseFetch(table, query = '*', filters = null) {
             try {
                 let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
@@ -486,7 +478,6 @@
             }
         }
 
-        // Safe Supabase insert
         async function safeSupabaseInsert(table, data) {
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
@@ -508,7 +499,6 @@
             }
         }
 
-        // Safe Supabase update
         async function safeSupabaseUpdate(table, data, column, value) {
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
@@ -550,13 +540,10 @@
             if (!isValid) return;
             
             try {
-                // Check user in database safely
-                const users = await safeSupabaseFetch('users', 'id,name,email,password,balance,vip_level,referral_code,referred_by,phone_verified,id_verified,last_claim_date', { name: username });
-                
-                const user = users.find(u => u.password === password);
+                const users = await safeSupabaseFetch('users', 'id,name,email,password,balance,vip_level,referral_code,referred_by,phone_verified,id_verified,last_claim_date');
+                const user = users.find(u => u.name === username && u.password === password);
                 
                 if (user) {
-                    // Store only user ID in sessionStorage
                     sessionStorage.setItem('currentUserId', user.id);
                     showSuccessAnimation();
                 } else {
@@ -608,7 +595,6 @@
             if (!isValid) return;
             
             try {
-                // Check if username or email already exists safely
                 const existingUsers = await safeSupabaseFetch('users', 'name,email');
                 const existingUser = existingUsers.find(u => u.name === username || u.email === email);
                 
@@ -617,10 +603,8 @@
                     return;
                 }
 
-                // Generate unique user ID
                 const userId = generateReferralCode();
                 
-                // Verify referral code if provided
                 let referredBy = null;
                 if (referralCode) {
                     const referrers = await safeSupabaseFetch('users', 'id', { referral_code: referralCode });
@@ -632,14 +616,13 @@
                     }
                 }
 
-                // Create user in database
                 const userData = {
                     id: userId,
                     name: username,
                     email: email,
                     password: password,
                     payment_password: paymentPassword,
-                    balance: 3.00, // Registration bonus
+                    balance: 3.00,
                     vip_level: 0,
                     referral_code: userId,
                     referred_by: referredBy,
@@ -651,7 +634,6 @@
                 const result = await safeSupabaseInsert('users', userData);
                 
                 if (result) {
-                    // Create registration bonus transaction
                     const transactionData = {
                         user_id: userId,
                         type: 'bonus',
@@ -663,12 +645,10 @@
                     
                     await safeSupabaseInsert('transactions', transactionData);
                     
-                    // Build referral tree if referred
                     if (referredBy) {
                         await buildReferralTree(referredBy, userId);
                     }
                     
-                    // Store only user ID in sessionStorage
                     sessionStorage.setItem('currentUserId', userId);
                     
                     showCustomAlert('Congratulations! You received 3.00 USDT registration bonus!');
@@ -682,16 +662,13 @@
             }
         }
 
-        // Build referral tree for 3 generations safely
         async function buildReferralTree(referralCode, newUserId) {
             try {
-                // Find direct referrer (level 1)
                 const directReferrer = await safeSupabaseFetch('users', 'id,referred_by', { id: referralCode });
                 
                 if (directReferrer.length > 0) {
                     const referrer = directReferrer[0];
                     
-                    // Add level 1 referral
                     const referralData1 = {
                         referrer_id: referrer.id,
                         referred_id: newUserId,
@@ -700,7 +677,6 @@
                     };
                     await safeSupabaseInsert('referrals', referralData1);
                     
-                    // Find level 2 referrer (referrer of direct referrer)
                     if (referrer.referred_by) {
                         const level2Referrers = await safeSupabaseFetch('users', 'id,referred_by', { id: referrer.referred_by });
                         if (level2Referrers.length > 0) {
@@ -714,7 +690,6 @@
                             };
                             await safeSupabaseInsert('referrals', referralData2);
                             
-                            // Find level 3 referrer (referrer of level 2 referrer)
                             if (level2Referrer.referred_by) {
                                 const level3Referrers = await safeSupabaseFetch('users', 'id', { id: level2Referrer.referred_by });
                                 if (level3Referrers.length > 0) {
