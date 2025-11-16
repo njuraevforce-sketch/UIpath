@@ -1579,7 +1579,7 @@
                 id: 'BLK2839475',
                 name: 'User',
                 email: 'user@example.com',
-                balance: 3.10,
+                balance: 3.00,
                 vip_level: 0,
                 purchasedVIPs: [],
                 last_claim_date: null,
@@ -1592,9 +1592,7 @@
                 gen2: [],
                 gen3: []
             },
-            transactions: [
-                { id: 1, type: 'bonus', title: 'Registration Bonus', date: 'Today, 14:30', amount: 3.10, positive: true }
-            ],
+            transactions: [],
             totalIncome: 0,
             activeVipPackages: []
         };
@@ -1650,9 +1648,7 @@
                 return await response.json();
             } catch (error) {
                 console.error('Supabase fetch error:', error);
-                // Fallback to localStorage if Supabase is not available
-                const localData = localStorage.getItem(`supabase_${table}`);
-                return localData ? JSON.parse(localData) : [];
+                return null;
             }
         }
 
@@ -1668,25 +1664,10 @@
                     },
                     body: JSON.stringify(data)
                 });
-                const result = await response.json();
-                
-                // Also store locally as backup
-                const localData = localStorage.getItem(`supabase_${table}`);
-                const existingData = localData ? JSON.parse(localData) : [];
-                existingData.push({...data, id: result[0]?.id || Date.now()});
-                localStorage.setItem(`supabase_${table}`, JSON.stringify(existingData));
-                
-                return result;
+                return await response.json();
             } catch (error) {
                 console.error('Supabase insert error:', error);
-                // Fallback to localStorage
-                const localData = localStorage.getItem(`supabase_${table}`);
-                const existingData = localData ? JSON.parse(localData) : [];
-                const newId = existingData.length > 0 ? Math.max(...existingData.map(item => item.id)) + 1 : 1;
-                const newData = {...data, id: newId};
-                existingData.push(newData);
-                localStorage.setItem(`supabase_${table}`, JSON.stringify(existingData));
-                return [newData];
+                return null;
             }
         }
 
@@ -1702,18 +1683,6 @@
                     },
                     body: JSON.stringify(data)
                 });
-                
-                // Also update local storage
-                const localData = localStorage.getItem(`supabase_${table}`);
-                if (localData) {
-                    const existingData = JSON.parse(localData);
-                    const index = existingData.findIndex(item => item[column] === value);
-                    if (index !== -1) {
-                        existingData[index] = {...existingData[index], ...data};
-                        localStorage.setItem(`supabase_${table}`, JSON.stringify(existingData));
-                    }
-                }
-                
                 return await response.json();
             } catch (error) {
                 console.error('Supabase update error:', error);
