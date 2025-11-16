@@ -6,7 +6,6 @@
     <title>Uipath - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* СТИЛИ ОСТАЮТСЯ ПРЕЖНИМИ */
         * {
             margin: 0;
             padding: 0;
@@ -966,7 +965,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- ВСЕ СТРАНИЦЫ ОСТАЮТСЯ ПРЕЖНИМИ -->
         <div id="mainPage" class="page active">
             <div class="uni-header">
                 <div class="logo">
@@ -1070,7 +1068,6 @@
             </div>
         </div>
 
-        <!-- ОСТАЛЬНЫЕ СТРАНИЦЫ БЕЗ ИЗМЕНЕНИЙ -->
         <div id="assetsPage" class="page">
             <div class="simple-header">
                 <div class="header-logo">
@@ -1221,8 +1218,9 @@
                     <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">VIP Package Rules:</div>
                     <div style="font-size: 14px; color: var(--gray); text-align: left;">
                         • VIP packages are active for exactly 30 days<br>
-                        • Daily income: VIP1: 2.6% | VIP2: 3.1% | VIP3: 3.6% | VIP4: 4.1% | VIP5: 4.6% | VIP6: 5.1%<br>
+                        • Daily income: VIP1: 2.6% (0.52 USDT) | VIP2: 3.1% (3.10 USDT) | VIP3: 3.6% (10.80 USDT) | VIP4: 4.1% (41.00 USDT) | VIP5: 4.6% (138.00 USDT) | VIP6: 5.1% (255.00 USDT)<br>
                         • Package price is returned to your balance after 30 days automatically<br>
+                        • Package expires after 30 days - to continue earning, purchase again<br>
                         • You can claim daily income once per day at 22:00 UTC<br>
                         • If you don't claim income today, you can claim it until 22:00 UTC tomorrow<br>
                         • Income doesn't accumulate - use it or lose it!<br>
@@ -1569,25 +1567,21 @@
             transactions: []
         };
 
-        // 🔥 ИСПРАВЛЕННАЯ ЛОГИКА ВРЕМЕНИ
+        // 🔥 ИСПРАВЛЕННАЯ ЛОГИКА ВРЕМЕНИ - строго 22:00 UTC
         function getCurrentIncomeWindow() {
             const now = new Date();
-            const currentHour = now.getUTCHours();
-            const currentDate = now.getUTCDate();
+            const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
             
-            console.log(`[TIME DEBUG] getCurrentIncomeWindow: currentHour=${currentHour}, currentDate=${currentDate}`);
+            // Окно начинается в 22:00 UTC сегодня
+            const windowStart = new Date(today);
+            windowStart.setUTCHours(22, 0, 0, 0);
             
-            if (currentHour >= 22) {
-                const windowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), currentDate, 22, 0, 0));
-                const windowEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), currentDate + 1, 22, 0, 0));
-                console.log(`[TIME DEBUG] After 22:00, window: ${windowStart.toISOString()} to ${windowEnd.toISOString()}`);
-                return { start: windowStart, end: windowEnd };
-            } else {
-                const windowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), currentDate - 1, 22, 0, 0));
-                const windowEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), currentDate, 22, 0, 0));
-                console.log(`[TIME DEBUG] Before 22:00, window: ${windowStart.toISOString()} to ${windowEnd.toISOString()}`);
-                return { start: windowStart, end: windowEnd };
-            }
+            // Окно заканчивается в 22:00 UTC завтра
+            const windowEnd = new Date(windowStart);
+            windowEnd.setUTCDate(windowEnd.getUTCDate() + 1);
+            
+            console.log(`[TIME DEBUG] Window: ${windowStart.toISOString()} to ${windowEnd.toISOString()}`);
+            return { start: windowStart, end: windowEnd };
         }
 
         function canClaimDailyIncome() {
@@ -1598,13 +1592,13 @@
                 return true;
             }
             
-            const now = new Date();
             const lastClaim = new Date(appState.user.last_claim_date);
             const currentWindow = getCurrentIncomeWindow();
             
             console.log(`[INCOME DEBUG] Last claim: ${lastClaim.toISOString()}`);
             console.log(`[INCOME DEBUG] Current window: ${currentWindow.start.toISOString()} to ${currentWindow.end.toISOString()}`);
             
+            // Можно забирать если последний забор был ДО начала текущего окна
             const canClaim = lastClaim < currentWindow.start;
             console.log(`[INCOME DEBUG] Can claim: ${canClaim} (lastClaim < windowStart)`);
             
@@ -1615,9 +1609,17 @@
             console.log('[INCOME CALC] Starting daily income calculation');
             
             let dailyIncome = 0;
+            const now = new Date();
+            
             const activePackages = appState.activeVipPackages.filter(purchase => {
-                const isActive = purchase.active === true && purchase.deposit_returned === false;
-                console.log(`[INCOME CALC] Package ${purchase.vip_package_id}: active=${purchase.active}, deposit_returned=${purchase.deposit_returned}, isActive=${isActive}`);
+                // Пакет активен если не истек срок и депозит не возвращен
+                const purchaseDate = new Date(purchase.purchase_date);
+                const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+                const isActive = purchase.active === true && 
+                                purchase.deposit_returned === false && 
+                                now < expiryDate;
+                
+                console.log(`[INCOME CALC] Package ${purchase.vip_package_id}: active=${purchase.active}, deposit_returned=${purchase.deposit_returned}, notExpired=${now < expiryDate}, isActive=${isActive}`);
                 return isActive;
             });
             
@@ -1626,17 +1628,8 @@
             activePackages.forEach(purchase => {
                 const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
                 if (vipPackage) {
-                    const purchaseDate = new Date(purchase.purchase_date);
-                    const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-                    const now = new Date();
-                    const isNotExpired = now < expiryDate;
-                    
-                    console.log(`[INCOME CALC] VIP ${vipPackage.level}: purchase=${purchaseDate.toISOString()}, expiry=${expiryDate.toISOString()}, notExpired=${isNotExpired}`);
-                    
-                    if (isNotExpired) {
-                        dailyIncome += vipPackage.dailyIncome;
-                        console.log(`[INCOME CALC] Added ${vipPackage.dailyIncome} from VIP ${vipPackage.level}, total: ${dailyIncome}`);
-                    }
+                    dailyIncome += vipPackage.dailyIncome;
+                    console.log(`[INCOME CALC] Added ${vipPackage.dailyIncome} from VIP ${vipPackage.level}, total: ${dailyIncome}`);
                 }
             });
             
@@ -1784,15 +1777,14 @@
                 console.log('[LOAD DATA] User loaded:', appState.user);
                 
                 appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
-                    user_id: userId, 
-                    active: true 
+                    user_id: userId
                 });
-                console.log('[LOAD DATA] Active VIP packages:', appState.activeVipPackages.length);
+                console.log('[LOAD DATA] VIP packages:', appState.activeVipPackages.length);
                 
                 appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
                 console.log('[LOAD DATA] Transactions:', appState.transactions.length);
                 
-                // 🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА РЕФЕРАЛОВ
+                // Загрузка рефералов
                 const allReferrals = await safeSupabaseFetch('referrals', '*');
                 appState.referrals.gen1 = allReferrals.filter(ref => ref.referrer_id === userId && ref.level === 1);
                 appState.referrals.gen2 = allReferrals.filter(ref => ref.referrer_id === userId && ref.level === 2);
@@ -1821,12 +1813,15 @@
                     
                     console.log(`[EXPIRY CHECK] Package ${purchase.vip_package_id}: purchase=${purchaseDate.toISOString()}, expiry=${expiryDate.toISOString()}, now=${now.toISOString()}, expired=${now >= expiryDate}, deposit_returned=${purchase.deposit_returned}`);
                     
+                    // Если пакет просрочен и депозит еще не возвращен
                     if (now >= expiryDate && !purchase.deposit_returned) {
                         const vipPackage = vipPackages.find(vp => vp.id === purchase.vip_package_id);
                         if (vipPackage) {
+                            // Возвращаем депозит
                             const newBalance = appState.user.balance + vipPackage.price;
                             await safeSupabaseUpdate('users', { balance: newBalance }, 'id', appState.currentUserId);
                             
+                            // Отмечаем что депозит возвращен и пакет неактивен
                             await safeSupabaseUpdate('vip_purchases', 
                                 { active: false, deposit_returned: true }, 
                                 'id', purchase.id
@@ -1849,13 +1844,12 @@
                             processedCount++;
                             
                             console.log(`[EXPIRY CHECK] Returned deposit for VIP ${vipPackage.level}: ${vipPackage.price} USDT`);
-                            showCustomAlert(`Your VIP ${vipPackage.level} package has expired and your ${formatCurrency(vipPackage.price)} USDT deposit has been returned!`);
+                            showCustomAlert(`Your VIP ${vipPackage.level} package has expired and your ${formatCurrency(vipPackage.price)} USDT deposit has been returned! To continue earning, purchase the package again.`);
                         }
                     }
                 }
                 
-                appState.activeVipPackages = appState.activeVipPackages.filter(p => p.active);
-                console.log(`[EXPIRY CHECK] Completed. Processed: ${processedCount}, Remaining active: ${appState.activeVipPackages.length}`);
+                console.log(`[EXPIRY CHECK] Completed. Processed: ${processedCount}`);
                 
             } catch (error) {
                 console.error('[EXPIRY CHECK ERROR]:', error);
@@ -2015,7 +2009,9 @@
             packagesList.innerHTML = '';
             
             vipPackages.forEach(pkg => {
-                const isPurchased = appState.activeVipPackages.some(purchase => purchase.vip_package_id === pkg.id);
+                const isPurchased = appState.activeVipPackages.some(purchase => 
+                    purchase.vip_package_id === pkg.id && purchase.active === true
+                );
                 const packageElement = document.createElement('div');
                 let packageClass = 'vip-package';
                 if (isPurchased) packageClass += ' active';
@@ -2046,12 +2042,8 @@
 
         async function purchaseVIPPackage(pkg) {
             console.log(`[VIP PURCHASE] Attempting to purchase VIP ${pkg.level}`);
-            if (appState.activeVipPackages.some(purchase => purchase.vip_package_id === pkg.id)) {
-                console.log(`[VIP PURCHASE] Already purchased VIP ${pkg.level}`);
-                showCustomAlert('You already own this VIP package');
-                return;
-            }
             
+            // Проверяем достаточно ли средств
             if (appState.user.balance < pkg.price) {
                 console.log(`[VIP PURCHASE] Insufficient funds: balance=${appState.user.balance}, price=${pkg.price}`);
                 showCustomAlert('Insufficient funds to purchase this package');
@@ -2059,7 +2051,7 @@
             }
             
             showCustomConfirm(
-                `Are you sure you want to buy VIP ${pkg.level} for ${formatCurrency(pkg.price)} USDT? You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days, then your deposit will be returned.`,
+                `Are you sure you want to buy VIP ${pkg.level} for ${formatCurrency(pkg.price)} USDT? You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days, then your deposit will be returned and package expires.`,
                 () => {
                     console.log(`[VIP PURCHASE] User confirmed purchase of VIP ${pkg.level}`);
                     processVIPPurchase(pkg);
@@ -2103,6 +2095,7 @@
                     
                     await safeSupabaseInsert('transactions', transactionData);
                     
+                    // Начисляем реферальный доход
                     await processReferralIncome(appState.currentUserId, pkg.price);
                     
                     appState.user.balance = newBalance;
@@ -2118,7 +2111,7 @@
                     renderVIPPackages();
                     
                     console.log(`[VIP PROCESS] Successfully purchased VIP ${pkg.level}`);
-                    showCustomAlert(`VIP ${pkg.level} successfully purchased! You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days, then your ${formatCurrency(pkg.price)} USDT deposit will be returned.`);
+                    showCustomAlert(`VIP ${pkg.level} successfully purchased! You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days.`);
                 }
             } catch (error) {
                 console.error('[VIP PROCESS ERROR]:', error);
@@ -2273,16 +2266,6 @@
                 return;
             }
             
-            const hasActivePackages = appState.activeVipPackages.some(purchase => 
-                purchase.active === true && purchase.deposit_returned === false
-            );
-            
-            if (!hasActivePackages) {
-                console.log('[CLAIM INCOME] No active packages found');
-                showCustomAlert('No active VIP packages found. Please purchase a package to earn income.');
-                return;
-            }
-            
             console.log('[CLAIM INCOME] All checks passed, starting trading process');
             await startTradingProcess(dailyIncome);
         }
@@ -2390,7 +2373,7 @@
             
             document.getElementById('vip-level-display').textContent = `VIP ${appState.user.vip_level}`;
             
-            const referralLink = `index.html?ref=${appState.user.referral_code}`;
+            const referralLink = `${window.location.origin}/index.html?ref=${appState.user.referral_code}`;
             document.getElementById('referral-link').textContent = referralLink;
             document.getElementById('team-referral-link').textContent = referralLink;
             
@@ -2464,10 +2447,12 @@
             document.getElementById('available-income').textContent = `${formatCurrency(dailyIncome)} USDT`;
             
             let percentage = 0;
-            const totalInvested = appState.activeVipPackages.reduce((sum, purchase) => {
-                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
-                return sum + (vipPackage ? vipPackage.price : 0);
-            }, 0);
+            const totalInvested = appState.activeVipPackages
+                .filter(p => p.active && !p.deposit_returned)
+                .reduce((sum, purchase) => {
+                    const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                    return sum + (vipPackage ? vipPackage.price : 0);
+                }, 0);
             
             if (totalInvested > 0) {
                 percentage = (dailyIncome / totalInvested) * 100;
