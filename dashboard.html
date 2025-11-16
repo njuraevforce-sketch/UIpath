@@ -6,6 +6,7 @@
     <title>Uipath - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* СТИЛИ ОСТАЮТСЯ ПРЕЖНИМИ */
         * {
             margin: 0;
             padding: 0;
@@ -965,6 +966,7 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- ВСЕ СТРАНИЦЫ ОСТАЮТСЯ ПРЕЖНИМИ -->
         <div id="mainPage" class="page active">
             <div class="uni-header">
                 <div class="logo">
@@ -1068,6 +1070,7 @@
             </div>
         </div>
 
+        <!-- ОСТАЛЬНЫЕ СТРАНИЦЫ БЕЗ ИЗМЕНЕНИЙ -->
         <div id="assetsPage" class="page">
             <div class="simple-header">
                 <div class="header-logo">
@@ -1544,6 +1547,8 @@
     </div>
 
     <script>
+        console.log('🚀 DASHBOARD INITIALIZATION STARTED');
+        
         const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
 
@@ -1564,7 +1569,83 @@
             transactions: []
         };
 
+        // 🔥 ИСПРАВЛЕННАЯ ЛОГИКА ВРЕМЕНИ
+        function getCurrentIncomeWindow() {
+            const now = new Date();
+            const currentHour = now.getUTCHours();
+            const currentDate = now.getUTCDate();
+            
+            console.log(`[TIME DEBUG] getCurrentIncomeWindow: currentHour=${currentHour}, currentDate=${currentDate}`);
+            
+            if (currentHour >= 22) {
+                const windowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), currentDate, 22, 0, 0));
+                const windowEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), currentDate + 1, 22, 0, 0));
+                console.log(`[TIME DEBUG] After 22:00, window: ${windowStart.toISOString()} to ${windowEnd.toISOString()}`);
+                return { start: windowStart, end: windowEnd };
+            } else {
+                const windowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), currentDate - 1, 22, 0, 0));
+                const windowEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), currentDate, 22, 0, 0));
+                console.log(`[TIME DEBUG] Before 22:00, window: ${windowStart.toISOString()} to ${windowEnd.toISOString()}`);
+                return { start: windowStart, end: windowEnd };
+            }
+        }
+
+        function canClaimDailyIncome() {
+            console.log('[INCOME DEBUG] Checking if can claim daily income');
+            
+            if (!appState.user.last_claim_date) {
+                console.log('[INCOME DEBUG] No last claim date - CAN CLAIM');
+                return true;
+            }
+            
+            const now = new Date();
+            const lastClaim = new Date(appState.user.last_claim_date);
+            const currentWindow = getCurrentIncomeWindow();
+            
+            console.log(`[INCOME DEBUG] Last claim: ${lastClaim.toISOString()}`);
+            console.log(`[INCOME DEBUG] Current window: ${currentWindow.start.toISOString()} to ${currentWindow.end.toISOString()}`);
+            
+            const canClaim = lastClaim < currentWindow.start;
+            console.log(`[INCOME DEBUG] Can claim: ${canClaim} (lastClaim < windowStart)`);
+            
+            return canClaim;
+        }
+
+        function calculateDailyIncome() {
+            console.log('[INCOME CALC] Starting daily income calculation');
+            
+            let dailyIncome = 0;
+            const activePackages = appState.activeVipPackages.filter(purchase => {
+                const isActive = purchase.active === true && purchase.deposit_returned === false;
+                console.log(`[INCOME CALC] Package ${purchase.vip_package_id}: active=${purchase.active}, deposit_returned=${purchase.deposit_returned}, isActive=${isActive}`);
+                return isActive;
+            });
+            
+            console.log(`[INCOME CALC] Found ${activePackages.length} active packages`);
+            
+            activePackages.forEach(purchase => {
+                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                if (vipPackage) {
+                    const purchaseDate = new Date(purchase.purchase_date);
+                    const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+                    const now = new Date();
+                    const isNotExpired = now < expiryDate;
+                    
+                    console.log(`[INCOME CALC] VIP ${vipPackage.level}: purchase=${purchaseDate.toISOString()}, expiry=${expiryDate.toISOString()}, notExpired=${isNotExpired}`);
+                    
+                    if (isNotExpired) {
+                        dailyIncome += vipPackage.dailyIncome;
+                        console.log(`[INCOME CALC] Added ${vipPackage.dailyIncome} from VIP ${vipPackage.level}, total: ${dailyIncome}`);
+                    }
+                }
+            });
+            
+            console.log(`[INCOME CALC] Final daily income: ${dailyIncome}`);
+            return dailyIncome;
+        }
+
         async function safeSupabaseFetch(table, query = '*', filters = null) {
+            console.log(`[DB FETCH] Table: ${table}, Query: ${query}`, filters);
             try {
                 let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
                 
@@ -1582,14 +1663,17 @@
                 });
                 
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return await response.json();
+                const result = await response.json();
+                console.log(`[DB FETCH SUCCESS] Table: ${table}, Results: ${result.length}`);
+                return result;
             } catch (error) {
-                console.error('Supabase fetch error:', error);
+                console.error('[DB FETCH ERROR]:', error);
                 throw error;
             }
         }
 
         async function safeSupabaseInsert(table, data) {
+            console.log(`[DB INSERT] Table: ${table}`, data);
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
                     method: 'POST',
@@ -1603,14 +1687,17 @@
                 });
                 
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return await response.json();
+                const result = await response.json();
+                console.log('[DB INSERT SUCCESS]', result);
+                return result;
             } catch (error) {
-                console.error('Supabase insert error:', error);
+                console.error('[DB INSERT ERROR]:', error);
                 throw error;
             }
         }
 
         async function safeSupabaseUpdate(table, data, column, value) {
+            console.log(`[DB UPDATE] Table: ${table}, Where: ${column}=${value}`, data);
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
                     method: 'PATCH',
@@ -1624,14 +1711,17 @@
                 });
                 
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return await response.json();
+                const result = await response.json();
+                console.log('[DB UPDATE SUCCESS]', result);
+                return result;
             } catch (error) {
-                console.error('Supabase update error:', error);
+                console.error('[DB UPDATE ERROR]:', error);
                 throw error;
             }
         }
 
         function showCustomAlert(message) {
+            console.log('[ALERT]', message);
             const overlay = document.createElement('div');
             overlay.className = 'custom-alert-overlay';
             
@@ -1649,6 +1739,7 @@
         }
 
         function showCustomConfirm(message, confirmCallback) {
+            console.log('[CONFIRM]', message);
             const overlay = document.createElement('div');
             overlay.className = 'custom-confirm-overlay';
             
@@ -1669,53 +1760,66 @@
         }
 
         async function loadAllData() {
+            console.log('[LOAD DATA] Starting data load');
             try {
                 const userId = sessionStorage.getItem('currentUserId');
                 if (!userId) {
+                    console.log('[LOAD DATA] No user ID found, redirecting to login');
                     window.location.href = 'index.html';
                     return;
                 }
                 
                 appState.currentUserId = userId;
+                console.log('[LOAD DATA] User ID:', userId);
                 
                 const users = await safeSupabaseFetch('users', '*', { id: userId });
                 if (users.length === 0) {
+                    console.log('[LOAD DATA] User not found, redirecting to login');
                     sessionStorage.removeItem('currentUserId');
                     window.location.href = 'index.html';
                     return;
                 }
                 
                 appState.user = users[0];
+                console.log('[LOAD DATA] User loaded:', appState.user);
                 
                 appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
                     user_id: userId, 
                     active: true 
                 });
+                console.log('[LOAD DATA] Active VIP packages:', appState.activeVipPackages.length);
                 
                 appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
+                console.log('[LOAD DATA] Transactions:', appState.transactions.length);
                 
+                // 🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА РЕФЕРАЛОВ
                 const allReferrals = await safeSupabaseFetch('referrals', '*');
                 appState.referrals.gen1 = allReferrals.filter(ref => ref.referrer_id === userId && ref.level === 1);
                 appState.referrals.gen2 = allReferrals.filter(ref => ref.referrer_id === userId && ref.level === 2);
                 appState.referrals.gen3 = allReferrals.filter(ref => ref.referrer_id === userId && ref.level === 3);
+                console.log(`[LOAD DATA] Referrals: gen1=${appState.referrals.gen1.length}, gen2=${appState.referrals.gen2.length}, gen3=${appState.referrals.gen3.length}`);
                 
                 await processExpiredVipPackages();
-                
+                console.log('[LOAD DATA] Data load completed successfully');
                 return true;
             } catch (error) {
-                console.error('Error loading data:', error);
+                console.error('[LOAD DATA ERROR]:', error);
                 showCustomAlert('Error loading data. Please refresh the page.');
                 return false;
             }
         }
 
         async function processExpiredVipPackages() {
+            console.log('[EXPIRY CHECK] Starting expired packages check');
             try {
                 const now = new Date();
+                let processedCount = 0;
                 
                 for (const purchase of appState.activeVipPackages) {
                     const purchaseDate = new Date(purchase.purchase_date);
                     const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+                    
+                    console.log(`[EXPIRY CHECK] Package ${purchase.vip_package_id}: purchase=${purchaseDate.toISOString()}, expiry=${expiryDate.toISOString()}, now=${now.toISOString()}, expired=${now >= expiryDate}, deposit_returned=${purchase.deposit_returned}`);
                     
                     if (now >= expiryDate && !purchase.deposit_returned) {
                         const vipPackage = vipPackages.find(vp => vp.id === purchase.vip_package_id);
@@ -1742,20 +1846,24 @@
                             appState.user.balance = newBalance;
                             purchase.active = false;
                             purchase.deposit_returned = true;
+                            processedCount++;
                             
+                            console.log(`[EXPIRY CHECK] Returned deposit for VIP ${vipPackage.level}: ${vipPackage.price} USDT`);
                             showCustomAlert(`Your VIP ${vipPackage.level} package has expired and your ${formatCurrency(vipPackage.price)} USDT deposit has been returned!`);
                         }
                     }
                 }
                 
                 appState.activeVipPackages = appState.activeVipPackages.filter(p => p.active);
+                console.log(`[EXPIRY CHECK] Completed. Processed: ${processedCount}, Remaining active: ${appState.activeVipPackages.length}`);
                 
             } catch (error) {
-                console.error('Error processing expired packages:', error);
+                console.error('[EXPIRY CHECK ERROR]:', error);
             }
         }
 
         async function initApp() {
+            console.log('[APP INIT] Starting application initialization');
             const success = await loadAllData();
             if (!success) return;
             
@@ -1765,9 +1873,11 @@
             startTimer();
             startCarousel();
             updateVerificationStatus();
+            console.log('[APP INIT] Application initialized successfully');
         }
 
         function startCarousel() {
+            console.log('[CAROUSEL] Starting carousel');
             let currentSlide = 0;
             const slides = document.querySelectorAll('.carousel-slide');
             
@@ -1775,23 +1885,28 @@
                 slides[currentSlide].classList.remove('active');
                 currentSlide = (currentSlide + 1) % slides.length;
                 slides[currentSlide].classList.add('active');
+                console.log(`[CAROUSEL] Slide changed to: ${currentSlide}`);
             }, 5000);
         }
 
         function toggleVideo() {
+            console.log('[VIDEO] Toggle video');
             const video = document.getElementById('promoVideo');
             const playBtn = document.querySelector('.play-btn');
             
             if (video.paused) {
                 video.play();
                 playBtn.style.display = 'none';
+                console.log('[VIDEO] Video playing');
             } else {
                 video.pause();
                 playBtn.style.display = 'flex';
+                console.log('[VIDEO] Video paused');
             }
         }
 
         function showTransactionType(type) {
+            console.log(`[TRANSACTIONS] Showing type: ${type}`);
             const tabs = document.querySelectorAll('.transaction-tab');
             tabs.forEach(tab => tab.classList.remove('active'));
             
@@ -1801,6 +1916,7 @@
         }
 
         function updateTransactionsHistory(type = 'all') {
+            console.log(`[TRANSACTIONS] Updating history for type: ${type}`);
             const transactionHistory = document.getElementById('transaction-history');
             const transactionHistoryAssets = document.getElementById('transaction-history-assets');
             
@@ -1809,6 +1925,7 @@
         }
 
         function updateTransactionList(container, type = 'all') {
+            console.log(`[TRANSACTIONS] Updating list for container, type: ${type}`);
             container.innerHTML = '';
             
             let filteredTransactions = appState.transactions;
@@ -1822,6 +1939,8 @@
                     return true;
                 });
             }
+            
+            console.log(`[TRANSACTIONS] Filtered transactions: ${filteredTransactions.length}`);
             
             if (filteredTransactions.length === 0) {
                 container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No transactions found</div>';
@@ -1891,6 +2010,7 @@
         }
 
         function renderVIPPackages() {
+            console.log('[VIP] Rendering packages');
             const packagesList = document.getElementById('vip-packages-list');
             packagesList.innerHTML = '';
             
@@ -1921,15 +2041,19 @@
                 
                 packagesList.appendChild(packageElement);
             });
+            console.log('[VIP] Packages rendered');
         }
 
         async function purchaseVIPPackage(pkg) {
+            console.log(`[VIP PURCHASE] Attempting to purchase VIP ${pkg.level}`);
             if (appState.activeVipPackages.some(purchase => purchase.vip_package_id === pkg.id)) {
+                console.log(`[VIP PURCHASE] Already purchased VIP ${pkg.level}`);
                 showCustomAlert('You already own this VIP package');
                 return;
             }
             
             if (appState.user.balance < pkg.price) {
+                console.log(`[VIP PURCHASE] Insufficient funds: balance=${appState.user.balance}, price=${pkg.price}`);
                 showCustomAlert('Insufficient funds to purchase this package');
                 return;
             }
@@ -1937,12 +2061,14 @@
             showCustomConfirm(
                 `Are you sure you want to buy VIP ${pkg.level} for ${formatCurrency(pkg.price)} USDT? You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days, then your deposit will be returned.`,
                 () => {
+                    console.log(`[VIP PURCHASE] User confirmed purchase of VIP ${pkg.level}`);
                     processVIPPurchase(pkg);
                 }
             );
         }
 
         async function processVIPPurchase(pkg) {
+            console.log(`[VIP PROCESS] Processing purchase of VIP ${pkg.level}`);
             try {
                 const purchaseDate = new Date();
                 const expiryDate = new Date();
@@ -1991,17 +2117,20 @@
                     updateUI();
                     renderVIPPackages();
                     
+                    console.log(`[VIP PROCESS] Successfully purchased VIP ${pkg.level}`);
                     showCustomAlert(`VIP ${pkg.level} successfully purchased! You will receive ${formatCurrency(pkg.dailyIncome)} USDT daily for 30 days, then your ${formatCurrency(pkg.price)} USDT deposit will be returned.`);
                 }
             } catch (error) {
-                console.error('Purchase error:', error);
+                console.error('[VIP PROCESS ERROR]:', error);
                 showCustomAlert('Purchase failed. Please try again.');
             }
         }
 
         async function processReferralIncome(userId, amount) {
+            console.log(`[REFERRAL INCOME] Processing referral income for user ${userId}, amount: ${amount}`);
             try {
                 const referrals = await safeSupabaseFetch('referrals', '*', { referred_id: userId });
+                console.log(`[REFERRAL INCOME] Found ${referrals.length} referral relationships`);
                 
                 for (const referral of referrals) {
                     let bonusPercentage = 0;
@@ -2013,6 +2142,7 @@
                     }
                     
                     const bonusAmount = amount * bonusPercentage;
+                    console.log(`[REFERRAL INCOME] Level ${referral.level}: ${bonusPercentage*100}% of ${amount} = ${bonusAmount}`);
                     
                     if (bonusAmount > 0) {
                         await updateUserBalance(referral.referrer_id, bonusAmount);
@@ -2027,14 +2157,16 @@
                         };
                         
                         await safeSupabaseInsert('transactions', transactionData);
+                        console.log(`[REFERRAL INCOME] Paid ${bonusAmount} to referrer ${referral.referrer_id}`);
                     }
                 }
             } catch (error) {
-                console.error('Referral income processing error:', error);
+                console.error('[REFERRAL INCOME ERROR]:', error);
             }
         }
 
         async function updateUserBalance(userId, amount) {
+            console.log(`[BALANCE UPDATE] Updating balance for user ${userId}, amount: ${amount}`);
             try {
                 const users = await safeSupabaseFetch('users', '*', { id: userId });
                 
@@ -2042,9 +2174,10 @@
                     const user = users[0];
                     const newBalance = parseFloat(user.balance) + amount;
                     await safeSupabaseUpdate('users', { balance: newBalance }, 'id', userId);
+                    console.log(`[BALANCE UPDATE] User ${userId} new balance: ${newBalance}`);
                 }
             } catch (error) {
-                console.error('Error updating user balance:', error);
+                console.error('[BALANCE UPDATE ERROR]:', error);
             }
         }
 
@@ -2064,30 +2197,174 @@
             }).format(date);
         }
 
-        function canClaimDailyIncome() {
-            if (!appState.user.last_claim_date) return true;
+        function updateClaimButton() {
+            console.log('[CLAIM BUTTON] Updating claim button state');
+            const claimButton = document.getElementById('claim-button');
+            const claimTimer = document.getElementById('claim-timer');
             
+            const availableIncome = calculateDailyIncome();
+            const canClaim = canClaimDailyIncome();
+            const currentWindow = getCurrentIncomeWindow();
             const now = new Date();
-            const lastClaim = new Date(appState.user.last_claim_date);
             
-            const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-            const lastClaimUTC = new Date(Date.UTC(lastClaim.getUTCFullYear(), lastClaim.getUTCMonth(), lastClaim.getUTCDate()));
+            console.log(`[CLAIM BUTTON] availableIncome=${availableIncome}, canClaim=${canClaim}`);
             
-            return lastClaimUTC.getTime() < todayUTC.getTime();
+            if (availableIncome === 0) {
+                claimButton.disabled = true;
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> NO AVAILABLE INCOME';
+                claimTimer.textContent = 'Buy a VIP package to earn income';
+                console.log('[CLAIM BUTTON] No available income');
+                return;
+            }
+            
+            if (canClaim) {
+                claimButton.disabled = false;
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
+                
+                const timeLeft = currentWindow.end - now;
+                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                
+                claimTimer.textContent = `Available for: ${hoursLeft}h ${minutesLeft}m`;
+                console.log(`[CLAIM BUTTON] Can claim, available for: ${hoursLeft}h ${minutesLeft}m`);
+            } else {
+                claimButton.disabled = true;
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ALREADY CLAIMED';
+                
+                const nextWindow = getCurrentIncomeWindow();
+                nextWindow.start.setDate(nextWindow.start.getDate() + 1);
+                nextWindow.end.setDate(nextWindow.end.getDate() + 1);
+                
+                const timeLeft = nextWindow.start - now;
+                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                
+                claimTimer.textContent = `Next claim: ${hoursLeft}h ${minutesLeft}m`;
+                console.log(`[CLAIM BUTTON] Already claimed, next claim in: ${hoursLeft}h ${minutesLeft}m`);
+            }
         }
 
-        function calculateDailyIncome() {
-            let dailyIncome = 0;
-            appState.activeVipPackages.forEach(purchase => {
-                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
-                if (vipPackage) {
-                    dailyIncome += vipPackage.dailyIncome;
+        function startTimer() {
+            console.log('[TIMER] Starting claim button update timer');
+            setInterval(updateClaimButton, 60000);
+        }
+
+        async function claimDailyIncome() {
+            console.log('[CLAIM INCOME] Claim daily income initiated');
+            const claimBtn = document.getElementById('claim-button');
+            
+            if (claimBtn.disabled) {
+                console.log('[CLAIM INCOME] Button disabled, cannot claim');
+                showCustomAlert('You cannot claim income at this time. Please check the timer.');
+                return;
+            }
+            
+            const dailyIncome = calculateDailyIncome();
+            
+            if (dailyIncome === 0) {
+                console.log('[CLAIM INCOME] No daily income available');
+                showCustomAlert('No available income to claim. Purchase a VIP package to start earning.');
+                return;
+            }
+            
+            if (!canClaimDailyIncome()) {
+                console.log('[CLAIM INCOME] Cannot claim - already claimed today');
+                showCustomAlert('You have already claimed your daily income. Come back tomorrow at 22:00 UTC.');
+                return;
+            }
+            
+            const hasActivePackages = appState.activeVipPackages.some(purchase => 
+                purchase.active === true && purchase.deposit_returned === false
+            );
+            
+            if (!hasActivePackages) {
+                console.log('[CLAIM INCOME] No active packages found');
+                showCustomAlert('No active VIP packages found. Please purchase a package to earn income.');
+                return;
+            }
+            
+            console.log('[CLAIM INCOME] All checks passed, starting trading process');
+            await startTradingProcess(dailyIncome);
+        }
+
+        async function startTradingProcess(dailyIncome) {
+            console.log(`[TRADING PROCESS] Starting with income: ${dailyIncome}`);
+            const claimBtn = document.getElementById('claim-button');
+            const steps = [1, 2, 3];
+            
+            claimBtn.disabled = true;
+            claimBtn.classList.add('processing');
+            claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
+            
+            for (let i = 0; i < steps.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                const step = steps[i];
+                const stepIcon = document.getElementById(`step-${step}`);
+                stepIcon.classList.add('active');
+                
+                if (step === 1) {
+                    claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
+                    console.log('[TRADING PROCESS] Step 1 completed');
+                } else if (step === 2) {
+                    claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
+                    console.log('[TRADING PROCESS] Step 2 completed');
+                } else if (step === 3) {
+                    claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
+                    claimBtn.classList.remove('processing');
+                    claimBtn.classList.add('completed');
+                    
+                    const newBalance = appState.user.balance + dailyIncome;
+                    await safeSupabaseUpdate('users', 
+                        { balance: newBalance, last_claim_date: new Date().toISOString() }, 
+                        'id', appState.currentUserId
+                    );
+                    
+                    const transactionData = {
+                        user_id: appState.currentUserId,
+                        type: 'daily_income',
+                        title: 'Daily Quantification Income',
+                        amount: dailyIncome,
+                        positive: true,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    await safeSupabaseInsert('transactions', transactionData);
+                    
+                    appState.user.balance = newBalance;
+                    appState.user.last_claim_date = new Date();
+                    appState.transactions.unshift(transactionData);
+                    
+                    updateUI();
+                    
+                    console.log(`[TRADING PROCESS] Income claimed: ${dailyIncome}, new balance: ${newBalance}`);
+                    showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
+                    
+                    setTimeout(() => {
+                        resetTradingProcess();
+                    }, 3000);
                 }
+            }
+        }
+
+        function resetTradingProcess() {
+            console.log('[TRADING PROCESS] Resetting trading process');
+            const claimBtn = document.getElementById('claim-button');
+            const steps = [1, 2, 3];
+            
+            claimBtn.classList.remove('processing', 'completed');
+            claimBtn.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
+            
+            steps.forEach(step => {
+                const stepIcon = document.getElementById(`step-${step}`);
+                stepIcon.classList.remove('active');
             });
-            return dailyIncome;
+            
+            updateClaimButton();
         }
 
         function updateUI() {
+            console.log('[UI UPDATE] Updating user interface');
             if (!appState.user) return;
             
             document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
@@ -2120,9 +2397,11 @@
             updateTeamScreen();
             updateEarnScreen();
             updateTransactionsHistory('all');
+            console.log('[UI UPDATE] User interface updated');
         }
 
         function updateTeamScreen() {
+            console.log('[TEAM SCREEN] Updating team screen');
             document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
             document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
             document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
@@ -2164,18 +2443,22 @@
         }
 
         function calculateReferralIncome(level) {
-            return appState.transactions
+            const income = appState.transactions
                 .filter(t => t.type === 'referral' && t.title.includes(`Level ${level}`))
                 .reduce((sum, t) => sum + t.amount, 0);
+            console.log(`[REFERRAL INCOME CALC] Level ${level}: ${income}`);
+            return income;
         }
 
         function calculateReferralIncomeForUser(userId) {
-            return appState.transactions
+            const income = appState.transactions
                 .filter(t => t.type === 'referral' && t.title.includes(userId))
                 .reduce((sum, t) => sum + t.amount, 0);
+            return income;
         }
 
         function updateEarnScreen() {
+            console.log('[EARN SCREEN] Updating earn screen');
             const dailyIncome = calculateDailyIncome();
             
             document.getElementById('available-income').textContent = `${formatCurrency(dailyIncome)} USDT`;
@@ -2190,9 +2473,11 @@
                 percentage = (dailyIncome / totalInvested) * 100;
             }
             document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
+            console.log(`[EARN SCREEN] Daily income: ${dailyIncome}, percentage: ${percentage}%`);
         }
 
         function updateVerificationStatus() {
+            console.log('[VERIFICATION] Updating verification status');
             const phoneStatus = document.getElementById('phone-status');
             const phoneText = document.getElementById('phone-text');
             const phoneButton = document.getElementById('phone-button');
@@ -2234,155 +2519,8 @@
             }
         }
 
-        function updateClaimButton() {
-            const claimButton = document.getElementById('claim-button');
-            const claimTimer = document.getElementById('claim-timer');
-            
-            const availableIncome = calculateDailyIncome();
-            
-            if (availableIncome === 0) {
-                claimButton.disabled = true;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> NO AVAILABLE INCOME';
-                claimTimer.textContent = 'Buy a VIP package to earn income';
-                return;
-            }
-            
-            const canClaim = canClaimDailyIncome();
-            const now = new Date();
-            const currentHourUTC = now.getUTCHours();
-            
-            if (canClaim && currentHourUTC >= 22) {
-                claimButton.disabled = false;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
-                
-                const tomorrow = new Date(now);
-                tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-                tomorrow.setUTCHours(22, 0, 0, 0);
-                
-                const timeLeft = tomorrow - now;
-                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                
-                claimTimer.textContent = `Available for: ${hoursLeft}h ${minutesLeft}m`;
-            } else if (canClaim && currentHourUTC < 22) {
-                claimButton.disabled = true;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> WAITING FOR 22:00 UTC';
-                
-                const today22UTC = new Date(now);
-                today22UTC.setUTCHours(22, 0, 0, 0);
-                
-                const timeLeft = today22UTC - now;
-                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                
-                claimTimer.textContent = `Available at 22:00 UTC (in ${hoursLeft}h ${minutesLeft}m)`;
-            } else {
-                claimButton.disabled = true;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ALREADY CLAIMED TODAY';
-                
-                const tomorrow22UTC = new Date(now);
-                tomorrow22UTC.setUTCDate(tomorrow22UTC.getUTCDate() + 1);
-                tomorrow22UTC.setUTCHours(22, 0, 0, 0);
-                
-                const timeLeft = tomorrow22UTC - now;
-                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                
-                claimTimer.textContent = `Next claim: 22:00 UTC (in ${hoursLeft}h ${minutesLeft}m)`;
-            }
-        }
-
-        function startTimer() {
-            setInterval(updateClaimButton, 60000);
-        }
-
-        async function claimDailyIncome() {
-            const claimBtn = document.getElementById('claim-button');
-            
-            if (claimBtn.disabled) return;
-            
-            const dailyIncome = calculateDailyIncome();
-            
-            if (dailyIncome === 0) {
-                showCustomAlert('No available income to claim. Purchase a VIP package to start earning.');
-                return;
-            }
-            
-            await startTradingProcess(dailyIncome);
-        }
-
-        async function startTradingProcess(dailyIncome) {
-            const claimBtn = document.getElementById('claim-button');
-            const steps = [1, 2, 3];
-            
-            claimBtn.disabled = true;
-            claimBtn.classList.add('processing');
-            claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
-            
-            for (let i = 0; i < steps.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                const step = steps[i];
-                const stepIcon = document.getElementById(`step-${step}`);
-                stepIcon.classList.add('active');
-                
-                if (step === 1) {
-                    claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
-                } else if (step === 2) {
-                    claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
-                } else if (step === 3) {
-                    claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
-                    claimBtn.classList.remove('processing');
-                    claimBtn.classList.add('completed');
-                    
-                    const newBalance = appState.user.balance + dailyIncome;
-                    await safeSupabaseUpdate('users', 
-                        { balance: newBalance, last_claim_date: new Date().toISOString() }, 
-                        'id', appState.currentUserId
-                    );
-                    
-                    const transactionData = {
-                        user_id: appState.currentUserId,
-                        type: 'daily_income',
-                        title: 'Daily Quantification Income',
-                        amount: dailyIncome,
-                        positive: true,
-                        created_at: new Date().toISOString()
-                    };
-                    
-                    await safeSupabaseInsert('transactions', transactionData);
-                    
-                    appState.user.balance = newBalance;
-                    appState.user.last_claim_date = new Date();
-                    appState.transactions.unshift(transactionData);
-                    
-                    updateUI();
-                    
-                    showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
-                    
-                    setTimeout(() => {
-                        resetTradingProcess();
-                    }, 3000);
-                }
-            }
-        }
-
-        function resetTradingProcess() {
-            const claimBtn = document.getElementById('claim-button');
-            const steps = [1, 2, 3];
-            
-            claimBtn.classList.remove('processing', 'completed');
-            claimBtn.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
-            
-            steps.forEach(step => {
-                const stepIcon = document.getElementById(`step-${step}`);
-                stepIcon.classList.remove('active');
-            });
-            
-            updateClaimButton();
-        }
-
         function showPage(pageId) {
+            console.log(`[PAGE NAV] Showing page: ${pageId}`);
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
@@ -2409,9 +2547,11 @@
             } else if (pageId === 'profilePage') {
                 navItems[4].classList.add('active');
             }
+            console.log(`[NAV] Active page: ${pageId}`);
         }
 
         function copyToClipboard(elementId) {
+            console.log(`[CLIPBOARD] Copying from element: ${elementId}`);
             const element = document.getElementById(elementId);
             let text = element.textContent || element.innerText;
             
@@ -2425,54 +2565,66 @@
                 setTimeout(() => {
                     element.textContent = originalText;
                 }, 2000);
+                console.log('[CLIPBOARD] Text copied successfully');
             }).catch(() => {
+                console.error('[CLIPBOARD] Failed to copy text');
                 showCustomAlert('Failed to copy to clipboard');
             });
         }
 
         function verifyPhone() {
+            console.log('[VERIFICATION] Phone verification initiated');
             const phoneNumber = prompt('Please enter your phone number for verification:');
             if (phoneNumber) {
                 setTimeout(async () => {
                     await safeSupabaseUpdate('users', { phone_verified: true }, 'id', appState.currentUserId);
                     appState.user.phone_verified = true;
                     updateVerificationStatus();
+                    console.log('[VERIFICATION] Phone verified successfully');
                     showCustomAlert('Phone number verified successfully!');
                 }, 1500);
             }
         }
 
         function verifyID() {
+            console.log('[VERIFICATION] ID verification initiated');
             const idNumber = prompt('Please enter your ID or Passport number:');
             if (idNumber) {
                 setTimeout(async () => {
                     await safeSupabaseUpdate('users', { id_verified: true }, 'id', appState.currentUserId);
                     appState.user.id_verified = true;
                     updateVerificationStatus();
+                    console.log('[VERIFICATION] ID verified successfully');
                     showCustomAlert('ID/Passport verified successfully!');
                 }, 1500);
             }
         }
 
         function updatePassword() {
+            console.log('[PASSWORD] Password update requested');
             showCustomAlert('Password change feature will be implemented in the next update');
         }
 
         function logout() {
+            console.log('[LOGOUT] Logout initiated');
             showCustomConfirm(
                 'Are you sure you want to logout?',
                 () => {
                     sessionStorage.removeItem('currentUserId');
+                    console.log('[LOGOUT] User logged out');
                     window.location.href = 'index.html';
                 }
             );
         }
 
         window.onload = function() {
+            console.log('[WINDOW LOAD] Dashboard loading');
             if (!sessionStorage.getItem('currentUserId')) {
+                console.log('[WINDOW LOAD] No user ID found, redirecting to login');
                 window.location.href = 'index.html';
                 return;
             }
+            console.log('[WINDOW LOAD] User ID found, initializing app');
             initApp();
         };
     </script>
