@@ -427,6 +427,7 @@
         function showSuccessAnimation() {
             document.getElementById('successAnimation').style.display = 'block';
             setTimeout(() => {
+                // После регистрации сразу переходим на дашборд
                 window.location.href = 'dashboard.html';
             }, 1500);
         }
@@ -511,7 +512,7 @@
             
             try {
                 // Check user in database
-                const users = await supabaseFetch('users', 'id,name,email,password,balance,vip_level,referral_code');
+                const users = await supabaseFetch('users', 'id,name,email,password,balance,vip_level,referral_code,referred_by,phone_verified,id_verified');
                 const user = users.find(u => u.name === username && u.password === password);
                 
                 if (user) {
@@ -584,7 +585,7 @@
                     email: email,
                     password: password,
                     payment_password: paymentPassword,
-                    balance: 3.10,
+                    balance: 3.00, // Бонус за регистрацию 3 USDT
                     vip_level: 0,
                     referral_code: userId,
                     referred_by: referralCode || null,
@@ -596,26 +597,31 @@
                 const result = await supabaseInsert('users', userData);
                 
                 if (result) {
-                    // Create initial transaction
+                    // Create registration bonus transaction
                     const transactionData = {
                         user_id: userId,
                         type: 'bonus',
                         title: 'Registration Bonus',
-                        amount: 3.10,
+                        amount: 3.00,
                         positive: true,
                         created_at: new Date().toISOString()
                     };
                     
                     await supabaseInsert('transactions', transactionData);
                     
-                    // If referred, process referral
+                    // If referred, process referral tree
                     if (referralCode) {
-                        await processReferral(referralCode, userId);
+                        await buildReferralTree(referralCode, userId);
                     }
                     
                     localStorage.setItem('uipathUserData', JSON.stringify(userData));
                     localStorage.setItem('uipathUserLoggedIn', 'true');
-                    showSuccessAnimation();
+                    
+                    // Показываем сообщение о бонусе и переходим на дашборд
+                    showCustomAlert('Congratulations! You received 3.00 USDT registration bonus!');
+                    setTimeout(() => {
+                        showSuccessAnimation();
+                    }, 2000);
                 } else {
                     showCustomAlert('Registration failed. Please try again.');
                 }
@@ -625,51 +631,53 @@
             }
         }
 
-        async function processReferral(referralCode, newUserId) {
+        // Build referral tree for 3 generations
+        async function buildReferralTree(referralCode, newUserId) {
             try {
-                // Find referrer
-                const users = await supabaseFetch('users', 'id,referral_code');
-                const referrer = users.find(u => u.referral_code === referralCode);
+                // Find direct referrer (level 1)
+                const users = await supabaseFetch('users', 'id,referral_code,referred_by');
+                const directReferrer = users.find(u => u.referral_code === referralCode);
                 
-                if (referrer) {
-                    // Add to referrals table
-                    const referralData = {
-                        referrer_id: referrer.id,
+                if (directReferrer) {
+                    // Add level 1 referral
+                    const referralData1 = {
+                        referrer_id: directReferrer.id,
                         referred_id: newUserId,
                         level: 1,
                         created_at: new Date().toISOString()
                     };
+                    await supabaseInsert('referrals', referralData1);
                     
-                    await supabaseInsert('referrals', referralData);
-                    
-                    // Update referrer's balance with bonus
-                    const bonusAmount = 1.00;
-                    await updateUserBalance(referrer.id, bonusAmount);
-                    
-                    // Add referral bonus transaction
-                    const transactionData = {
-                        user_id: referrer.id,
-                        type: 'referral',
-                        title: 'Referral Bonus',
-                        amount: bonusAmount,
-                        positive: true,
-                        created_at: new Date().toISOString()
-                    };
-                    
-                    await supabaseInsert('transactions', transactionData);
+                    // Find level 2 referrer (referrer of direct referrer)
+                    if (directReferrer.referred_by) {
+                        const level2Referrer = users.find(u => u.referral_code === directReferrer.referred_by);
+                        if (level2Referrer) {
+                            const referralData2 = {
+                                referrer_id: level2Referrer.id,
+                                referred_id: newUserId,
+                                level: 2,
+                                created_at: new Date().toISOString()
+                            };
+                            await supabaseInsert('referrals', referralData2);
+                            
+                            // Find level 3 referrer (referrer of level 2 referrer)
+                            if (level2Referrer.referred_by) {
+                                const level3Referrer = users.find(u => u.referral_code === level2Referrer.referred_by);
+                                if (level3Referrer) {
+                                    const referralData3 = {
+                                        referrer_id: level3Referrer.id,
+                                        referred_id: newUserId,
+                                        level: 3,
+                                        created_at: new Date().toISOString()
+                                    };
+                                    await supabaseInsert('referrals', referralData3);
+                                }
+                            }
+                        }
+                    }
                 }
             } catch (error) {
-                console.error('Referral processing error:', error);
-            }
-        }
-
-        async function updateUserBalance(userId, amount) {
-            const users = await supabaseFetch('users', 'id,balance');
-            const user = users.find(u => u.id === userId);
-            
-            if (user) {
-                const newBalance = parseFloat(user.balance) + amount;
-                await supabaseUpdate('users', { balance: newBalance }, 'id', userId);
+                console.error('Referral tree building error:', error);
             }
         }
 
