@@ -662,49 +662,38 @@
             }
         }
 
-        async function buildReferralTree(referralCode, newUserId) {
+        async function buildReferralTree(referrerId, newUserId) {
             try {
-                const directReferrer = await safeSupabaseFetch('users', 'id,referred_by', { id: referralCode });
+                // Level 1 - direct referrer
+                const referralData1 = {
+                    referrer_id: referrerId,
+                    referred_id: newUserId,
+                    level: 1,
+                    created_at: new Date().toISOString()
+                };
+                await safeSupabaseInsert('referrals', referralData1);
                 
-                if (directReferrer.length > 0) {
-                    const referrer = directReferrer[0];
-                    
-                    const referralData1 = {
-                        referrer_id: referrer.id,
+                // Level 2 - find referrer of the direct referrer
+                const level1Referrer = await safeSupabaseFetch('users', 'referred_by', { id: referrerId });
+                if (level1Referrer.length > 0 && level1Referrer[0].referred_by) {
+                    const referralData2 = {
+                        referrer_id: level1Referrer[0].referred_by,
                         referred_id: newUserId,
-                        level: 1,
+                        level: 2,
                         created_at: new Date().toISOString()
                     };
-                    await safeSupabaseInsert('referrals', referralData1);
+                    await safeSupabaseInsert('referrals', referralData2);
                     
-                    if (referrer.referred_by) {
-                        const level2Referrers = await safeSupabaseFetch('users', 'id,referred_by', { id: referrer.referred_by });
-                        if (level2Referrers.length > 0) {
-                            const level2Referrer = level2Referrers[0];
-                            
-                            const referralData2 = {
-                                referrer_id: level2Referrer.id,
-                                referred_id: newUserId,
-                                level: 2,
-                                created_at: new Date().toISOString()
-                            };
-                            await safeSupabaseInsert('referrals', referralData2);
-                            
-                            if (level2Referrer.referred_by) {
-                                const level3Referrers = await safeSupabaseFetch('users', 'id', { id: level2Referrer.referred_by });
-                                if (level3Referrers.length > 0) {
-                                    const level3Referrer = level3Referrers[0];
-                                    
-                                    const referralData3 = {
-                                        referrer_id: level3Referrer.id,
-                                        referred_id: newUserId,
-                                        level: 3,
-                                        created_at: new Date().toISOString()
-                                    };
-                                    await safeSupabaseInsert('referrals', referralData3);
-                                }
-                            }
-                        }
+                    // Level 3 - find referrer of level 2 referrer
+                    const level2Referrer = await safeSupabaseFetch('users', 'referred_by', { id: level1Referrer[0].referred_by });
+                    if (level2Referrer.length > 0 && level2Referrer[0].referred_by) {
+                        const referralData3 = {
+                            referrer_id: level2Referrer[0].referred_by,
+                            referred_id: newUserId,
+                            level: 3,
+                            created_at: new Date().toISOString()
+                        };
+                        await safeSupabaseInsert('referrals', referralData3);
                     }
                 }
             } catch (error) {
