@@ -1,0 +1,18 @@
+{
+  "name": "uipath-deposit-tracker",
+  "version": "1.0.0",
+  "description": "UiPath Deposit Tracker Service",
+  "main": "deposit-tracker.js",
+  "scripts": {
+    "start": "node deposit-tracker.js",
+    "dev": "nodemon deposit-tracker.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
