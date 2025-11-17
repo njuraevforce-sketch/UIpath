@@ -4,8 +4,7 @@
   "description": "UiPath Deposit Tracker Service",
   "main": "deposit-tracker.js",
   "scripts": {
-    "start": "node deposit-tracker.js",
-    "dev": "nodemon deposit-tracker.js"
+    "start": "node deposit-tracker.js"
   },
   "dependencies": {
     "express": "^4.18.2",
