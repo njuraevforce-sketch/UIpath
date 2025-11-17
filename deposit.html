@@ -6,7 +6,7 @@
     <title>Uipath - Deposit</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Твои существующие стили остаются без изменений */
+        /* Стили остаются такими же как в вашем файле */
         * {
             margin: 0;
             padding: 0;
@@ -161,6 +161,12 @@
             align-items: center;
             justify-content: center;
             color: var(--gray);
+        }
+
+        .qrcode img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .deposit-info {
@@ -411,12 +417,10 @@
     </div>
 
     <script>
-        // ЗАМЕНИ ЭТОТ URL НА СВОЙ РЕАЛЬНЫЙ URL С RAILWAY
-        const API_BASE_URL = 'https://auto-deposit-service-production.up.railway.app/';
+        const API_BASE_URL = 'https://ui-deposit-production.up.railway.app';
         let currentNetwork = 'trc20';
         let currentUserId = null;
 
-        // Сначала проверяем соединение с сервером
         async function checkServerConnection() {
             try {
                 console.log('🔍 Checking server connection...');
@@ -500,10 +504,11 @@
                 
                 if (data.success) {
                     document.getElementById('walletAddress').textContent = data.address;
-                    document.getElementById('qrcode').innerHTML = `<img src="${data.qr_code}" alt="Deposit QR Code" style="width:100%;height:100%;">`;
+                    if (data.qr_code) {
+                        document.getElementById('qrcode').innerHTML = `<img src="${data.qr_code}" alt="Deposit QR Code">`;
+                    }
                     
-                    // Сохраняем адрес для отслеживания
-                    await saveUserAddress(userId, data.address, currentNetwork);
+                    console.log(`✅ Wallet address generated: ${data.address}`);
                 } else {
                     document.getElementById('walletAddress').textContent = 'Error generating address';
                     showCustomAlert('Failed to generate deposit address: ' + (data.error || 'Unknown error'));
@@ -514,31 +519,6 @@
                 showCustomAlert('Network error: ' + error.message);
             } finally {
                 hideLoading();
-            }
-        }
-
-        async function saveUserAddress(userId, address, network) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/deposit/save-address`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        address: address,
-                        network: network
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('✅ Address saved:', data);
-            } catch (error) {
-                console.error('❌ Error saving address:', error);
             }
         }
 
@@ -583,7 +563,7 @@
             } catch (error) {
                 console.error('❌ Error loading deposit history:', error);
                 document.getElementById('depositHistory').innerHTML = 
-                    '<div style="text-align: center; color: var(--danger); padding: 20px 0;">Error loading history: ' + error.message + '</div>';
+                    '<div style="text-align: center; color: var(--danger); padding: 20px 0;">Error loading history</div>';
             }
         }
 
@@ -615,7 +595,6 @@
                 return;
             }
             
-            // Сначала проверяем соединение с сервером
             const isConnected = await checkServerConnection();
             
             if (isConnected) {
