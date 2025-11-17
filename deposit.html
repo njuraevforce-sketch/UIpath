@@ -6,6 +6,7 @@
     <title>Uipath - Deposit</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Все стили остаются такими же как в предыдущей версии */
         * {
             margin: 0;
             padding: 0;
@@ -216,11 +217,6 @@
             color: var(--success);
         }
 
-        .status-pending {
-            background: rgba(255, 157, 0, 0.1);
-            color: var(--accent);
-        }
-
         .custom-alert-overlay {
             position: fixed;
             top: 0;
@@ -251,12 +247,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .custom-alert-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
         }
 
         .custom-alert-message {
@@ -435,27 +425,52 @@
         async function checkServerConnection() {
             try {
                 console.log('🔍 Checking server connection...');
-                const response = await fetch(`${API_BASE_URL}/health`);
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ Server health:', data);
-                    document.getElementById('connectionError').style.display = 'none';
-                    document.getElementById('connectionSuccess').style.display = 'block';
-                    document.getElementById('connectionSuccess').innerHTML = 
-                        `✅ Connected to server: ${data.status}<br>
-                         <small>Server uptime: ${Math.floor(data.uptime)}s</small>`;
-                    return true;
-                } else {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // Try multiple endpoints
+                const endpoints = ['/health', '/api/health', '/'];
+                let connected = false;
+                
+                for (let endpoint of endpoints) {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log(`✅ Server response from ${endpoint}:`, data.status);
+                            document.getElementById('connectionError').style.display = 'none';
+                            document.getElementById('connectionSuccess').style.display = 'block';
+                            document.getElementById('connectionSuccess').innerHTML = 
+                                `✅ Connected to server: ${data.status}`;
+                            connected = true;
+                            break;
+                        }
+                    } catch (e) {
+                        console.warn(`Endpoint ${endpoint} failed:`, e.message);
+                        continue;
+                    }
                 }
+                
+                if (!connected) {
+                    throw new Error('All endpoints failed');
+                }
+                
+                return true;
+                
             } catch (error) {
                 console.error('❌ Server connection failed:', error);
                 document.getElementById('connectionError').style.display = 'block';
                 document.getElementById('connectionSuccess').style.display = 'none';
                 document.getElementById('connectionError').innerHTML = 
                     `Cannot connect to server: ${error.message}<br>
-                     Make sure server is running at: ${API_BASE_URL}`;
+                     Server: ${API_BASE_URL}<br>
+                     <a href="${API_BASE_URL}/health" target="_blank" style="color: white; text-decoration: underline;">
+                         Test Connection Manually
+                     </a>`;
                 return false;
             }
         }
@@ -521,11 +536,15 @@
                 console.log(`🔄 Generating ${currentNetwork} address for user ${userId}`);
                 
                 const response = await fetch(`${API_BASE_URL}/api/deposit/generate?user_id=${userId}&network=${currentNetwork}`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
                 
                 const data = await response.json();
@@ -536,7 +555,7 @@
                         <div style="text-align: center; color: var(--success);">
                             <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 10px;"></i>
                             <div>Address generated successfully!</div>
-                            <small>Scan with your wallet app</small>
+                            <small style="font-size: 12px;">${data.address}</small>
                         </div>
                     `;
                     
@@ -637,6 +656,7 @@
                 return;
             }
             
+            // First check server connection
             const isConnected = await checkServerConnection();
             
             if (isConnected) {
@@ -644,8 +664,8 @@
                 loadDepositHistory();
                 startDepositMonitoring();
                 
-                // Check server health every minute
-                setInterval(checkServerConnection, 60000);
+                // Check server health every 2 minutes
+                setInterval(checkServerConnection, 120000);
             }
         };
     </script>
