@@ -532,15 +532,18 @@
                 
                 currentUserId = userId;
                 
+                // Исправленный запрос - правильный метод и обработка ошибок
                 const response = await fetch(`${API_BASE_URL}/api/deposit/generate?user_id=${userId}&network=${currentNetwork}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    }
+                    },
+                    body: JSON.stringify({}) // Добавляем пустое тело для POST запроса
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                    throw new Error(`HTTP ${response.status}: ${errorData.error || 'Server error'}`);
                 }
                 
                 const data = await response.json();
@@ -554,12 +557,12 @@
                     }
                 } else {
                     document.getElementById('walletAddress').textContent = 'Error generating address';
-                    showCustomAlert('Failed to generate deposit address');
+                    showCustomAlert('Failed to generate deposit address: ' + (data.error || 'Unknown error'));
                 }
             } catch (error) {
-                console.error('Address generation error');
+                console.error('Address generation error:', error);
                 document.getElementById('walletAddress').textContent = 'Network error';
-                showCustomAlert('Network error');
+                showCustomAlert('Network error: ' + error.message);
             } finally {
                 hideLoading();
             }
