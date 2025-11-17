@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uipath - Deposit</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -161,6 +162,10 @@
             justify-content: center;
             color: var(--gray);
             border: 1px solid #e0e0e0;
+        }
+
+        .qrcode canvas {
+            border-radius: 8px;
         }
 
         .deposit-info {
@@ -331,6 +336,10 @@
             margin: 10px 0;
             text-align: center;
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -346,12 +355,8 @@
         </div>
 
         <div class="deposit-content">
-            <div id="connectionError" class="error-message" style="display: none;">
+            <div id="connectionError" class="error-message hidden">
                 Connection error. Please check if server is running.
-            </div>
-
-            <div id="connectionSuccess" class="success-message" style="display: none;">
-                ✅ Connected to server successfully!
             </div>
 
             <div class="deposit-card">
@@ -381,7 +386,7 @@
                     <div class="qrcode" id="qrcode">
                         <div style="text-align: center; color: var(--gray);">
                             <i class="fas fa-qrcode" style="font-size: 48px; margin-bottom: 10px;"></i>
-                            <div>QR Code will appear after address generation</div>
+                            <div>QR Code will appear here</div>
                         </div>
                     </div>
                 </div>
@@ -423,8 +428,6 @@
 
         async function checkServerConnection() {
             try {
-                console.log('🔍 Checking server connection...');
-                
                 const response = await fetch(`${API_BASE_URL}/health`, {
                     method: 'GET',
                     headers: {
@@ -433,26 +436,15 @@
                 });
                 
                 if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ Server response:', data);
-                    document.getElementById('connectionError').style.display = 'none';
-                    document.getElementById('connectionSuccess').style.display = 'block';
-                    document.getElementById('connectionSuccess').innerHTML = 
-                        `✅ Server: ${data.status}`;
+                    document.getElementById('connectionError').classList.add('hidden');
                     return true;
                 } else {
                     throw new Error(`HTTP ${response.status}`);
                 }
                 
             } catch (error) {
-                console.error('❌ Server connection failed:', error);
-                document.getElementById('connectionError').style.display = 'block';
-                document.getElementById('connectionSuccess').style.display = 'none';
-                document.getElementById('connectionError').innerHTML = 
-                    `Cannot connect to server: ${error.message}<br>
-                     <button onclick="checkServerConnection()" style="margin-top: 10px; padding: 5px 10px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">
-                         Retry Connection
-                     </button>`;
+                console.error('Server connection failed');
+                document.getElementById('connectionError').classList.remove('hidden');
                 return false;
             }
         }
@@ -486,6 +478,31 @@
             document.body.appendChild(overlay);
         }
 
+        function generateQRCode(address) {
+            const qrcodeElement = document.getElementById('qrcode');
+            qrcodeElement.innerHTML = '';
+            
+            QRCode.toCanvas(qrcodeElement, address, {
+                width: 180,
+                height: 180,
+                margin: 1,
+                color: {
+                    dark: '#0a505e',
+                    light: '#ffffff'
+                }
+            }, function(error) {
+                if (error) {
+                    console.error('QR Code generation error:', error);
+                    qrcodeElement.innerHTML = `
+                        <div style="text-align: center; color: var(--gray);">
+                            <i class="fas fa-qrcode" style="font-size: 48px; margin-bottom: 10px;"></i>
+                            <div>QR Code unavailable</div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
         function goBack() {
             window.history.back();
         }
@@ -515,8 +532,6 @@
                 
                 currentUserId = userId;
                 
-                console.log(`🔄 Generating ${currentNetwork} address for user ${userId}`);
-                
                 const response = await fetch(`${API_BASE_URL}/api/deposit/generate?user_id=${userId}&network=${currentNetwork}`, {
                     method: 'POST',
                     headers: {
@@ -532,27 +547,19 @@
                 
                 if (data.success) {
                     document.getElementById('walletAddress').textContent = data.address;
-                    document.getElementById('qrcode').innerHTML = `
-                        <div style="text-align: center; color: var(--success);">
-                            <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 10px;"></i>
-                            <div>Address generated successfully!</div>
-                            <small style="font-size: 12px;">${data.address}</small>
-                        </div>
-                    `;
-                    
-                    console.log(`✅ Wallet address generated: ${data.address}`);
+                    generateQRCode(data.address);
                     
                     if (!data.exists) {
                         showCustomAlert(`New ${currentNetwork.toUpperCase()} wallet created!`, true);
                     }
                 } else {
                     document.getElementById('walletAddress').textContent = 'Error generating address';
-                    showCustomAlert('Failed to generate deposit address: ' + (data.error || 'Unknown error'));
+                    showCustomAlert('Failed to generate deposit address');
                 }
             } catch (error) {
-                console.error('❌ Address generation error:', error);
+                console.error('Address generation error');
                 document.getElementById('walletAddress').textContent = 'Network error';
-                showCustomAlert('Network error: ' + error.message);
+                showCustomAlert('Network error');
             } finally {
                 hideLoading();
             }
@@ -563,8 +570,6 @@
                 const userId = sessionStorage.getItem('currentUserId');
                 if (!userId) return;
 
-                console.log(`🔄 Loading history for user ${userId}, network: ${currentNetwork}`);
-                
                 const response = await fetch(`${API_BASE_URL}/api/deposit/history?user_id=${userId}&network=${currentNetwork}`);
                 
                 if (!response.ok) {
@@ -598,12 +603,11 @@
                         <div style="text-align: center; color: var(--gray); padding: 20px 0;">
                             <i class="fas fa-history" style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;"></i>
                             <div>No deposit history yet</div>
-                            <small>Your deposits will appear here</small>
                         </div>
                     `;
                 }
             } catch (error) {
-                console.error('❌ Error loading deposit history:', error);
+                console.error('Error loading deposit history');
                 document.getElementById('depositHistory').innerHTML = 
                     '<div style="text-align: center; color: var(--danger); padding: 20px 0;">Error loading history</div>';
             }
@@ -624,7 +628,6 @@
             });
         }
 
-        // Auto-check for new deposits every 30 seconds
         function startDepositMonitoring() {
             setInterval(() => {
                 loadDepositHistory();
@@ -637,7 +640,6 @@
                 return;
             }
             
-            // First check server connection
             const isConnected = await checkServerConnection();
             
             if (isConnected) {
@@ -645,7 +647,6 @@
                 loadDepositHistory();
                 startDepositMonitoring();
                 
-                // Check server health every 2 minutes
                 setInterval(checkServerConnection, 120000);
             }
         };
