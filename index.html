@@ -363,32 +363,8 @@
     </div>
 
     <script>
-        // Инициализация данных в localStorage
-        function initializeData() {
-            if (!localStorage.getItem('users')) {
-                localStorage.setItem('users', JSON.stringify([]));
-            }
-            if (!localStorage.getItem('vip_packages')) {
-                const packages = [
-                    { id: 1, level: 1, price: 20.00, daily_income: 0.52, percentage: 2.60, duration: 30 },
-                    { id: 2, level: 2, price: 100.00, daily_income: 3.10, percentage: 3.10, duration: 30 },
-                    { id: 3, level: 3, price: 300.00, daily_income: 10.80, percentage: 3.60, duration: 30 },
-                    { id: 4, level: 4, price: 1000.00, daily_income: 41.00, percentage: 4.10, duration: 30 },
-                    { id: 5, level: 5, price: 3000.00, daily_income: 138.00, percentage: 4.60, duration: 30 },
-                    { id: 6, level: 6, price: 5000.00, daily_income: 255.00, percentage: 5.10, duration: 30 }
-                ];
-                localStorage.setItem('vip_packages', JSON.stringify(packages));
-            }
-            if (!localStorage.getItem('vip_purchases')) {
-                localStorage.setItem('vip_purchases', JSON.stringify([]));
-            }
-            if (!localStorage.getItem('transactions')) {
-                localStorage.setItem('transactions', JSON.stringify([]));
-            }
-            if (!localStorage.getItem('referrals')) {
-                localStorage.setItem('referrals', JSON.stringify([]));
-            }
-        }
+        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
 
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -396,16 +372,33 @@
         }
 
         window.onload = function() {
-            initializeData();
             const refCode = getUrlParameter('ref');
             if (refCode) {
                 document.getElementById('registerReferralCode').value = refCode;
             }
             
-            if (sessionStorage.getItem('currentUserId')) {
-                window.location.href = 'dashboard.html';
-            }
+            // Проверяем авторизацию через базу данных
+            checkUserSession();
         };
+
+        async function checkUserSession() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id&limit=1`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                // Если есть активная сессия, перенаправляем на дашборд
+                const users = await response.json();
+                if (users && users.length > 0) {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.log('No active session found');
+            }
+        }
 
         function showCustomAlert(message) {
             const overlay = document.createElement('div');
@@ -478,49 +471,87 @@
             return result;
         }
 
-        // Функции для работы с localStorage
-        function getData(key) {
-            return JSON.parse(localStorage.getItem(key)) || [];
+        async function safeSupabaseFetch(table, query = '*', filters = null) {
+            try {
+                let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
+                
+                if (filters) {
+                    Object.keys(filters).forEach(key => {
+                        url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
+                    });
+                }
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Supabase fetch error:', error);
+                throw error;
+            }
         }
 
-        function setData(key, data) {
-            localStorage.setItem(key, JSON.stringify(data));
+        async function safeSupabaseInsert(table, data) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Supabase insert error:', error);
+                throw error;
+            }
         }
 
-        function findUserByUsername(username) {
-            const users = getData('users');
-            return users.find(u => u.name === username);
+        async function callPostgresFunction(functionName, params = {}) {
+            console.log(`[POSTGRES FUNCTION] Calling ${functionName}`, params);
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'params=single-object'
+                    },
+                    body: JSON.stringify(params)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                // Для функций, которые не возвращают данные (void)
+                if (response.status === 204) {
+                    return { success: true };
+                }
+                
+                const result = await response.json();
+                console.log(`[POSTGRES FUNCTION SUCCESS] ${functionName}:`, result);
+                return result;
+            } catch (error) {
+                console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, error);
+                throw error;
+            }
         }
 
-        function findUserByEmail(email) {
-            const users = getData('users');
-            return users.find(u => u.email === email);
-        }
-
-        function findUserByReferralCode(code) {
-            const users = getData('users');
-            return users.find(u => u.referral_code === code);
-        }
-
-        function addUser(user) {
-            const users = getData('users');
-            users.push(user);
-            setData('users', users);
-        }
-
-        function addTransaction(transaction) {
-            const transactions = getData('transactions');
-            transactions.push(transaction);
-            setData('transactions', transactions);
-        }
-
-        function addReferral(referral) {
-            const referrals = getData('referrals');
-            referrals.push(referral);
-            setData('referrals', referrals);
-        }
-
-        function login() {
+        async function login() {
             hideAllErrors();
             
             const username = document.getElementById('loginUsername').value.trim();
@@ -539,16 +570,24 @@
             
             if (!isValid) return;
             
-            const user = findUserByUsername(username);
-            if (user && user.password === password) {
-                sessionStorage.setItem('currentUserId', user.id);
-                showSuccessAnimation();
-            } else {
-                showCustomAlert('Invalid login credentials');
+            try {
+                const users = await safeSupabaseFetch('users', 'id,name,email,password,balance,vip_level,referral_code,referred_by,phone_verified,id_verified,last_claim_date');
+                const user = users.find(u => u.name === username && u.password === password);
+                
+                if (user) {
+                    // Сохраняем ID пользователя в sessionStorage для сессии
+                    sessionStorage.setItem('currentUserId', user.id);
+                    showSuccessAnimation();
+                } else {
+                    showCustomAlert('Invalid login credentials');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showCustomAlert('Login error occurred. Please try again.');
             }
         }
 
-        function register() {
+        async function register() {
             hideAllErrors();
             
             const username = document.getElementById('registerUsername').value.trim();
@@ -587,102 +626,60 @@
             
             if (!isValid) return;
             
-            if (findUserByUsername(username)) {
-                showCustomAlert('Username already exists');
-                return;
-            }
-
-            if (findUserByEmail(email)) {
-                showCustomAlert('Email already exists');
-                return;
-            }
-
-            const userId = generateReferralCode();
-            
-            let referredBy = null;
-            if (referralCode) {
-                const referrer = findUserByReferralCode(referralCode);
-                if (referrer) {
-                    referredBy = referrer.id;
-                } else {
-                    showCustomAlert('Invalid referral code');
+            try {
+                const existingUsers = await safeSupabaseFetch('users', 'name,email');
+                const existingUser = existingUsers.find(u => u.name === username || u.email === email);
+                
+                if (existingUser) {
+                    showCustomAlert('Username or email already exists');
                     return;
                 }
-            }
 
-            const userData = {
-                id: userId,
-                name: username,
-                email: email,
-                password: password,
-                payment_password: paymentPassword,
-                balance: 3.00,
-                vip_level: 0,
-                referral_code: userId,
-                referred_by: referredBy,
-                phone_verified: false,
-                id_verified: false,
-                last_claim_date: null,
-                created_at: new Date().toISOString()
-            };
-            
-            addUser(userData);
-            
-            // Добавляем бонусную транзакцию
-            const transactionData = {
-                user_id: userId,
-                type: 'bonus',
-                title: 'Registration Bonus',
-                amount: 3.00,
-                positive: true,
-                created_at: new Date().toISOString()
-            };
-            addTransaction(transactionData);
-            
-            if (referredBy) {
-                buildReferralTree(referredBy, userId);
-            }
-            
-            sessionStorage.setItem('currentUserId', userId);
-            
-            showCustomAlert('Congratulations! You received 3.00 USDT registration bonus!');
-            setTimeout(() => {
-                showSuccessAnimation();
-            }, 2000);
-        }
+                const userId = generateReferralCode();
+                
+                let referredBy = null;
+                if (referralCode) {
+                    const referrers = await safeSupabaseFetch('users', 'id', { referral_code: referralCode });
+                    if (referrers.length > 0) {
+                        referredBy = referrers[0].id;
+                    } else {
+                        showCustomAlert('Invalid referral code');
+                        return;
+                    }
+                }
 
-        function buildReferralTree(referrerId, newUserId) {
-            // Level 1 - direct referrer
-            const referralData1 = {
-                referrer_id: referrerId,
-                referred_id: newUserId,
-                level: 1,
-                created_at: new Date().toISOString()
-            };
-            addReferral(referralData1);
-            
-            // Level 2 - find referrer of the direct referrer
-            const referrer = getData('users').find(u => u.id === referrerId);
-            if (referrer && referrer.referred_by) {
-                const referralData2 = {
-                    referrer_id: referrer.referred_by,
-                    referred_id: newUserId,
-                    level: 2,
+                const userData = {
+                    id: userId,
+                    name: username,
+                    email: email,
+                    password: password,
+                    payment_password: paymentPassword,
+                    balance: 3.00,
+                    vip_level: 0,
+                    referral_code: userId,
+                    referred_by: referredBy,
+                    phone_verified: false,
+                    id_verified: false,
                     created_at: new Date().toISOString()
                 };
-                addReferral(referralData2);
                 
-                // Level 3 - find referrer of level 2 referrer
-                const level2Referrer = getData('users').find(u => u.id === referrer.referred_by);
-                if (level2Referrer && level2Referrer.referred_by) {
-                    const referralData3 = {
-                        referrer_id: level2Referrer.referred_by,
-                        referred_id: newUserId,
-                        level: 3,
-                        created_at: new Date().toISOString()
-                    };
-                    addReferral(referralData3);
+                const result = await safeSupabaseInsert('users', userData);
+                
+                if (result) {
+                    // Сохраняем ID пользователя в sessionStorage
+                    sessionStorage.setItem('currentUserId', userId);
+                    
+                    // Показываем сообщение о бонусе
+                    showCustomAlert('Congratulations! You received 3.00 USDT registration bonus!');
+                    
+                    // Перенаправляем на дашборд через 2 секунды
+                    setTimeout(() => {
+                        showSuccessAnimation();
+                    }, 2000);
                 }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showCustomAlert('Registration error occurred. Please try again.');
             }
         }
     </script>
