@@ -377,26 +377,13 @@
                 document.getElementById('registerReferralCode').value = refCode;
             }
             
-            // Проверяем авторизацию через базу данных
             checkUserSession();
         };
 
-        async function checkUserSession() {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id&limit=1`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                
-                // Если есть активная сессия, перенаправляем на дашборд
-                const users = await response.json();
-                if (users && users.length > 0) {
-                    window.location.href = 'dashboard.html';
-                }
-            } catch (error) {
-                console.log('No active session found');
+        function checkUserSession() {
+            const currentUserId = sessionStorage.getItem('currentUserId');
+            if (currentUserId) {
+                window.location.href = 'dashboard.html';
             }
         }
 
@@ -517,40 +504,6 @@
             }
         }
 
-        async function callPostgresFunction(functionName, params = {}) {
-            console.log(`[POSTGRES FUNCTION] Calling ${functionName}`, params);
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'params=single-object'
-                    },
-                    body: JSON.stringify(params)
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, errorText);
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
-                }
-                
-                // Для функций, которые не возвращают данные (void)
-                if (response.status === 204) {
-                    return { success: true };
-                }
-                
-                const result = await response.json();
-                console.log(`[POSTGRES FUNCTION SUCCESS] ${functionName}:`, result);
-                return result;
-            } catch (error) {
-                console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, error);
-                throw error;
-            }
-        }
-
         async function login() {
             hideAllErrors();
             
@@ -575,7 +528,6 @@
                 const user = users.find(u => u.name === username && u.password === password);
                 
                 if (user) {
-                    // Сохраняем ID пользователя в sessionStorage для сессии
                     sessionStorage.setItem('currentUserId', user.id);
                     showSuccessAnimation();
                 } else {
@@ -666,13 +618,10 @@
                 const result = await safeSupabaseInsert('users', userData);
                 
                 if (result) {
-                    // Сохраняем ID пользователя в sessionStorage
                     sessionStorage.setItem('currentUserId', userId);
                     
-                    // Показываем сообщение о бонусе
                     showCustomAlert('Congratulations! You received 3.00 USDT registration bonus!');
                     
-                    // Перенаправляем на дашборд через 2 секунды
                     setTimeout(() => {
                         showSuccessAnimation();
                     }, 2000);
