@@ -53,7 +53,7 @@
             min-height: 100vh;
             padding-bottom: 70px;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.2s ease;
         }
 
         .page.active {
@@ -67,8 +67,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 1000;
@@ -82,18 +83,29 @@
             visibility: visible;
         }
 
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--light);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .loading-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
         }
 
         .uni-header {
@@ -1013,7 +1025,10 @@
 <body>
     <div class="app-container">
         <div class="loading-overlay" id="loadingOverlay">
-            <div class="loading-spinner"></div>
+            <div class="loading-logo">
+                <img src="assets/quant.png" alt="Uipath">
+            </div>
+            <div class="loading-text">Loading...</div>
         </div>
 
         <div id="mainPage" class="page active">
@@ -1596,8 +1611,6 @@
     </div>
 
 <script>
-    console.log('🚀 DASHBOARD INITIALIZATION STARTED');
-    
     const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
 
@@ -1616,6 +1629,13 @@
         activeVipPackages: [],
         referrals: { gen1: [], gen2: [], gen3: [] },
         transactions: []
+    };
+
+    let dataCache = {
+        user: null,
+        vipPurchases: null,
+        transactions: null,
+        lastUpdated: null
     };
 
     function showLoading() {
@@ -1644,10 +1664,9 @@
             });
             
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const result = await response.json();
-            return result;
+            return await response.json();
         } catch (error) {
-            console.error('[DB FETCH ERROR]:', error);
+            console.error('DB fetch error:', error);
             throw error;
         }
     }
@@ -1666,10 +1685,9 @@
             });
             
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const result = await response.json();
-            return result;
+            return await response.json();
         } catch (error) {
-            console.error('[DB INSERT ERROR]:', error);
+            console.error('DB insert error:', error);
             throw error;
         }
     }
@@ -1688,10 +1706,9 @@
             });
             
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const result = await response.json();
-            return result;
+            return await response.json();
         } catch (error) {
-            console.error('[DB UPDATE ERROR]:', error);
+            console.error('DB update error:', error);
             throw error;
         }
     }
@@ -1731,13 +1748,11 @@
             appState.referrals.gen3 = gen3Referrals;
             
         } catch (error) {
-            console.error('[REFERRALS LOAD ERROR]:', error);
+            console.error('Referrals load error:', error);
         }
     }
 
     async function purchaseVIPPackageDirect(pkg) {
-        console.log(`[VIP PURCHASE] Attempting to purchase VIP ${pkg.level}`);
-        
         const existingPurchase = appState.activeVipPackages.find(purchase => 
             purchase.vip_package_id === pkg.id && purchase.active === true
         );
@@ -1765,11 +1780,7 @@
                 created_at: new Date().toISOString()
             };
 
-            const purchaseResult = await safeSupabaseInsert('vip_purchases', purchaseData);
-            
-            if (!purchaseResult) {
-                throw new Error('Failed to create VIP purchase record');
-            }
+            await safeSupabaseInsert('vip_purchases', purchaseData);
 
             const newBalance = appState.user.balance - pkg.price;
             await safeSupabaseUpdate('users', 
@@ -1791,7 +1802,7 @@
             };
             await safeSupabaseInsert('transactions', transactionData);
 
-            await processReferralIncome(pkg.price);
+            await processReferralIncome(pkg.price, pkg.level);
 
             await loadAllData();
             updateUI();
@@ -1800,25 +1811,22 @@
             showCustomAlert(`VIP ${pkg.level} package purchased successfully!`);
             
         } catch (error) {
-            console.error('[VIP PURCHASE ERROR]:', error);
+            console.error('VIP purchase error:', error);
             showCustomAlert('Purchase failed. Please try again.');
         } finally {
             hideLoading();
         }
     }
 
-    async function processReferralIncome(packagePrice) {
+    async function processReferralIncome(packagePrice, vipLevel) {
         try {
-            if (!appState.user.referred_by) {
-                return;
-            }
+            if (!appState.user.referred_by) return;
 
             const referrers = await safeSupabaseFetch('users', '*', { id: appState.user.referred_by });
-            if (referrers.length === 0) {
-                return;
-            }
+            if (referrers.length === 0) return;
 
             const referrer = referrers[0];
+            const currentUser = appState.user;
             
             const level1Bonus = packagePrice * 0.08;
             await safeSupabaseUpdate('users', 
@@ -1830,7 +1838,7 @@
             const level1Transaction = {
                 user_id: referrer.id,
                 type: 'referral',
-                title: `Referral Income (Level 1) from ${appState.user.name}`,
+                title: `Referral Income (Level 1) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
                 amount: level1Bonus,
                 positive: true,
                 created_at: new Date().toISOString()
@@ -1852,7 +1860,7 @@
                     const level2Transaction = {
                         user_id: level2Referrer.id,
                         type: 'referral',
-                        title: `Referral Income (Level 2) from ${appState.user.name}`,
+                        title: `Referral Income (Level 2) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
                         amount: level2Bonus,
                         positive: true,
                         created_at: new Date().toISOString()
@@ -1878,7 +1886,7 @@
                         const level3Transaction = {
                             user_id: level3Referrer.id,
                             type: 'referral',
-                            title: `Referral Income (Level 3) from ${appState.user.name}`,
+                            title: `Referral Income (Level 3) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
                             amount: level3Bonus,
                             positive: true,
                             created_at: new Date().toISOString()
@@ -1889,8 +1897,22 @@
             }
 
         } catch (error) {
-            console.error('[REFERRAL INCOME ERROR]:', error);
+            console.error('Referral income error:', error);
         }
+    }
+
+    function calculateReferralIncomeForUser(referralId) {
+        const income = appState.transactions
+            .filter(t => t.type === 'referral' && t.title.includes(`[${referralId}]`))
+            .reduce((sum, t) => sum + t.amount, 0);
+        return income;
+    }
+
+    function calculateReferralIncome(level) {
+        const income = appState.transactions
+            .filter(t => t.type === 'referral' && t.title.includes(`Level ${level}`))
+            .reduce((sum, t) => sum + t.amount, 0);
+        return income;
     }
 
     function canClaimDailyIncome() {
@@ -1989,7 +2011,7 @@
             }
             
         } catch (error) {
-            console.error('[EXPIRY CHECK ERROR]:', error);
+            console.error('Expiry check error:', error);
         }
     }
 
@@ -2003,27 +2025,41 @@
             
             appState.currentUserId = userId;
             
-            const users = await safeSupabaseFetch('users', '*', { id: userId });
-            if (users.length === 0) {
-                sessionStorage.removeItem('currentUserId');
-                window.location.href = 'index.html';
-                return;
+            const now = new Date();
+            if (dataCache.lastUpdated && (now - dataCache.lastUpdated) < 10000) {
+                appState.user = dataCache.user;
+                appState.activeVipPackages = dataCache.vipPurchases;
+                appState.transactions = dataCache.transactions;
+            } else {
+                const users = await safeSupabaseFetch('users', '*', { id: userId });
+                if (users.length === 0) {
+                    sessionStorage.removeItem('currentUserId');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                appState.user = users[0];
+                
+                appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
+                    user_id: userId 
+                });
+                
+                appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
+                
+                dataCache = {
+                    user: appState.user,
+                    vipPurchases: appState.activeVipPackages,
+                    transactions: appState.transactions,
+                    lastUpdated: new Date()
+                };
             }
-            
-            appState.user = users[0];
-            
-            appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
-                user_id: userId 
-            });
-            
-            appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
             
             await loadReferrals();
             
             await processExpiredVipPackages();
             return true;
         } catch (error) {
-            console.error('[LOAD DATA ERROR]:', error);
+            console.error('Data load error:', error);
             showCustomAlert('Error loading data. Please refresh the page.');
             return false;
         }
@@ -2388,7 +2424,7 @@
                     
                     showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
                 } catch (error) {
-                    console.error('[CLAIM INCOME ERROR]:', error);
+                    console.error('Claim income error:', error);
                     showCustomAlert('Failed to claim income. Please try again.');
                 }
                 
@@ -2490,20 +2526,6 @@
         });
     }
 
-    function calculateReferralIncome(level) {
-        const income = appState.transactions
-            .filter(t => t.type === 'referral' && t.title.includes(`Level ${level}`))
-            .reduce((sum, t) => sum + t.amount, 0);
-        return income;
-    }
-
-    function calculateReferralIncomeForUser(userId) {
-        const income = appState.transactions
-            .filter(t => t.type === 'referral' && t.title.includes(userId))
-            .reduce((sum, t) => sum + t.amount, 0);
-        return income;
-    }
-
     function updateEarnScreen() {
         const dailyIncome = calculateDailyIncome();
         
@@ -2577,7 +2599,7 @@
             
             updateNavActiveState(pageId);
             hideLoading();
-        }, 300);
+        }, 200);
     }
     
     function updateNavActiveState(pageId) {
@@ -2682,7 +2704,7 @@
             
             showCustomAlert('Password updated successfully!');
         } catch (error) {
-            console.error('[PASSWORD UPDATE ERROR]:', error);
+            console.error('Password update error:', error);
             showCustomAlert('Failed to update password. Please try again.');
         }
     }
