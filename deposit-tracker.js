@@ -5,26 +5,28 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Supabase клиент
+// ВШИТЫЕ КЛЮЧИ - НЕ МЕНЯТЬ!
 const supabaseUrl = 'https://pjyuagmvrhnepomqfxcc.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzE1MjQxMywiZXhwIjoyMDc4NzI4NDEzfQ.cRJ9xx3wganoJQldTL3hbY8OSTIV_XR6f9EIZT4fsac';
+const tronGridApiKey = '8fa63ef4-f010-4ad2-a556-a7124563bafd';
+const etherscanApiKey = 'HIQGABWWJ77G9B42SZ92HV2QYA7JVGC125';
+
+console.log('✅ Using hardcoded API keys');
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Конфигурация API с учетом лимитов
+// Конфигурация API
 const CONFIG = {
     trc20: {
-        apiKey: process.env.TRONGRID_API_KEY,
+        apiKey: tronGridApiKey,
         baseURL: 'https://api.trongrid.io',
         usdtContract: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
-        requestsPerSecond: 3,
         delayBetweenRequests: 350
     },
     bep20: {
-        apiKey: process.env.ETHERSCAN_API_KEY,
+        apiKey: etherscanApiKey,
         baseURL: 'https://api.etherscan.io/v2/api',
         usdtContract: '0x55d398326f99059ff775485246999027b3197955',
         chainId: 56,
-        requestsPerSecond: 4,
         delayBetweenRequests: 250
     }
 };
@@ -185,17 +187,6 @@ async function checkBscDeposits() {
 
 // Кеш обработанных транзакций
 const processedTransactions = new Set();
-const TRANSACTION_CACHE_TTL = 5 * 60 * 1000;
-
-// Очистка кеша каждую минуту
-setInterval(() => {
-    const now = Date.now();
-    for (const [txHash, timestamp] of processedTransactions.entries()) {
-        if (now - timestamp > TRANSACTION_CACHE_TTL) {
-            processedTransactions.delete(txHash);
-        }
-    }
-}, 60000);
 
 async function processTransaction(tx, network, userId) {
     try {
@@ -357,8 +348,8 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 UI Deposit Tracker running on port ${PORT}`);
-    console.log('⚡ Optimized for 70+ wallets');
-    console.log('⏰ Check interval: 2 minutes');
+    console.log('✅ All hardcoded keys loaded successfully');
+    console.log('⚡ Starting monitoring...');
     
     startSmartMonitoring();
 });
