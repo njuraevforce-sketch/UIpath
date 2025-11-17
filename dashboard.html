@@ -1567,7 +1567,7 @@
             transactions: []
         };
 
-        // 🔥 НОВАЯ ФУНКЦИЯ: Вызов PostgreSQL функций через REST API
+        // 🔥 УЛУЧШЕННАЯ ФУНКЦИЯ: Вызов PostgreSQL функций через REST API
         async function callPostgresFunction(functionName, params = {}) {
             console.log(`[POSTGRES FUNCTION] Calling ${functionName}`, params);
             try {
@@ -1588,6 +1588,11 @@
                     throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
                 
+                // Для функций, которые не возвращают данные (void)
+                if (response.status === 204) {
+                    return { success: true };
+                }
+                
                 const result = await response.json();
                 console.log(`[POSTGRES FUNCTION SUCCESS] ${functionName}:`, result);
                 return result;
@@ -1597,23 +1602,7 @@
             }
         }
 
-        // 🔥 ИСПРАВЛЕННАЯ ЛОГИКА ВРЕМЕНИ - строго 22:00 UTC
-        function getCurrentIncomeWindow() {
-            const now = new Date();
-            let windowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 22, 0, 0));
-            
-            // Если сейчас время ДО 22:00 UTC, то окно началось вчера в 22:00
-            if (now.getUTCHours() < 22) {
-                windowStart.setUTCDate(windowStart.getUTCDate() - 1);
-            }
-            
-            const windowEnd = new Date(windowStart);
-            windowEnd.setUTCDate(windowEnd.getUTCDate() + 1);
-            
-            console.log(`[TIME DEBUG] Now: ${now.toISOString()}, Window: ${windowStart.toISOString()} to ${windowEnd.toISOString()}`);
-            return { start: windowStart, end: windowEnd };
-        }
-
+        // 🔥 ПРОСТАЯ ЛОГИКА ВРЕМЕНИ - строго 22:00 UTC
         function canClaimDailyIncome() {
             console.log('[INCOME DEBUG] Checking if can claim daily income');
             
@@ -1623,16 +1612,33 @@
             }
             
             const lastClaim = new Date(appState.user.last_claim_date);
-            const currentWindow = getCurrentIncomeWindow();
+            const now = new Date();
             
-            console.log(`[INCOME DEBUG] Last claim: ${lastClaim.toISOString()}`);
-            console.log(`[INCOME DEBUG] Current window: ${currentWindow.start.toISOString()} to ${currentWindow.end.toISOString()}`);
+            // Простая логика: если с последнего забора прошло более 24 часов
+            // и текущее время после 22:00 UTC
+            const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+            const currentHourUTC = now.getUTCHours();
             
-            // Можно забирать если последний забор был ДО начала текущего окна
-            const canClaim = lastClaim < currentWindow.start;
-            console.log(`[INCOME DEBUG] Can claim: ${canClaim} (lastClaim < windowStart)`);
+            const canClaim = hoursSinceLastClaim >= 24 && currentHourUTC >= 22;
+            console.log(`[INCOME DEBUG] Can claim: ${canClaim} (hoursSinceLastClaim: ${hoursSinceLastClaim}, currentHourUTC: ${currentHourUTC})`);
             
             return canClaim;
+        }
+
+        function getNextClaimTime() {
+            const now = new Date();
+            let nextClaim = new Date(now);
+            
+            // Если сейчас до 22:00 UTC, то следующий забор сегодня в 22:00
+            if (now.getUTCHours() < 22) {
+                nextClaim.setUTCHours(22, 0, 0, 0);
+            } else {
+                // Если сейчас после 22:00 UTC, то следующий забор завтра в 22:00
+                nextClaim.setUTCDate(nextClaim.getUTCDate() + 1);
+                nextClaim.setUTCHours(22, 0, 0, 0);
+            }
+            
+            return nextClaim;
         }
 
         function calculateDailyIncome() {
@@ -1815,10 +1821,10 @@
                 console.log('[LOAD DATA] Transactions:', appState.transactions.length);
                 
                 // Загрузка рефералов
-                const allReferrals = await safeSupabaseFetch('referrals', '*');
-                appState.referrals.gen1 = allReferrals.filter(ref => ref.referrer_id === userId && ref.level === 1);
-                appState.referrals.gen2 = allReferrals.filter(ref => ref.referrer_id === userId && ref.level === 2);
-                appState.referrals.gen3 = allReferrals.filter(ref => ref.referrer_id === userId && ref.level === 3);
+                const allReferrals = await safeSupabaseFetch('referrals', '*', { referrer_id: userId });
+                appState.referrals.gen1 = allReferrals.filter(ref => ref.level === 1);
+                appState.referrals.gen2 = allReferrals.filter(ref => ref.level === 2);
+                appState.referrals.gen3 = allReferrals.filter(ref => ref.level === 3);
                 console.log(`[LOAD DATA] Referrals: gen1=${appState.referrals.gen1.length}, gen2=${appState.referrals.gen2.length}, gen3=${appState.referrals.gen3.length}`);
                 
                 await processExpiredVipPackages();
@@ -1834,9 +1840,14 @@
         async function processExpiredVipPackages() {
             console.log('[EXPIRY CHECK] Starting expired packages check');
             try {
-                // 🔥 ВЫЗЫВАЕМ ФУНКЦИЮ БАЗЫ ДАННЫХ вместо ручной обработки
+                // 🔥 ВЫЗЫВАЕМ ФУНКЦИЮ БАЗЫ ДАННЫХ для обработки истекших пакетов
                 await callPostgresFunction('auto_return_deposits');
                 console.log('[EXPIRY CHECK] Database function executed');
+                
+                // Обновляем данные после обработки
+                appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
+                    user_id: appState.currentUserId
+                });
                 
             } catch (error) {
                 console.error('[EXPIRY CHECK ERROR]:', error);
@@ -2075,8 +2086,6 @@
             
             const availableIncome = calculateDailyIncome();
             const canClaim = canClaimDailyIncome();
-            const currentWindow = getCurrentIncomeWindow();
-            const now = new Date();
             
             console.log(`[CLAIM BUTTON] availableIncome=${availableIncome}, canClaim=${canClaim}`);
             
@@ -2092,7 +2101,9 @@
                 claimButton.disabled = false;
                 claimButton.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
                 
-                const timeLeft = currentWindow.end - now;
+                const nextClaim = getNextClaimTime();
+                const now = new Date();
+                const timeLeft = nextClaim - now;
                 const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
                 const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                 
@@ -2102,11 +2113,9 @@
                 claimButton.disabled = true;
                 claimButton.innerHTML = '<i class="fas fa-bolt"></i> ALREADY CLAIMED';
                 
-                const nextWindow = getCurrentIncomeWindow();
-                nextWindow.start.setDate(nextWindow.start.getDate() + 1);
-                nextWindow.end.setDate(nextWindow.end.getDate() + 1);
-                
-                const timeLeft = nextWindow.start - now;
+                const nextClaim = getNextClaimTime();
+                const now = new Date();
+                const timeLeft = nextClaim - now;
                 const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
                 const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                 
