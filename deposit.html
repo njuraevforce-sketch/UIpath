@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uipath - Deposit</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <style>
+        /* Все твои стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -162,10 +163,6 @@
             justify-content: center;
             color: var(--gray);
             border: 1px solid #e0e0e0;
-        }
-
-        .qrcode canvas {
-            border-radius: 8px;
         }
 
         .deposit-info {
@@ -355,6 +352,7 @@
         </div>
 
         <div class="deposit-content">
+            <!-- Убрал сообщения о подключении - они скрыты -->
             <div id="connectionError" class="error-message hidden">
                 Connection error. Please check if server is running.
             </div>
@@ -386,7 +384,7 @@
                     <div class="qrcode" id="qrcode">
                         <div style="text-align: center; color: var(--gray);">
                             <i class="fas fa-qrcode" style="font-size: 48px; margin-bottom: 10px;"></i>
-                            <div>QR Code will appear here</div>
+                            <div>QR Code will appear after address generation</div>
                         </div>
                     </div>
                 </div>
@@ -428,22 +426,14 @@
 
         async function checkServerConnection() {
             try {
-                const response = await fetch(`${API_BASE_URL}/health`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                
+                const response = await fetch(`${API_BASE_URL}/health`);
                 if (response.ok) {
                     document.getElementById('connectionError').classList.add('hidden');
                     return true;
                 } else {
                     throw new Error(`HTTP ${response.status}`);
                 }
-                
             } catch (error) {
-                console.error('Server connection failed');
                 document.getElementById('connectionError').classList.remove('hidden');
                 return false;
             }
@@ -478,29 +468,16 @@
             document.body.appendChild(overlay);
         }
 
+        // ПРОСТАЯ ГЕНЕРАЦИЯ QR КОДА
         function generateQRCode(address) {
             const qrcodeElement = document.getElementById('qrcode');
             qrcodeElement.innerHTML = '';
             
-            QRCode.toCanvas(qrcodeElement, address, {
-                width: 180,
-                height: 180,
-                margin: 1,
-                color: {
-                    dark: '#0a505e',
-                    light: '#ffffff'
-                }
-            }, function(error) {
-                if (error) {
-                    console.error('QR Code generation error:', error);
-                    qrcodeElement.innerHTML = `
-                        <div style="text-align: center; color: var(--gray);">
-                            <i class="fas fa-qrcode" style="font-size: 48px; margin-bottom: 10px;"></i>
-                            <div>QR Code unavailable</div>
-                        </div>
-                    `;
-                }
-            });
+            const qr = qrcode(0, 'M');
+            qr.addData(address);
+            qr.make();
+            
+            qrcodeElement.innerHTML = qr.createImgTag(4); // 4 - размер пикселя
         }
 
         function goBack() {
@@ -532,37 +509,33 @@
                 
                 currentUserId = userId;
                 
-                // Исправленный запрос - правильный метод и обработка ошибок
                 const response = await fetch(`${API_BASE_URL}/api/deposit/generate?user_id=${userId}&network=${currentNetwork}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({}) // Добавляем пустое тело для POST запроса
+                    }
                 });
                 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                    throw new Error(`HTTP ${response.status}: ${errorData.error || 'Server error'}`);
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 
                 const data = await response.json();
                 
                 if (data.success) {
                     document.getElementById('walletAddress').textContent = data.address;
-                    generateQRCode(data.address);
+                    generateQRCode(data.address); // Генерируем QR код
                     
                     if (!data.exists) {
                         showCustomAlert(`New ${currentNetwork.toUpperCase()} wallet created!`, true);
                     }
                 } else {
                     document.getElementById('walletAddress').textContent = 'Error generating address';
-                    showCustomAlert('Failed to generate deposit address: ' + (data.error || 'Unknown error'));
+                    showCustomAlert('Failed to generate deposit address');
                 }
             } catch (error) {
-                console.error('Address generation error:', error);
                 document.getElementById('walletAddress').textContent = 'Network error';
-                showCustomAlert('Network error: ' + error.message);
+                showCustomAlert('Network error');
             } finally {
                 hideLoading();
             }
@@ -610,7 +583,6 @@
                     `;
                 }
             } catch (error) {
-                console.error('Error loading deposit history');
                 document.getElementById('depositHistory').innerHTML = 
                     '<div style="text-align: center; color: var(--danger); padding: 20px 0;">Error loading history</div>';
             }
@@ -649,8 +621,6 @@
                 generateWalletAddress();
                 loadDepositHistory();
                 startDepositMonitoring();
-                
-                setInterval(checkServerConnection, 120000);
             }
         };
     </script>
