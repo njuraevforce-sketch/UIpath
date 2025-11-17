@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uipath - Withdraw</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #0a505e;
+            --primary-light: #0d6a7c;
+            --accent: #ff9d00;
+            --success: #4cd964;
+            --danger: #ff3b30;
+            --dark: #1c1c1e;
+            --light: #f8f9fa;
+            --gray: #8e8e93;
+            --white: #ffffff;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            height: 100vh;
+        }
+
+        .withdraw-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .withdraw-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .logo {
+            width: 150px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .withdraw-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .withdraw-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .balance-display {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .balance-amount {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .withdraw-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .uni-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e5e5e5;
+            border-radius: 5px;
+            font-size: 16px;
+            background: var(--white);
+        }
+
+        .network-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .network-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .network-option.active {
+            border-color: var(--primary);
+            background: rgba(10, 80, 94, 0.05);
+        }
+
+        .amount-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .amount-button {
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .amount-button.active {
+            border-color: var(--primary);
+            background: rgba(10, 80, 94, 0.05);
+        }
+
+        .fee-calculator {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .fee-total {
+            font-weight: 600;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .withdraw-info {
+            background: rgba(255, 157, 0, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .uni-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 5px;
+        }
+
+        .uni-button:hover {
+            background: var(--primary-light);
+        }
+
+        .uni-button:disabled {
+            background: #c7c7cc;
+            cursor: not-allowed;
+        }
+
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .custom-alert {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .custom-alert-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-alert-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .custom-alert-message {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        .custom-alert-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .custom-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .custom-confirm {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .custom-confirm-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .custom-confirm-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .custom-confirm-button.confirm {
+            background: var(--primary);
+            color: white;
+        }
+
+        .custom-confirm-button.cancel {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="withdraw-container">
+        <div class="withdraw-header">
+            <div class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <div class="logo">
+                <img src="assets/logo.png" alt="Uipath">
+            </div>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <div class="withdraw-content">
+            <div class="withdraw-card">
+                <div class="balance-display">
+                    <div class="balance-label">Available Balance</div>
+                    <div class="balance-amount" id="availableBalance">0.00 USDT</div>
+                    <div class="balance-label" id="depositStatus">Checking deposit status...</div>
+                </div>
+
+                <div class="withdraw-form">
+                    <div class="form-group">
+                        <label class="form-label">Withdrawal Amount (USDT)</label>
+                        <input type="number" id="withdrawAmount" class="uni-input" placeholder="Enter amount" min="5" step="0.01" oninput="calculateFee()">
+                    </div>
+
+                    <div class="amount-buttons">
+                        <div class="amount-button" data-amount="10" onclick="setAmount(10)">10</div>
+                        <div class="amount-button" data-amount="50" onclick="setAmount(50)">50</div>
+                        <div class="amount-button" data-amount="100" onclick="setAmount(100)">100</div>
+                        <div class="amount-button" data-amount="500" onclick="setAmount(500)">500</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Withdrawal Network</label>
+                        <div class="network-selector">
+                            <div class="network-option active" data-network="trc20" onclick="selectNetwork('trc20')">
+                                <div>TRC20</div>
+                                <div style="font-size: 12px; color: var(--gray);">Tron Network</div>
+                            </div>
+                            <div class="network-option" data-network="bep20" onclick="selectNetwork('bep20')">
+                                <div>BEP20</div>
+                                <div style="font-size: 12px; color: var(--gray);">BSC Network</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Your Wallet Address</label>
+                        <input type="text" id="walletAddress" class="uni-input" placeholder="Enter your USDT wallet address">
+                    </div>
+
+                    <div class="fee-calculator">
+                        <div class="fee-row">
+                            <span>Withdrawal Amount:</span>
+                            <span id="displayAmount">0.00 USDT</span>
+                        </div>
+                        <div class="fee-row">
+                            <span>Processing Fee (2%):</span>
+                            <span id="feeAmount">0.00 USDT</span>
+                        </div>
+                        <div class="fee-row fee-total">
+                            <span>You Will Receive:</span>
+                            <span id="receiveAmount">0.00 USDT</span>
+                        </div>
+                    </div>
+
+                    <div class="withdraw-info">
+                        <div class="info-title">Withdrawal Rules</div>
+                        <div class="info-text">
+                            • Minimum withdrawal: <strong>5 USDT</strong><br>
+                            • Processing fee: <strong>2%</strong><br>
+                            • Withdrawal time: 1-24 hours<br>
+                            • Available only after first deposit<br>
+                            • Admin approval required
+                        </div>
+                    </div>
+
+                    <button class="uni-button" id="withdrawButton" onclick="submitWithdrawal()" disabled>
+                        Submit Withdrawal Request
+                    </button>
+                </div>
+            </div>
+
+            <div class="withdraw-card">
+                <div class="card-title">Recent Withdrawals</div>
+                <div id="withdrawalHistory">
+                    <div style="text-align: center; color: var(--gray); padding: 20px 0;">
+                        Loading withdrawal history...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-logo">
+            <img src="assets/quant.png" alt="Uipath">
+        </div>
+        <div class="loading-text">Processing...</div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
+
+        let currentNetwork = 'trc20';
+        let currentUserId = null;
+        let userBalance = 0;
+        let hasDeposited = false;
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showCustomAlert(message) {
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-alert-overlay';
+            
+            overlay.innerHTML = `
+                <div class="custom-alert">
+                    <div class="custom-alert-icon">
+                        <img src="assets/quant.png" alt="Uipath">
+                    </div>
+                    <div class="custom-alert-message">${message}</div>
+                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+
+        function showCustomConfirm(message, confirmCallback) {
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-confirm-overlay';
+            
+            overlay.innerHTML = `
+                <div class="custom-confirm">
+                    <div class="custom-alert-icon">
+                        <img src="assets/quant.png" alt="Uipath">
+                    </div>
+                    <div class="custom-alert-message">${message}</div>
+                    <div class="custom-confirm-buttons">
+                        <button class="custom-confirm-button cancel">Cancel</button>
+                        <button class="custom-confirm-button confirm">Confirm</button>
+                    </div>
+                </div>
+            `;
+            
+            const confirmBtn = overlay.querySelector('.confirm');
+            const cancelBtn = overlay.querySelector('.cancel');
+            
+            confirmBtn.onclick = function() {
+                document.body.removeChild(overlay);
+                if (typeof confirmCallback === 'function') {
+                    confirmCallback();
+                }
+            };
+            
+            cancelBtn.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+            
+            document.body.appendChild(overlay);
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function selectNetwork(network) {
+            currentNetwork = network;
+            
+            document.querySelectorAll('.network-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            document.querySelector(`[data-network="${network}"]`).classList.add('active');
+        }
+
+        function setAmount(amount) {
+            document.getElementById('withdrawAmount').value = amount;
+            calculateFee();
+            
+            document.querySelectorAll('.amount-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.querySelector(`[data-amount="${amount}"]`).classList.add('active');
+        }
+
+        function calculateFee() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            const fee = amount * 0.02;
+            const receive = amount - fee;
+            
+            document.getElementById('displayAmount').textContent = amount.toFixed(2) + ' USDT';
+            document.getElementById('feeAmount').textContent = fee.toFixed(2) + ' USDT';
+            document.getElementById('receiveAmount').textContent = receive.toFixed(2) + ' USDT';
+            
+            updateWithdrawButton();
+        }
+
+        function updateWithdrawButton() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            const walletAddress = document.getElementById('walletAddress').value.trim();
+            const button = document.getElementById('withdrawButton');
+            
+            const minAmount = 5;
+            const hasSufficientBalance = amount <= userBalance;
+            const hasValidAmount = amount >= minAmount;
+            const hasValidAddress = walletAddress.length > 0;
+            
+            if (hasSufficientBalance && hasValidAmount && hasValidAddress && hasDeposited) {
+                button.disabled = false;
+            } else {
+                button.disabled = true;
+            }
+        }
+
+        async function submitWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const walletAddress = document.getElementById('walletAddress').value.trim();
+            const fee = amount * 0.02;
+            const receive = amount - fee;
+            
+            if (amount < 5) {
+                showCustomAlert('Minimum withdrawal amount is 5 USDT');
+                return;
+            }
+            
+            if (amount > userBalance) {
+                showCustomAlert('Insufficient balance for withdrawal');
+                return;
+            }
+            
+            if (!hasDeposited) {
+                showCustomAlert('Withdrawal available only after first deposit');
+                return;
+            }
+            
+            if (!walletAddress) {
+                showCustomAlert('Please enter your wallet address');
+                return;
+            }
+            
+            showCustomConfirm(
+                `Confirm withdrawal:<br><strong>${amount.toFixed(2)} USDT</strong><br>Fee: ${fee.toFixed(2)} USDT (2%)<br>You receive: ${receive.toFixed(2)} USDT<br>Network: ${currentNetwork.toUpperCase()}<br>Address: ${walletAddress.substring(0, 10)}...`,
+                async function() {
+                    await processWithdrawal(amount, walletAddress, fee);
+                }
+            );
+        }
+
+        async function processWithdrawal(amount, walletAddress, fee) {
+            showLoading();
+            
+            try {
+                const userId = sessionStorage.getItem('currentUserId');
+                if (!userId) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                const response = await fetch('https://api.uipath.finance/withdraw/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        amount: amount,
+                        fee: fee,
+                        network: currentNetwork,
+                        address: walletAddress,
+                        status: 'pending'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const newBalance = userBalance - amount - fee;
+                    
+                    await safeSupabaseUpdate('users', 
+                        { balance: newBalance }, 
+                        'id', 
+                        userId
+                    );
+                    
+                    const withdrawalTransaction = {
+                        user_id: userId,
+                        type: 'withdrawal',
+                        title: `Withdrawal to ${currentNetwork.toUpperCase()}`,
+                        amount: amount + fee,
+                        positive: false,
+                        status: 'pending',
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    await safeSupabaseInsert('transactions', withdrawalTransaction);
+                    
+                    await safeSupabaseInsert('withdrawal_requests', {
+                        user_id: userId,
+                        amount: amount,
+                        fee: fee,
+                        network: currentNetwork,
+                        address: walletAddress,
+                        status: 'pending',
+                        created_at: new Date().toISOString()
+                    });
+                    
+                    showCustomAlert('Withdrawal request submitted successfully! It will be processed within 24 hours.');
+                    
+                    loadUserData();
+                    loadWithdrawalHistory();
+                    
+                    document.getElementById('withdrawAmount').value = '';
+                    document.getElementById('walletAddress').value = '';
+                    calculateFee();
+                    
+                } else {
+                    showCustomAlert('Withdrawal request failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Withdrawal error:', error);
+                showCustomAlert('Network error during withdrawal request.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function safeSupabaseFetch(table, query = '*', filters = null) {
+            try {
+                let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
+                
+                if (filters) {
+                    Object.keys(filters).forEach(key => {
+                        url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
+                    });
+                }
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('DB fetch error:', error);
+                throw error;
+            }
+        }
+
+        async function safeSupabaseInsert(table, data) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('DB insert error:', error);
+                throw error;
+            }
+        }
+
+        async function safeSupabaseUpdate(table, data, column, value) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('DB update error:', error);
+                throw error;
+            }
+        }
+
+        async function loadUserData() {
+            try {
+                const userId = sessionStorage.getItem('currentUserId');
+                if (!userId) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                currentUserId = userId;
+                
+                const users = await safeSupabaseFetch('users', '*', { id: userId });
+                if (users.length === 0) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                const user = users[0];
+                userBalance = user.balance;
+                
+                document.getElementById('availableBalance').textContent = userBalance.toFixed(2) + ' USDT';
+                
+                const deposits = await safeSupabaseFetch('transactions', '*', { 
+                    user_id: userId,
+                    type: 'deposit'
+                });
+                
+                hasDeposited = deposits.length > 0;
+                
+                if (hasDeposited) {
+                    document.getElementById('depositStatus').textContent = 'Withdrawal available';
+                    document.getElementById('depositStatus').style.color = '#4cd964';
+                } else {
+                    document.getElementById('depositStatus').textContent = 'Make first deposit to enable withdrawals';
+                    document.getElementById('depositStatus').style.color = '#ff3b30';
+                }
+                
+                updateWithdrawButton();
+                
+            } catch (error) {
+                console.error('User data load error:', error);
+                showCustomAlert('Error loading user data');
+            }
+        }
+
+        async function loadWithdrawalHistory() {
+            try {
+                const userId = sessionStorage.getItem('currentUserId');
+                const historyContainer = document.getElementById('withdrawalHistory');
+                
+                const withdrawals = await safeSupabaseFetch('withdrawal_requests', '*', { user_id: userId });
+                
+                if (withdrawals.length === 0) {
+                    historyContainer.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No withdrawal history</div>';
+                    return;
+                }
+                
+                withdrawals.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                let historyHTML = '';
+                withdrawals.forEach(withdrawal => {
+                    const date = new Date(withdrawal.created_at).toLocaleDateString();
+                    let statusColor = '#ff9d00';
+                    if (withdrawal.status === 'completed') statusColor = '#4cd964';
+                    if (withdrawal.status === 'cancelled') statusColor = '#ff3b30';
+                    
+                    historyHTML += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+                            <div>
+                                <div style="font-weight:600;">${withdrawal.amount} USDT</div>
+                                <div style="font-size:12px; color:var(--gray);">${date} • ${withdrawal.network.toUpperCase()}</div>
+                            </div>
+                            <div style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight:600;">
+                                ${withdrawal.status.toUpperCase()}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                historyContainer.innerHTML = historyHTML;
+                
+            } catch (error) {
+                console.error('Withdrawal history error:', error);
+                document.getElementById('withdrawalHistory').innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Error loading history</div>';
+            }
+        }
+
+        document.getElementById('withdrawAmount').addEventListener('input', calculateFee);
+        document.getElementById('walletAddress').addEventListener('input', updateWithdrawButton);
+
+        window.onload = function() {
+            if (!sessionStorage.getItem('currentUserId')) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadUserData();
+            loadWithdrawalHistory();
+        };
+    </script>
+</body>
+</html>
