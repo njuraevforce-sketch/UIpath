@@ -52,10 +52,48 @@
             background: var(--white);
             min-height: 100vh;
             padding-bottom: 70px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .page.active {
             display: block;
+            opacity: 1;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--light);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .uni-header {
@@ -557,6 +595,15 @@
             border: 1px solid rgba(0,0,0,0.05);
         }
 
+        .referral-stat .stats-value {
+            color: var(--dark) !important;
+            font-weight: 600;
+        }
+
+        .referral-stat .stats-label {
+            color: var(--gray) !important;
+        }
+
         .referral-screen {
             text-align: center;
             padding: 30px 20px;
@@ -965,6 +1012,10 @@
 </head>
 <body>
     <div class="app-container">
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+        </div>
+
         <div id="mainPage" class="page active">
             <div class="uni-header">
                 <div class="logo">
@@ -1336,9 +1387,9 @@
                     
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Change Password</label>
-                        <input type="password" class="uni-input" placeholder="Current Password">
-                        <input type="password" class="uni-input" placeholder="New Password">
-                        <input type="password" class="uni-input" placeholder="Confirm Password">
+                        <input type="password" id="currentPassword" class="uni-input" placeholder="Current Password">
+                        <input type="password" id="newPassword" class="uni-input" placeholder="New Password">
+                        <input type="password" id="confirmPassword" class="uni-input" placeholder="Confirm Password">
                         <button class="uni-button" onclick="updatePassword()" style="margin-top: 10px;">Update Password</button>
                     </div>
                 </div>
@@ -1543,6 +1594,7 @@
             </div>
         </div>
     </div>
+
 <script>
     console.log('🚀 DASHBOARD INITIALIZATION STARTED');
     
@@ -1566,59 +1618,143 @@
         transactions: []
     };
 
-    // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ: Вызов PostgreSQL функций через REST API
-    async function callPostgresFunction(functionName, params = {}) {
-        console.log(`[POSTGRES FUNCTION] Calling ${functionName}`, params);
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.add('active');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+    }
+
+    async function safeSupabaseFetch(table, query = '*', filters = null) {
         try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+            let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
+            
+            if (filters) {
+                Object.keys(filters).forEach(key => {
+                    url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
+                });
+            }
+            
+            const response = await fetch(url, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error('[DB FETCH ERROR]:', error);
+            throw error;
+        }
+    }
+
+    async function safeSupabaseInsert(table, data) {
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
                 method: 'POST',
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                     'Content-Type': 'application/json',
-                    'Prefer': 'params=single-object'
+                    'Prefer': 'return=representation'
                 },
-                body: JSON.stringify(params)
+                body: JSON.stringify(data)
             });
             
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, errorText);
-                
-                // Если функция возвращает 204 (No Content), это успех для void функций
-                if (response.status === 204) {
-                    return { success: true, message: 'Operation completed successfully' };
-                }
-                
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
-            }
-            
-            // Для функций, которые не возвращают данные (void)
-            if (response.status === 204) {
-                return { success: true, message: 'Operation completed successfully' };
-            }
-            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const result = await response.json();
-            console.log(`[POSTGRES FUNCTION SUCCESS] ${functionName}:`, result);
             return result;
         } catch (error) {
-            console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, error);
+            console.error('[DB INSERT ERROR]:', error);
             throw error;
         }
     }
 
-    // 🔥 НОВАЯ ФУНКЦИЯ: Покупка VIP пакета через прямую вставку
+    async function safeSupabaseUpdate(table, data, column, value) {
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error('[DB UPDATE ERROR]:', error);
+            throw error;
+        }
+    }
+
+    async function loadReferrals() {
+        try {
+            const gen1Referrals = await safeSupabaseFetch('users', 'id, name, created_at', { 
+                referred_by: appState.currentUserId 
+            });
+            
+            appState.referrals.gen1 = gen1Referrals;
+            
+            const gen2Ids = gen1Referrals.map(user => user.id);
+            let gen2Referrals = [];
+            if (gen2Ids.length > 0) {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?referred_by=in.(${gen2Ids.join(',')})&select=id,name,created_at`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                gen2Referrals = await response.json();
+            }
+            appState.referrals.gen2 = gen2Referrals;
+            
+            const gen3Ids = gen2Referrals.map(user => user.id);
+            let gen3Referrals = [];
+            if (gen3Ids.length > 0) {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?referred_by=in.(${gen3Ids.join(',')})&select=id,name,created_at`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                gen3Referrals = await response.json();
+            }
+            appState.referrals.gen3 = gen3Referrals;
+            
+        } catch (error) {
+            console.error('[REFERRALS LOAD ERROR]:', error);
+        }
+    }
+
     async function purchaseVIPPackageDirect(pkg) {
-        console.log(`[VIP PURCHASE DIRECT] Attempting to purchase VIP ${pkg.level}`);
+        console.log(`[VIP PURCHASE] Attempting to purchase VIP ${pkg.level}`);
+        
+        const existingPurchase = appState.activeVipPackages.find(purchase => 
+            purchase.vip_package_id === pkg.id && purchase.active === true
+        );
+        
+        if (existingPurchase) {
+            showCustomAlert(`VIP ${pkg.level} package is already active!`);
+            return;
+        }
+
+        if (appState.user.balance < pkg.price) {
+            showCustomAlert('Insufficient balance to purchase this VIP package');
+            return;
+        }
+
+        showLoading();
         
         try {
-            // 1. Проверяем баланс пользователя
-            if (appState.user.balance < pkg.price) {
-                showCustomAlert('Insufficient balance to purchase this VIP package');
-                return;
-            }
-
-            // 2. Создаем запись о покупке
             const purchaseData = {
                 user_id: appState.currentUserId,
                 vip_package_id: pkg.id,
@@ -1635,7 +1771,6 @@
                 throw new Error('Failed to create VIP purchase record');
             }
 
-            // 3. Обновляем баланс пользователя
             const newBalance = appState.user.balance - pkg.price;
             await safeSupabaseUpdate('users', 
                 { 
@@ -1646,7 +1781,6 @@
                 appState.currentUserId
             );
 
-            // 4. Создаем транзакцию покупки
             const transactionData = {
                 user_id: appState.currentUserId,
                 type: 'vip_purchase',
@@ -1657,10 +1791,8 @@
             };
             await safeSupabaseInsert('transactions', transactionData);
 
-            // 5. Обрабатываем реферальный доход
             await processReferralIncome(pkg.price);
 
-            // 6. Обновляем состояние приложения
             await loadAllData();
             updateUI();
             renderVIPPackages();
@@ -1668,29 +1800,26 @@
             showCustomAlert(`VIP ${pkg.level} package purchased successfully!`);
             
         } catch (error) {
-            console.error('[VIP PURCHASE DIRECT ERROR]:', error);
+            console.error('[VIP PURCHASE ERROR]:', error);
             showCustomAlert('Purchase failed. Please try again.');
+        } finally {
+            hideLoading();
         }
     }
 
-    // 🔥 НОВАЯ ФУНКЦИЯ: Обработка реферального дохода
     async function processReferralIncome(packagePrice) {
         try {
             if (!appState.user.referred_by) {
-                console.log('[REFERRAL INCOME] No referrer found');
                 return;
             }
 
-            // Получаем информацию о реферере
             const referrers = await safeSupabaseFetch('users', '*', { id: appState.user.referred_by });
             if (referrers.length === 0) {
-                console.log('[REFERRAL INCOME] Referrer not found');
                 return;
             }
 
             const referrer = referrers[0];
             
-            // Уровень 1: 8%
             const level1Bonus = packagePrice * 0.08;
             await safeSupabaseUpdate('users', 
                 { balance: referrer.balance + level1Bonus }, 
@@ -1708,9 +1837,6 @@
             };
             await safeSupabaseInsert('transactions', level1Transaction);
 
-            console.log(`[REFERRAL INCOME] Level 1 bonus: ${level1Bonus} USDT to ${referrer.name}`);
-
-            // Уровень 2: 3% (реферер реферера)
             if (referrer.referred_by) {
                 const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
                 if (level2Referrers.length > 0) {
@@ -1732,12 +1858,9 @@
                         created_at: new Date().toISOString()
                     };
                     await safeSupabaseInsert('transactions', level2Transaction);
-
-                    console.log(`[REFERRAL INCOME] Level 2 bonus: ${level2Bonus} USDT to ${level2Referrer.name}`);
                 }
             }
 
-            // Уровень 3: 1% (реферер реферера реферера)
             if (referrer.referred_by) {
                 const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
                 if (level2Referrers.length > 0 && level2Referrers[0].referred_by) {
@@ -1761,8 +1884,6 @@
                             created_at: new Date().toISOString()
                         };
                         await safeSupabaseInsert('transactions', level3Transaction);
-
-                        console.log(`[REFERRAL INCOME] Level 3 bonus: ${level3Bonus} USDT to ${level3Referrer.name}`);
                     }
                 }
             }
@@ -1772,25 +1893,18 @@
         }
     }
 
-    // 🔥 ПРОСТАЯ ЛОГИКА ВРЕМЕНИ - строго 22:00 UTC
     function canClaimDailyIncome() {
-        console.log('[INCOME DEBUG] Checking if can claim daily income');
-        
         if (!appState.user.last_claim_date) {
-            console.log('[INCOME DEBUG] No last claim date - CAN CLAIM');
             return true;
         }
         
         const lastClaim = new Date(appState.user.last_claim_date);
         const now = new Date();
         
-        // Простая логика: если с последнего забора прошло более 24 часов
-        // и текущее время после 22:00 UTC
         const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
         const currentHourUTC = now.getUTCHours();
         
         const canClaim = hoursSinceLastClaim >= 24 && currentHourUTC >= 22;
-        console.log(`[INCOME DEBUG] Can claim: ${canClaim} (hoursSinceLastClaim: ${hoursSinceLastClaim}, currentHourUTC: ${currentHourUTC})`);
         
         return canClaim;
     }
@@ -1799,11 +1913,9 @@
         const now = new Date();
         let nextClaim = new Date(now);
         
-        // Если сейчас до 22:00 UTC, то следующий забор сегодня в 22:00
         if (now.getUTCHours() < 22) {
             nextClaim.setUTCHours(22, 0, 0, 0);
         } else {
-            // Если сейчас после 22:00 UTC, то следующий забор завтра в 22:00
             nextClaim.setUTCDate(nextClaim.getUTCDate() + 1);
             nextClaim.setUTCHours(22, 0, 0, 0);
         }
@@ -1812,115 +1924,112 @@
     }
 
     function calculateDailyIncome() {
-        console.log('[INCOME CALC] Starting daily income calculation');
-        
         let dailyIncome = 0;
         const now = new Date();
         
         const activePackages = appState.activeVipPackages.filter(purchase => {
-            // Пакет активен если не истек срок и депозит не возвращен
             const purchaseDate = new Date(purchase.purchase_date);
             const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
             const isActive = purchase.active === true && 
                             purchase.deposit_returned === false && 
                             now < expiryDate;
             
-            console.log(`[INCOME CALC] Package ${purchase.vip_package_id}: active=${purchase.active}, deposit_returned=${purchase.deposit_returned}, notExpired=${now < expiryDate}, isActive=${isActive}`);
             return isActive;
         });
-        
-        console.log(`[INCOME CALC] Found ${activePackages.length} active packages`);
         
         activePackages.forEach(purchase => {
             const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
             if (vipPackage) {
                 dailyIncome += vipPackage.dailyIncome;
-                console.log(`[INCOME CALC] Added ${vipPackage.dailyIncome} from VIP ${vipPackage.level}, total: ${dailyIncome}`);
             }
         });
         
-        console.log(`[INCOME CALC] Final daily income: ${dailyIncome}`);
         return dailyIncome;
     }
 
-    async function safeSupabaseFetch(table, query = '*', filters = null) {
-        console.log(`[DB FETCH] Table: ${table}, Query: ${query}`, filters);
+    async function processExpiredVipPackages() {
         try {
-            let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
-            
-            if (filters) {
-                Object.keys(filters).forEach(key => {
-                    url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
-                });
+            const now = new Date();
+            const expiredPackages = appState.activeVipPackages.filter(purchase => {
+                const purchaseDate = new Date(purchase.purchase_date);
+                const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+                return purchase.active && !purchase.deposit_returned && now >= expiryDate;
+            });
+
+            for (const purchase of expiredPackages) {
+                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                if (vipPackage) {
+                    const newBalance = appState.user.balance + vipPackage.price;
+                    await safeSupabaseUpdate('users', 
+                        { balance: newBalance }, 
+                        'id', 
+                        appState.currentUserId
+                    );
+
+                    await safeSupabaseUpdate('vip_purchases', 
+                        { active: false, deposit_returned: true }, 
+                        'id', 
+                        purchase.id
+                    );
+
+                    const returnTransaction = {
+                        user_id: appState.currentUserId,
+                        type: 'deposit_return',
+                        title: `VIP ${vipPackage.level} Deposit Return`,
+                        amount: vipPackage.price,
+                        positive: true,
+                        created_at: new Date().toISOString()
+                    };
+                    await safeSupabaseInsert('transactions', returnTransaction);
+                }
+            }
+
+            if (expiredPackages.length > 0) {
+                await loadAllData();
             }
             
-            const response = await fetch(url, {
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                }
-            });
-            
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const result = await response.json();
-            console.log(`[DB FETCH SUCCESS] Table: ${table}, Results: ${result.length}`);
-            return result;
         } catch (error) {
-            console.error('[DB FETCH ERROR]:', error);
-            throw error;
+            console.error('[EXPIRY CHECK ERROR]:', error);
         }
     }
 
-    async function safeSupabaseInsert(table, data) {
-        console.log(`[DB INSERT] Table: ${table}`, data);
+    async function loadAllData() {
         try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-                method: 'POST',
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify(data)
+            const userId = sessionStorage.getItem('currentUserId');
+            if (!userId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            appState.currentUserId = userId;
+            
+            const users = await safeSupabaseFetch('users', '*', { id: userId });
+            if (users.length === 0) {
+                sessionStorage.removeItem('currentUserId');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            appState.user = users[0];
+            
+            appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
+                user_id: userId 
             });
             
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const result = await response.json();
-            console.log('[DB INSERT SUCCESS]', result);
-            return result;
-        } catch (error) {
-            console.error('[DB INSERT ERROR]:', error);
-            throw error;
-        }
-    }
-
-    async function safeSupabaseUpdate(table, data, column, value) {
-        console.log(`[DB UPDATE] Table: ${table}, Where: ${column}=${value}`, data);
-        try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
-                method: 'PATCH',
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify(data)
-            });
+            appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
             
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const result = await response.json();
-            console.log('[DB UPDATE SUCCESS]', result);
-            return result;
+            await loadReferrals();
+            
+            await processExpiredVipPackages();
+            return true;
         } catch (error) {
-            console.error('[DB UPDATE ERROR]:', error);
-            throw error;
+            console.error('[LOAD DATA ERROR]:', error);
+            showCustomAlert('Error loading data. Please refresh the page.');
+            return false;
         }
     }
 
     function showCustomAlert(message) {
-        console.log('[ALERT]', message);
         const overlay = document.createElement('div');
         overlay.className = 'custom-alert-overlay';
         
@@ -1937,9 +2046,7 @@
         document.body.appendChild(overlay);
     }
 
-    // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ: Подтверждение с правильной обработкой callback
     function showCustomConfirm(message, confirmCallback) {
-        console.log('[CONFIRM]', message);
         const overlay = document.createElement('div');
         overlay.className = 'custom-confirm-overlay';
         
@@ -1956,7 +2063,6 @@
             </div>
         `;
         
-        // Правильная привязка событий
         const confirmBtn = overlay.querySelector('.confirm');
         const cancelBtn = overlay.querySelector('.cancel');
         
@@ -1974,112 +2080,8 @@
         document.body.appendChild(overlay);
     }
 
-    async function loadAllData() {
-        console.log('[LOAD DATA] Starting data load');
-        try {
-            const userId = sessionStorage.getItem('currentUserId');
-            if (!userId) {
-                console.log('[LOAD DATA] No user ID found, redirecting to login');
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            appState.currentUserId = userId;
-            console.log('[LOAD DATA] User ID:', userId);
-            
-            const users = await safeSupabaseFetch('users', '*', { id: userId });
-            if (users.length === 0) {
-                console.log('[LOAD DATA] User not found, redirecting to login');
-                sessionStorage.removeItem('currentUserId');
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            appState.user = users[0];
-            console.log('[LOAD DATA] User loaded:', appState.user);
-            
-            appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
-                user_id: userId 
-            });
-            console.log('[LOAD DATA] VIP packages:', appState.activeVipPackages.length);
-            
-            appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
-            console.log('[LOAD DATA] Transactions:', appState.transactions.length);
-            
-            // Загрузка рефералов
-            const allReferrals = await safeSupabaseFetch('referrals', '*', { referrer_id: userId });
-            appState.referrals.gen1 = allReferrals.filter(ref => ref.level === 1);
-            appState.referrals.gen2 = allReferrals.filter(ref => ref.level === 2);
-            appState.referrals.gen3 = allReferrals.filter(ref => ref.level === 3);
-            console.log(`[LOAD DATA] Referrals: gen1=${appState.referrals.gen1.length}, gen2=${appState.referrals.gen2.length}, gen3=${appState.referrals.gen3.length}`);
-            
-            await processExpiredVipPackages();
-            console.log('[LOAD DATA] Data load completed successfully');
-            return true;
-        } catch (error) {
-            console.error('[LOAD DATA ERROR]:', error);
-            showCustomAlert('Error loading data. Please refresh the page.');
-            return false;
-        }
-    }
-
-    async function processExpiredVipPackages() {
-        console.log('[EXPIRY CHECK] Starting expired packages check');
-        try {
-            // Автоматическая обработка истекших пакетов
-            const now = new Date();
-            const expiredPackages = appState.activeVipPackages.filter(purchase => {
-                const purchaseDate = new Date(purchase.purchase_date);
-                const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-                return purchase.active && !purchase.deposit_returned && now >= expiryDate;
-            });
-
-            for (const purchase of expiredPackages) {
-                // Возвращаем депозит
-                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
-                if (vipPackage) {
-                    // Обновляем баланс пользователя
-                    const newBalance = appState.user.balance + vipPackage.price;
-                    await safeSupabaseUpdate('users', 
-                        { balance: newBalance }, 
-                        'id', 
-                        appState.currentUserId
-                    );
-
-                    // Помечаем пакет как неактивный и возвращенный
-                    await safeSupabaseUpdate('vip_purchases', 
-                        { active: false, deposit_returned: true }, 
-                        'id', 
-                        purchase.id
-                    );
-
-                    // Создаем транзакцию возврата
-                    const returnTransaction = {
-                        user_id: appState.currentUserId,
-                        type: 'deposit_return',
-                        title: `VIP ${vipPackage.level} Deposit Return`,
-                        amount: vipPackage.price,
-                        positive: true,
-                        created_at: new Date().toISOString()
-                    };
-                    await safeSupabaseInsert('transactions', returnTransaction);
-
-                    console.log(`[EXPIRY CHECK] Returned deposit for VIP ${vipPackage.level}: ${vipPackage.price} USDT`);
-                }
-            }
-
-            if (expiredPackages.length > 0) {
-                // Перезагружаем данные
-                await loadAllData();
-            }
-            
-        } catch (error) {
-            console.error('[EXPIRY CHECK ERROR]:', error);
-        }
-    }
-
     async function initApp() {
-        console.log('[APP INIT] Starting application initialization');
+        showLoading();
         const success = await loadAllData();
         if (!success) return;
         
@@ -2089,11 +2091,10 @@
         startTimer();
         startCarousel();
         updateVerificationStatus();
-        console.log('[APP INIT] Application initialized successfully');
+        hideLoading();
     }
 
     function startCarousel() {
-        console.log('[CAROUSEL] Starting carousel');
         let currentSlide = 0;
         const slides = document.querySelectorAll('.carousel-slide');
         
@@ -2101,28 +2102,23 @@
             slides[currentSlide].classList.remove('active');
             currentSlide = (currentSlide + 1) % slides.length;
             slides[currentSlide].classList.add('active');
-            console.log(`[CAROUSEL] Slide changed to: ${currentSlide}`);
         }, 5000);
     }
 
     function toggleVideo() {
-        console.log('[VIDEO] Toggle video');
         const video = document.getElementById('promoVideo');
         const playBtn = document.querySelector('.play-btn');
         
         if (video.paused) {
             video.play();
             playBtn.style.display = 'none';
-            console.log('[VIDEO] Video playing');
         } else {
             video.pause();
             playBtn.style.display = 'flex';
-            console.log('[VIDEO] Video paused');
         }
     }
 
     function showTransactionType(type) {
-        console.log(`[TRANSACTIONS] Showing type: ${type}`);
         const tabs = document.querySelectorAll('.transaction-tab');
         tabs.forEach(tab => tab.classList.remove('active'));
         
@@ -2132,7 +2128,6 @@
     }
 
     function updateTransactionsHistory(type = 'all') {
-        console.log(`[TRANSACTIONS] Updating history for type: ${type}`);
         const transactionHistory = document.getElementById('transaction-history');
         const transactionHistoryAssets = document.getElementById('transaction-history-assets');
         
@@ -2141,7 +2136,6 @@
     }
 
     function updateTransactionList(container, type = 'all') {
-        console.log(`[TRANSACTIONS] Updating list for container, type: ${type}`);
         container.innerHTML = '';
         
         let filteredTransactions = appState.transactions;
@@ -2155,8 +2149,6 @@
                 return true;
             });
         }
-        
-        console.log(`[TRANSACTIONS] Filtered transactions: ${filteredTransactions.length}`);
         
         if (filteredTransactions.length === 0) {
             container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No transactions found</div>';
@@ -2226,7 +2218,6 @@
     }
 
     function renderVIPPackages() {
-        console.log('[VIP] Rendering packages');
         const packagesList = document.getElementById('vip-packages-list');
         packagesList.innerHTML = '';
         
@@ -2259,14 +2250,9 @@
             
             packagesList.appendChild(packageElement);
         });
-        console.log('[VIP] Packages rendered');
     }
 
-    // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ: Покупка VIP пакета
     async function purchaseVIPPackage(pkg) {
-        console.log(`[VIP PURCHASE] Attempting to purchase VIP ${pkg.level}`);
-        
-        // Сначала пробуем через прямую вставку
         await purchaseVIPPackageDirect(pkg);
     }
 
@@ -2287,20 +2273,16 @@
     }
 
     function updateClaimButton() {
-        console.log('[CLAIM BUTTON] Updating claim button state');
         const claimButton = document.getElementById('claim-button');
         const claimTimer = document.getElementById('claim-timer');
         
         const availableIncome = calculateDailyIncome();
         const canClaim = canClaimDailyIncome();
         
-        console.log(`[CLAIM BUTTON] availableIncome=${availableIncome}, canClaim=${canClaim}`);
-        
         if (availableIncome === 0) {
             claimButton.disabled = true;
             claimButton.innerHTML = '<i class="fas fa-bolt"></i> NO AVAILABLE INCOME';
             claimTimer.textContent = 'Buy a VIP package to earn income';
-            console.log('[CLAIM BUTTON] No available income');
             return;
         }
         
@@ -2315,7 +2297,6 @@
             const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             
             claimTimer.textContent = `Available for: ${hoursLeft}h ${minutesLeft}m`;
-            console.log(`[CLAIM BUTTON] Can claim, available for: ${hoursLeft}h ${minutesLeft}m`);
         } else {
             claimButton.disabled = true;
             claimButton.innerHTML = '<i class="fas fa-bolt"></i> ALREADY CLAIMED';
@@ -2327,21 +2308,17 @@
             const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             
             claimTimer.textContent = `Next claim: ${hoursLeft}h ${minutesLeft}m`;
-            console.log(`[CLAIM BUTTON] Already claimed, next claim in: ${hoursLeft}h ${minutesLeft}m`);
         }
     }
 
     function startTimer() {
-        console.log('[TIMER] Starting claim button update timer');
         setInterval(updateClaimButton, 60000);
     }
 
     async function claimDailyIncome() {
-        console.log('[CLAIM INCOME] Claim daily income initiated');
         const claimBtn = document.getElementById('claim-button');
         
         if (claimBtn.disabled) {
-            console.log('[CLAIM INCOME] Button disabled, cannot claim');
             showCustomAlert('You cannot claim income at this time. Please check the timer.');
             return;
         }
@@ -2349,23 +2326,19 @@
         const dailyIncome = calculateDailyIncome();
         
         if (dailyIncome === 0) {
-            console.log('[CLAIM INCOME] No daily income available');
             showCustomAlert('No available income to claim. Purchase a VIP package to start earning.');
             return;
         }
         
         if (!canClaimDailyIncome()) {
-            console.log('[CLAIM INCOME] Cannot claim - already claimed today');
             showCustomAlert('You have already claimed your daily income. Come back tomorrow at 22:00 UTC.');
             return;
         }
         
-        console.log('[CLAIM INCOME] All checks passed, starting trading process');
         await startTradingProcess(dailyIncome);
     }
 
     async function startTradingProcess(dailyIncome) {
-        console.log(`[TRADING PROCESS] Starting with income: ${dailyIncome}`);
         const claimBtn = document.getElementById('claim-button');
         const steps = [1, 2, 3];
         
@@ -2382,17 +2355,14 @@
             
             if (step === 1) {
                 claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
-                console.log('[TRADING PROCESS] Step 1 completed');
             } else if (step === 2) {
                 claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
-                console.log('[TRADING PROCESS] Step 2 completed');
             } else if (step === 3) {
                 claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
                 claimBtn.classList.remove('processing');
                 claimBtn.classList.add('completed');
                 
                 try {
-                    // Обновляем баланс пользователя
                     const newBalance = appState.user.balance + dailyIncome;
                     await safeSupabaseUpdate('users', 
                         { 
@@ -2403,7 +2373,6 @@
                         appState.currentUserId
                     );
 
-                    // Создаем транзакцию дохода
                     const incomeTransaction = {
                         user_id: appState.currentUserId,
                         type: 'daily_income',
@@ -2414,11 +2383,9 @@
                     };
                     await safeSupabaseInsert('transactions', incomeTransaction);
 
-                    // Обновляем состояние приложения
                     await loadAllData();
                     updateUI();
                     
-                    console.log(`[TRADING PROCESS] Income claimed: ${dailyIncome}`);
                     showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
                 } catch (error) {
                     console.error('[CLAIM INCOME ERROR]:', error);
@@ -2433,7 +2400,6 @@
     }
 
     function resetTradingProcess() {
-        console.log('[TRADING PROCESS] Resetting trading process');
         const claimBtn = document.getElementById('claim-button');
         const steps = [1, 2, 3];
         
@@ -2449,7 +2415,6 @@
     }
 
     function updateUI() {
-        console.log('[UI UPDATE] Updating user interface');
         if (!appState.user) return;
         
         document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
@@ -2482,11 +2447,9 @@
         updateTeamScreen();
         updateEarnScreen();
         updateTransactionsHistory('all');
-        console.log('[UI UPDATE] User interface updated');
     }
 
     function updateTeamScreen() {
-        console.log('[TEAM SCREEN] Updating team screen');
         document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
         document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
         document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
@@ -2511,13 +2474,13 @@
             const referralItem = document.createElement('div');
             referralItem.className = 'referral-item';
             
-            const referralIncome = calculateReferralIncomeForUser(ref.referred_id);
+            const referralIncome = calculateReferralIncomeForUser(ref.id);
             
             referralItem.innerHTML = `
                 <div class="referral-info">
-                    <div class="referral-avatar">${ref.referred_id.substring(2, 4)}</div>
+                    <div class="referral-avatar">${ref.id.substring(2, 4)}</div>
                     <div>
-                        <div class="name" style="font-weight:600;">User ${ref.referred_id}</div>
+                        <div class="name" style="font-weight:600;">${ref.name}</div>
                         <div class="date" style="font-size:11px; color:var(--gray);">Level 1</div>
                     </div>
                 </div>
@@ -2531,7 +2494,6 @@
         const income = appState.transactions
             .filter(t => t.type === 'referral' && t.title.includes(`Level ${level}`))
             .reduce((sum, t) => sum + t.amount, 0);
-        console.log(`[REFERRAL INCOME CALC] Level ${level}: ${income}`);
         return income;
     }
 
@@ -2543,7 +2505,6 @@
     }
 
     function updateEarnScreen() {
-        console.log('[EARN SCREEN] Updating earn screen');
         const dailyIncome = calculateDailyIncome();
         
         document.getElementById('available-income').textContent = `${formatCurrency(dailyIncome)} USDT`;
@@ -2560,11 +2521,9 @@
             percentage = (dailyIncome / totalInvested) * 100;
         }
         document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
-        console.log(`[EARN SCREEN] Daily income: ${dailyIncome}, percentage: ${percentage}%`);
     }
 
     function updateVerificationStatus() {
-        console.log('[VERIFICATION] Updating verification status');
         const phoneStatus = document.getElementById('phone-status');
         const phoneText = document.getElementById('phone-text');
         const phoneButton = document.getElementById('phone-button');
@@ -2607,14 +2566,18 @@
     }
 
     function showPage(pageId) {
-        console.log(`[PAGE NAV] Showing page: ${pageId}`);
-        document.querySelectorAll('.page').forEach(page => {
-            page.classList.remove('active');
-        });
+        showLoading();
         
-        document.getElementById(pageId).classList.add('active');
-        
-        updateNavActiveState(pageId);
+        setTimeout(() => {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            document.getElementById(pageId).classList.add('active');
+            
+            updateNavActiveState(pageId);
+            hideLoading();
+        }, 300);
     }
     
     function updateNavActiveState(pageId) {
@@ -2634,11 +2597,9 @@
         } else if (pageId === 'profilePage') {
             navItems[4].classList.add('active');
         }
-        console.log(`[NAV] Active page: ${pageId}`);
     }
 
     function copyToClipboard(elementId) {
-        console.log(`[CLIPBOARD] Copying from element: ${elementId}`);
         const element = document.getElementById(elementId);
         let text = element.textContent || element.innerText;
         
@@ -2652,70 +2613,97 @@
             setTimeout(() => {
                 element.textContent = originalText;
             }, 2000);
-            console.log('[CLIPBOARD] Text copied successfully');
         }).catch(() => {
-            console.error('[CLIPBOARD] Failed to copy text');
             showCustomAlert('Failed to copy to clipboard');
         });
     }
 
     function verifyPhone() {
-        console.log('[VERIFICATION] Phone verification initiated');
         const phoneNumber = prompt('Please enter your phone number for verification:');
         if (phoneNumber) {
             setTimeout(async () => {
                 await safeSupabaseUpdate('users', { phone_verified: true }, 'id', appState.currentUserId);
                 appState.user.phone_verified = true;
                 updateVerificationStatus();
-                console.log('[VERIFICATION] Phone verified successfully');
                 showCustomAlert('Phone number verified successfully!');
             }, 1500);
         }
     }
 
     function verifyID() {
-        console.log('[VERIFICATION] ID verification initiated');
         const idNumber = prompt('Please enter your ID or Passport number:');
         if (idNumber) {
             setTimeout(async () => {
                 await safeSupabaseUpdate('users', { id_verified: true }, 'id', appState.currentUserId);
                 appState.user.id_verified = true;
                 updateVerificationStatus();
-                console.log('[VERIFICATION] ID verified successfully');
                 showCustomAlert('ID/Passport verified successfully!');
             }, 1500);
         }
     }
 
-    function updatePassword() {
-        console.log('[PASSWORD] Password update requested');
-        showCustomAlert('Password change feature will be implemented in the next update');
+    async function updatePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            showCustomAlert('Please fill in all password fields');
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            showCustomAlert('New password must be at least 6 characters long');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            showCustomAlert('New password and confirmation do not match');
+            return;
+        }
+        
+        if (appState.user.password !== currentPassword) {
+            showCustomAlert('Current password is incorrect');
+            return;
+        }
+        
+        try {
+            await safeSupabaseUpdate('users', 
+                { password: newPassword }, 
+                'id', 
+                appState.currentUserId
+            );
+            
+            appState.user.password = newPassword;
+            
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            showCustomAlert('Password updated successfully!');
+        } catch (error) {
+            console.error('[PASSWORD UPDATE ERROR]:', error);
+            showCustomAlert('Failed to update password. Please try again.');
+        }
     }
 
-    // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ: Выход из системы
     function logout() {
-        console.log('[LOGOUT] Logout initiated');
         showCustomConfirm(
             'Are you sure you want to logout?',
             function() {
                 sessionStorage.removeItem('currentUserId');
-                console.log('[LOGOUT] User logged out');
                 window.location.href = 'index.html';
             }
         );
     }
 
     window.onload = function() {
-        console.log('[WINDOW LOAD] Dashboard loading');
         if (!sessionStorage.getItem('currentUserId')) {
-            console.log('[WINDOW LOAD] No user ID found, redirecting to login');
             window.location.href = 'index.html';
             return;
         }
-        console.log('[WINDOW LOAD] User ID found, initializing app');
         initApp();
     };
 </script>
 </body>
 </html>
-
