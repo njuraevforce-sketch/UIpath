@@ -6,6 +6,7 @@
     <title>Uipath - Deposit</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Твои существующие стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -321,6 +322,16 @@
             50% { transform: scale(1); opacity: 1; }
             100% { transform: scale(0.9); opacity: 0.7; }
         }
+
+        .error-message {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -336,6 +347,10 @@
         </div>
 
         <div class="deposit-content">
+            <div id="connectionError" class="error-message" style="display: none;">
+                Connection error. Please check if server is running.
+            </div>
+
             <div class="deposit-card">
                 <div class="card-title">Deposit USDT</div>
                 
@@ -396,9 +411,28 @@
     </div>
 
     <script>
+        // ЗАМЕНИ ЭТОТ URL НА СВОЙ РЕАЛЬНЫЙ URL С RAILWAY
         const API_BASE_URL = 'https://ui-deposit-production.up.railway.app/';
         let currentNetwork = 'trc20';
         let currentUserId = null;
+
+        // Сначала проверяем соединение с сервером
+        async function checkServerConnection() {
+            try {
+                console.log('🔍 Checking server connection...');
+                const response = await fetch(`${API_BASE_URL}/api/health`);
+                const data = await response.json();
+                console.log('✅ Server status:', data);
+                document.getElementById('connectionError').style.display = 'none';
+                return true;
+            } catch (error) {
+                console.error('❌ Server connection failed:', error);
+                document.getElementById('connectionError').style.display = 'block';
+                document.getElementById('connectionError').innerHTML = 
+                    `Cannot connect to server: ${error.message}<br>Make sure server is running at: ${API_BASE_URL}`;
+                return false;
+            }
+        }
 
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('active');
@@ -454,7 +488,14 @@
                 
                 currentUserId = userId;
                 
+                console.log(`🔄 Generating ${currentNetwork} address for user ${userId}`);
+                
                 const response = await fetch(`${API_BASE_URL}/api/deposit/generate?user_id=${userId}&network=${currentNetwork}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -465,12 +506,12 @@
                     await saveUserAddress(userId, data.address, currentNetwork);
                 } else {
                     document.getElementById('walletAddress').textContent = 'Error generating address';
-                    showCustomAlert('Failed to generate deposit address. Please try again.');
+                    showCustomAlert('Failed to generate deposit address: ' + (data.error || 'Unknown error'));
                 }
             } catch (error) {
-                console.error('Address generation error:', error);
+                console.error('❌ Address generation error:', error);
                 document.getElementById('walletAddress').textContent = 'Network error';
-                showCustomAlert('Network error. Please check your connection.');
+                showCustomAlert('Network error: ' + error.message);
             } finally {
                 hideLoading();
             }
@@ -478,7 +519,7 @@
 
         async function saveUserAddress(userId, address, network) {
             try {
-                await fetch(`${API_BASE_URL}/api/deposit/save-address`, {
+                const response = await fetch(`${API_BASE_URL}/api/deposit/save-address`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -489,8 +530,15 @@
                         network: network
                     })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Address saved:', data);
             } catch (error) {
-                console.error('Error saving address:', error);
+                console.error('❌ Error saving address:', error);
             }
         }
 
@@ -499,7 +547,14 @@
                 const userId = sessionStorage.getItem('currentUserId');
                 if (!userId) return;
 
+                console.log(`🔄 Loading history for user ${userId}, network: ${currentNetwork}`);
+                
                 const response = await fetch(`${API_BASE_URL}/api/deposit/history?user_id=${userId}&network=${currentNetwork}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 const historyContainer = document.getElementById('depositHistory');
@@ -526,8 +581,9 @@
                     historyContainer.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No deposit history</div>';
                 }
             } catch (error) {
-                console.error('Error loading deposit history:', error);
-                document.getElementById('depositHistory').innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Error loading history</div>';
+                console.error('❌ Error loading deposit history:', error);
+                document.getElementById('depositHistory').innerHTML = 
+                    '<div style="text-align: center; color: var(--danger); padding: 20px 0;">Error loading history: ' + error.message + '</div>';
             }
         }
 
@@ -553,15 +609,20 @@
             }, 30000);
         }
 
-        window.onload = function() {
+        window.onload = async function() {
             if (!sessionStorage.getItem('currentUserId')) {
                 window.location.href = 'index.html';
                 return;
             }
             
-            generateWalletAddress();
-            loadDepositHistory();
-            startDepositMonitoring();
+            // Сначала проверяем соединение с сервером
+            const isConnected = await checkServerConnection();
+            
+            if (isConnected) {
+                generateWalletAddress();
+                loadDepositHistory();
+                startDepositMonitoring();
+            }
         };
     </script>
 </body>
