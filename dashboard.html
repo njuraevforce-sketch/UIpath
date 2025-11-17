@@ -1020,6 +1020,19 @@
             background: var(--light);
             color: var(--dark);
         }
+
+        .level-badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .level-1 { background: var(--primary); }
+        .level-2 { background: var(--accent); }
+        .level-3 { background: var(--success); }
     </style>
 </head>
 <body>
@@ -1523,42 +1536,42 @@
                     <tbody>
                         <tr>
                             <td>Registration Bonus</td>
-                            <td class="bonus-amount">$3.00</td>
+                            <td class="bonus-amount">3.00 USDT</td>
                             <td>Completed</td>
                         </tr>
                         <tr>
                             <td>Purchase VIP 2 Package</td>
-                            <td class="bonus-amount">$5.00</td>
+                            <td class="bonus-amount">5.00 USDT</td>
                             <td>Available</td>
                         </tr>
                         <tr>
                             <td>Purchase VIP 3 Package</td>
-                            <td class="bonus-amount">$10.00</td>
+                            <td class="bonus-amount">10.00 USDT</td>
                             <td>Available</td>
                         </tr>
                         <tr>
                             <td>Purchase VIP 4 Package</td>
-                            <td class="bonus-amount">$15.00</td>
+                            <td class="bonus-amount">15.00 USDT</td>
                             <td>Available</td>
                         </tr>
                         <tr>
-                            <td>1st Generation Deposit $50</td>
-                            <td class="bonus-amount">$2.00</td>
+                            <td>1st Generation Deposit 50 USDT</td>
+                            <td class="bonus-amount">2.00 USDT</td>
                             <td>Available</td>
                         </tr>
                         <tr>
-                            <td>1st Generation Deposit $100</td>
-                            <td class="bonus-amount">$5.00</td>
+                            <td>1st Generation Deposit 100 USDT</td>
+                            <td class="bonus-amount">5.00 USDT</td>
                             <td>Available</td>
                         </tr>
                         <tr>
-                            <td>1st Generation Deposit $300</td>
-                            <td class="bonus-amount">$10.00</td>
+                            <td>1st Generation Deposit 300 USDT</td>
+                            <td class="bonus-amount">10.00 USDT</td>
                             <td>Available</td>
                         </tr>
                         <tr>
-                            <td>1st Generation Deposit $1000</td>
-                            <td class="bonus-amount">$20.00</td>
+                            <td>1st Generation Deposit 1000 USDT</td>
+                            <td class="bonus-amount">20.00 USDT</td>
                             <td>Available</td>
                         </tr>
                     </tbody>
@@ -1715,40 +1728,120 @@
 
     async function loadReferrals() {
         try {
+            console.log('Loading referrals tree for user:', appState.currentUserId);
+            
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_user_referrals_tree`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify({ 
+                    user_id: appState.currentUserId 
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const referralsData = await response.json();
+            console.log('Referrals data received:', referralsData);
+
+            // Initialize empty arrays for each generation
+            appState.referrals.gen1 = [];
+            appState.referrals.gen2 = [];
+            appState.referrals.gen3 = [];
+
+            if (referralsData && Array.isArray(referralsData)) {
+                referralsData.forEach(referral => {
+                    const referralInfo = {
+                        id: referral.referral_id,
+                        name: referral.referral_name,
+                        created_at: referral.created_at,
+                        level: referral.level
+                    };
+
+                    switch(referral.level) {
+                        case 1:
+                            appState.referrals.gen1.push(referralInfo);
+                            break;
+                        case 2:
+                            appState.referrals.gen2.push(referralInfo);
+                            break;
+                        case 3:
+                            appState.referrals.gen3.push(referralInfo);
+                            break;
+                    }
+                });
+            }
+
+            console.log('Referrals organized:', {
+                gen1: appState.referrals.gen1.length,
+                gen2: appState.referrals.gen2.length,
+                gen3: appState.referrals.gen3.length
+            });
+
+        } catch (error) {
+            console.error('Error loading referrals tree:', error);
+            // Fallback to sequential loading if RPC fails
+            await loadReferralsFallback();
+        }
+    }
+
+    // Fallback method if RPC is not available
+    async function loadReferralsFallback() {
+        try {
+            console.log('Using fallback method for loading referrals');
+            
+            // 1st generation - direct referrals
             const gen1Referrals = await safeSupabaseFetch('users', 'id, name, created_at', { 
                 referred_by: appState.currentUserId 
             });
-            
-            appState.referrals.gen1 = gen1Referrals;
-            
-            const gen2Ids = gen1Referrals.map(user => user.id);
+            appState.referrals.gen1 = gen1Referrals || [];
+
+            // 2nd generation - referrals of referrals
             let gen2Referrals = [];
-            if (gen2Ids.length > 0) {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?referred_by=in.(${gen2Ids.join(',')})&select=id,name,created_at`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            if (appState.referrals.gen1.length > 0) {
+                const gen1Ids = appState.referrals.gen1.map(user => user.id);
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/users?referred_by=in.(${gen1Ids.join(',')})&select=id,name,created_at`, 
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
                     }
-                });
-                gen2Referrals = await response.json();
+                );
+                if (response.ok) {
+                    gen2Referrals = await response.json();
+                }
             }
-            appState.referrals.gen2 = gen2Referrals;
-            
-            const gen3Ids = gen2Referrals.map(user => user.id);
+            appState.referrals.gen2 = gen2Referrals || [];
+
+            // 3rd generation - referrals of referrals of referrals
             let gen3Referrals = [];
-            if (gen3Ids.length > 0) {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?referred_by=in.(${gen3Ids.join(',')})&select=id,name,created_at`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            if (appState.referrals.gen2.length > 0) {
+                const gen2Ids = appState.referrals.gen2.map(user => user.id);
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/users?referred_by=in.(${gen2Ids.join(',')})&select=id,name,created_at`, 
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
                     }
-                });
-                gen3Referrals = await response.json();
+                );
+                if (response.ok) {
+                    gen3Referrals = await response.json();
+                }
             }
-            appState.referrals.gen3 = gen3Referrals;
-            
+            appState.referrals.gen3 = gen3Referrals || [];
+
         } catch (error) {
-            console.error('Referrals load error:', error);
+            console.error('Error in loadReferralsFallback:', error);
         }
     }
 
@@ -2501,29 +2594,44 @@
         const referralList = document.getElementById('referral-list');
         referralList.innerHTML = '';
         
-        if (appState.referrals.gen1.length === 0) {
-            referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No referrals yet</div>';
+        if (appState.referrals.gen1.length === 0 && 
+            appState.referrals.gen2.length === 0 && 
+            appState.referrals.gen3.length === 0) {
+            referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 40px 20px;">No referrals yet. Share your referral link to invite friends!</div>';
             return;
         }
         
-        appState.referrals.gen1.forEach(ref => {
-            const referralItem = document.createElement('div');
-            referralItem.className = 'referral-item';
+        // Function to display referrals by level
+        const displayLevel = (level, referrals, title) => {
+            if (referrals.length === 0) return;
             
-            const referralIncome = calculateReferralIncomeForUser(ref.id);
+            const levelHeader = document.createElement('div');
+            levelHeader.innerHTML = `<div style="font-weight: 600; color: var(--primary); margin: 20px 0 10px; font-size: 16px; border-bottom: 1px solid var(--light); padding-bottom: 8px;">${title} (${referrals.length} users)</div>`;
+            referralList.appendChild(levelHeader);
             
-            referralItem.innerHTML = `
-                <div class="referral-info">
-                    <div class="referral-avatar">${ref.id.substring(2, 4)}</div>
-                    <div>
-                        <div class="name" style="font-weight:600;">${ref.name}</div>
-                        <div class="date" style="font-size:11px; color:var(--gray);">Level 1</div>
+            referrals.forEach(ref => {
+                const referralItem = document.createElement('div');
+                referralItem.className = 'referral-item';
+                referralItem.innerHTML = `
+                    <div class="referral-info">
+                        <div class="referral-avatar" style="background: var(--primary);">${ref.name ? ref.name.substring(0, 2).toUpperCase() : 'US'}</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight:600; font-size: 14px;">${ref.name || 'Unknown User'}</div>
+                            <div style="font-size:11px; color:var(--gray);">
+                                ID: ${ref.id} • ${ref.created_at ? new Date(ref.created_at).toLocaleDateString() : 'Unknown date'}
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="referral-income" style="font-weight:600; color:var(--success);">+${formatCurrency(referralIncome)} USDT</div>
-            `;
-            referralList.appendChild(referralItem);
-        });
+                    <div class="level-badge level-${level}">Level ${level}</div>
+                `;
+                referralList.appendChild(referralItem);
+            });
+        };
+        
+        // Display all three generations
+        displayLevel(1, appState.referrals.gen1, '1st Generation');
+        displayLevel(2, appState.referrals.gen2, '2nd Generation'); 
+        displayLevel(3, appState.referrals.gen3, '3rd Generation');
     }
 
     function updateEarnScreen() {
