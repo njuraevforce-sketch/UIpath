@@ -1728,73 +1728,7 @@
 
     async function loadReferrals() {
         try {
-            console.log('Loading referrals tree for user:', appState.currentUserId);
-            
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_user_referrals_tree`, {
-                method: 'POST',
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify({ 
-                    user_id: appState.currentUserId 
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const referralsData = await response.json();
-            console.log('Referrals data received:', referralsData);
-
-            // Initialize empty arrays for each generation
-            appState.referrals.gen1 = [];
-            appState.referrals.gen2 = [];
-            appState.referrals.gen3 = [];
-
-            if (referralsData && Array.isArray(referralsData)) {
-                referralsData.forEach(referral => {
-                    const referralInfo = {
-                        id: referral.referral_id,
-                        name: referral.referral_name,
-                        created_at: referral.created_at,
-                        level: referral.level
-                    };
-
-                    switch(referral.level) {
-                        case 1:
-                            appState.referrals.gen1.push(referralInfo);
-                            break;
-                        case 2:
-                            appState.referrals.gen2.push(referralInfo);
-                            break;
-                        case 3:
-                            appState.referrals.gen3.push(referralInfo);
-                            break;
-                    }
-                });
-            }
-
-            console.log('Referrals organized:', {
-                gen1: appState.referrals.gen1.length,
-                gen2: appState.referrals.gen2.length,
-                gen3: appState.referrals.gen3.length
-            });
-
-        } catch (error) {
-            console.error('Error loading referrals tree:', error);
-            // Fallback to sequential loading if RPC fails
-            await loadReferralsFallback();
-        }
-    }
-
-    // Fallback method if RPC is not available
-    async function loadReferralsFallback() {
-        try {
-            console.log('Using fallback method for loading referrals');
+            console.log('Loading referrals for user:', appState.currentUserId);
             
             // 1st generation - direct referrals
             const gen1Referrals = await safeSupabaseFetch('users', 'id, name, created_at', { 
@@ -1805,43 +1739,38 @@
             // 2nd generation - referrals of referrals
             let gen2Referrals = [];
             if (appState.referrals.gen1.length > 0) {
-                const gen1Ids = appState.referrals.gen1.map(user => user.id);
-                const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/users?referred_by=in.(${gen1Ids.join(',')})&select=id,name,created_at`, 
-                    {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    }
-                );
-                if (response.ok) {
-                    gen2Referrals = await response.json();
+                // Для каждого реферала 1-го поколения находим его рефералов
+                for (const gen1User of appState.referrals.gen1) {
+                    const gen2Users = await safeSupabaseFetch('users', 'id, name, created_at', {
+                        referred_by: gen1User.id
+                    });
+                    gen2Referrals = gen2Referrals.concat(gen2Users || []);
                 }
             }
-            appState.referrals.gen2 = gen2Referrals || [];
+            appState.referrals.gen2 = gen2Referrals;
 
             // 3rd generation - referrals of referrals of referrals
             let gen3Referrals = [];
             if (appState.referrals.gen2.length > 0) {
-                const gen2Ids = appState.referrals.gen2.map(user => user.id);
-                const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/users?referred_by=in.(${gen2Ids.join(',')})&select=id,name,created_at`, 
-                    {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    }
-                );
-                if (response.ok) {
-                    gen3Referrals = await response.json();
+                for (const gen2User of appState.referrals.gen2) {
+                    const gen3Users = await safeSupabaseFetch('users', 'id, name, created_at', {
+                        referred_by: gen2User.id
+                    });
+                    gen3Referrals = gen3Referrals.concat(gen3Users || []);
                 }
             }
-            appState.referrals.gen3 = gen3Referrals || [];
+            appState.referrals.gen3 = gen3Referrals;
+
+            console.log('Referrals loaded successfully:', {
+                gen1: appState.referrals.gen1.length,
+                gen2: appState.referrals.gen2.length,
+                gen3: appState.referrals.gen3.length
+            });
 
         } catch (error) {
-            console.error('Error in loadReferralsFallback:', error);
+            console.error('Error loading referrals:', error);
+            // Инициализируем пустые массивы в случае ошибки
+            appState.referrals = { gen1: [], gen2: [], gen3: [] };
         }
     }
 
