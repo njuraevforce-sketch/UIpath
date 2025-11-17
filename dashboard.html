@@ -1543,957 +1543,1179 @@
             </div>
         </div>
     </div>
+<script>
+    console.log('🚀 DASHBOARD INITIALIZATION STARTED');
+    
+    const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
 
-    <script>
-        console.log('🚀 DASHBOARD INITIALIZATION STARTED');
-        
-        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
+    const vipPackages = [
+        { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, duration: 30, bgImage: 'assets/vip1.png', icon: 'assets/vip1-icon.png' },
+        { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, duration: 30, bgImage: 'assets/vip2.png', icon: 'assets/vip2-icon.png' },
+        { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, duration: 30, bgImage: 'assets/vip3.png', icon: 'assets/vip3-icon.png' },
+        { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, duration: 30, bgImage: 'assets/vip4.png', icon: 'assets/vip4-icon.png' },
+        { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, duration: 30, bgImage: 'assets/vip5.png', icon: 'assets/vip5-icon.png' },
+        { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, duration: 30, bgImage: 'assets/vip6.png', icon: 'assets/vip6-icon.png' }
+    ];
 
-        const vipPackages = [
-            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, duration: 30, bgImage: 'assets/vip1.png', icon: 'assets/vip1-icon.png' },
-            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, duration: 30, bgImage: 'assets/vip2.png', icon: 'assets/vip2-icon.png' },
-            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, duration: 30, bgImage: 'assets/vip3.png', icon: 'assets/vip3-icon.png' },
-            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, duration: 30, bgImage: 'assets/vip4.png', icon: 'assets/vip4-icon.png' },
-            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, duration: 30, bgImage: 'assets/vip5.png', icon: 'assets/vip5-icon.png' },
-            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, duration: 30, bgImage: 'assets/vip6.png', icon: 'assets/vip6-icon.png' }
-        ];
+    let appState = {
+        currentUserId: null,
+        user: null,
+        activeVipPackages: [],
+        referrals: { gen1: [], gen2: [], gen3: [] },
+        transactions: []
+    };
 
-        let appState = {
-            currentUserId: null,
-            user: null,
-            activeVipPackages: [],
-            referrals: { gen1: [], gen2: [], gen3: [] },
-            transactions: []
-        };
-
-        // 🔥 УЛУЧШЕННАЯ ФУНКЦИЯ: Вызов PostgreSQL функций через REST API
-        async function callPostgresFunction(functionName, params = {}) {
-            console.log(`[POSTGRES FUNCTION] Calling ${functionName}`, params);
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'params=single-object'
-                    },
-                    body: JSON.stringify(params)
-                });
+    // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ: Вызов PostgreSQL функций через REST API
+    async function callPostgresFunction(functionName, params = {}) {
+        console.log(`[POSTGRES FUNCTION] Calling ${functionName}`, params);
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'params=single-object'
+                },
+                body: JSON.stringify(params)
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, errorText);
                 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, errorText);
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
-                }
-                
-                // Для функций, которые не возвращают данные (void)
+                // Если функция возвращает 204 (No Content), это успех для void функций
                 if (response.status === 204) {
-                    return { success: true };
+                    return { success: true, message: 'Operation completed successfully' };
                 }
                 
-                const result = await response.json();
-                console.log(`[POSTGRES FUNCTION SUCCESS] ${functionName}:`, result);
-                return result;
-            } catch (error) {
-                console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, error);
-                throw error;
-            }
-        }
-
-        // 🔥 ПРОСТАЯ ЛОГИКА ВРЕМЕНИ - строго 22:00 UTC
-        function canClaimDailyIncome() {
-            console.log('[INCOME DEBUG] Checking if can claim daily income');
-            
-            if (!appState.user.last_claim_date) {
-                console.log('[INCOME DEBUG] No last claim date - CAN CLAIM');
-                return true;
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
             }
             
-            const lastClaim = new Date(appState.user.last_claim_date);
-            const now = new Date();
-            
-            // Простая логика: если с последнего забора прошло более 24 часов
-            // и текущее время после 22:00 UTC
-            const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-            const currentHourUTC = now.getUTCHours();
-            
-            const canClaim = hoursSinceLastClaim >= 24 && currentHourUTC >= 22;
-            console.log(`[INCOME DEBUG] Can claim: ${canClaim} (hoursSinceLastClaim: ${hoursSinceLastClaim}, currentHourUTC: ${currentHourUTC})`);
-            
-            return canClaim;
-        }
-
-        function getNextClaimTime() {
-            const now = new Date();
-            let nextClaim = new Date(now);
-            
-            // Если сейчас до 22:00 UTC, то следующий забор сегодня в 22:00
-            if (now.getUTCHours() < 22) {
-                nextClaim.setUTCHours(22, 0, 0, 0);
-            } else {
-                // Если сейчас после 22:00 UTC, то следующий забор завтра в 22:00
-                nextClaim.setUTCDate(nextClaim.getUTCDate() + 1);
-                nextClaim.setUTCHours(22, 0, 0, 0);
+            // Для функций, которые не возвращают данные (void)
+            if (response.status === 204) {
+                return { success: true, message: 'Operation completed successfully' };
             }
             
-            return nextClaim;
+            const result = await response.json();
+            console.log(`[POSTGRES FUNCTION SUCCESS] ${functionName}:`, result);
+            return result;
+        } catch (error) {
+            console.error(`[POSTGRES FUNCTION ERROR] ${functionName}:`, error);
+            throw error;
         }
+    }
 
-        function calculateDailyIncome() {
-            console.log('[INCOME CALC] Starting daily income calculation');
-            
-            let dailyIncome = 0;
-            const now = new Date();
-            
-            const activePackages = appState.activeVipPackages.filter(purchase => {
-                // Пакет активен если не истек срок и депозит не возвращен
-                const purchaseDate = new Date(purchase.purchase_date);
-                const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-                const isActive = purchase.active === true && 
-                                purchase.deposit_returned === false && 
-                                now < expiryDate;
-                
-                console.log(`[INCOME CALC] Package ${purchase.vip_package_id}: active=${purchase.active}, deposit_returned=${purchase.deposit_returned}, notExpired=${now < expiryDate}, isActive=${isActive}`);
-                return isActive;
-            });
-            
-            console.log(`[INCOME CALC] Found ${activePackages.length} active packages`);
-            
-            activePackages.forEach(purchase => {
-                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
-                if (vipPackage) {
-                    dailyIncome += vipPackage.dailyIncome;
-                    console.log(`[INCOME CALC] Added ${vipPackage.dailyIncome} from VIP ${vipPackage.level}, total: ${dailyIncome}`);
-                }
-            });
-            
-            console.log(`[INCOME CALC] Final daily income: ${dailyIncome}`);
-            return dailyIncome;
-        }
-
-        async function safeSupabaseFetch(table, query = '*', filters = null) {
-            console.log(`[DB FETCH] Table: ${table}, Query: ${query}`, filters);
-            try {
-                let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
-                
-                if (filters) {
-                    Object.keys(filters).forEach(key => {
-                        url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
-                    });
-                }
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const result = await response.json();
-                console.log(`[DB FETCH SUCCESS] Table: ${table}, Results: ${result.length}`);
-                return result;
-            } catch (error) {
-                console.error('[DB FETCH ERROR]:', error);
-                throw error;
+    // 🔥 НОВАЯ ФУНКЦИЯ: Покупка VIP пакета через прямую вставку
+    async function purchaseVIPPackageDirect(pkg) {
+        console.log(`[VIP PURCHASE DIRECT] Attempting to purchase VIP ${pkg.level}`);
+        
+        try {
+            // 1. Проверяем баланс пользователя
+            if (appState.user.balance < pkg.price) {
+                showCustomAlert('Insufficient balance to purchase this VIP package');
+                return;
             }
-        }
 
-        async function safeSupabaseInsert(table, data) {
-            console.log(`[DB INSERT] Table: ${table}`, data);
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const result = await response.json();
-                console.log('[DB INSERT SUCCESS]', result);
-                return result;
-            } catch (error) {
-                console.error('[DB INSERT ERROR]:', error);
-                throw error;
+            // 2. Создаем запись о покупке
+            const purchaseData = {
+                user_id: appState.currentUserId,
+                vip_package_id: pkg.id,
+                purchase_date: new Date().toISOString(),
+                expiry_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                active: true,
+                deposit_returned: false,
+                created_at: new Date().toISOString()
+            };
+
+            const purchaseResult = await safeSupabaseInsert('vip_purchases', purchaseData);
+            
+            if (!purchaseResult) {
+                throw new Error('Failed to create VIP purchase record');
             }
-        }
 
-        async function safeSupabaseUpdate(table, data, column, value) {
-            console.log(`[DB UPDATE] Table: ${table}, Where: ${column}=${value}`, data);
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const result = await response.json();
-                console.log('[DB UPDATE SUCCESS]', result);
-                return result;
-            } catch (error) {
-                console.error('[DB UPDATE ERROR]:', error);
-                throw error;
-            }
-        }
+            // 3. Обновляем баланс пользователя
+            const newBalance = appState.user.balance - pkg.price;
+            await safeSupabaseUpdate('users', 
+                { 
+                    balance: newBalance, 
+                    vip_level: Math.max(appState.user.vip_level, pkg.level) 
+                }, 
+                'id', 
+                appState.currentUserId
+            );
 
-        function showCustomAlert(message) {
-            console.log('[ALERT]', message);
-            const overlay = document.createElement('div');
-            overlay.className = 'custom-alert-overlay';
-            
-            overlay.innerHTML = `
-                <div class="custom-alert">
-                    <div class="custom-alert-icon">
-                        <img src="assets/quant.png" alt="Uipath">
-                    </div>
-                    <div class="custom-alert-message">${message}</div>
-                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
-                </div>
-            `;
-            
-            document.body.appendChild(overlay);
-        }
+            // 4. Создаем транзакцию покупки
+            const transactionData = {
+                user_id: appState.currentUserId,
+                type: 'vip_purchase',
+                title: `VIP ${pkg.level} Purchase`,
+                amount: pkg.price,
+                positive: false,
+                created_at: new Date().toISOString()
+            };
+            await safeSupabaseInsert('transactions', transactionData);
 
-        function showCustomConfirm(message, confirmCallback) {
-            console.log('[CONFIRM]', message);
-            const overlay = document.createElement('div');
-            overlay.className = 'custom-confirm-overlay';
-            
-            overlay.innerHTML = `
-                <div class="custom-confirm">
-                    <div class="custom-alert-icon">
-                        <img src="assets/quant.png" alt="Uipath">
-                    </div>
-                    <div class="custom-alert-message">${message}</div>
-                    <div class="custom-confirm-buttons">
-                        <button class="custom-confirm-button cancel" onclick="this.closest('.custom-confirm-overlay').remove()">Cancel</button>
-                        <button class="custom-confirm-button confirm" onclick="this.closest('.custom-confirm-overlay').remove(); ${confirmCallback}">Confirm</button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(overlay);
-        }
+            // 5. Обрабатываем реферальный доход
+            await processReferralIncome(pkg.price);
 
-        async function loadAllData() {
-            console.log('[LOAD DATA] Starting data load');
-            try {
-                const userId = sessionStorage.getItem('currentUserId');
-                if (!userId) {
-                    console.log('[LOAD DATA] No user ID found, redirecting to login');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                
-                appState.currentUserId = userId;
-                console.log('[LOAD DATA] User ID:', userId);
-                
-                const users = await safeSupabaseFetch('users', '*', { id: userId });
-                if (users.length === 0) {
-                    console.log('[LOAD DATA] User not found, redirecting to login');
-                    sessionStorage.removeItem('currentUserId');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                
-                appState.user = users[0];
-                console.log('[LOAD DATA] User loaded:', appState.user);
-                
-                appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
-                    user_id: userId
-                });
-                console.log('[LOAD DATA] VIP packages:', appState.activeVipPackages.length);
-                
-                appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
-                console.log('[LOAD DATA] Transactions:', appState.transactions.length);
-                
-                // Загрузка рефералов
-                const allReferrals = await safeSupabaseFetch('referrals', '*', { referrer_id: userId });
-                appState.referrals.gen1 = allReferrals.filter(ref => ref.level === 1);
-                appState.referrals.gen2 = allReferrals.filter(ref => ref.level === 2);
-                appState.referrals.gen3 = allReferrals.filter(ref => ref.level === 3);
-                console.log(`[LOAD DATA] Referrals: gen1=${appState.referrals.gen1.length}, gen2=${appState.referrals.gen2.length}, gen3=${appState.referrals.gen3.length}`);
-                
-                await processExpiredVipPackages();
-                console.log('[LOAD DATA] Data load completed successfully');
-                return true;
-            } catch (error) {
-                console.error('[LOAD DATA ERROR]:', error);
-                showCustomAlert('Error loading data. Please refresh the page.');
-                return false;
-            }
-        }
-
-        async function processExpiredVipPackages() {
-            console.log('[EXPIRY CHECK] Starting expired packages check');
-            try {
-                // 🔥 ВЫЗЫВАЕМ ФУНКЦИЮ БАЗЫ ДАННЫХ для обработки истекших пакетов
-                await callPostgresFunction('auto_return_deposits');
-                console.log('[EXPIRY CHECK] Database function executed');
-                
-                // Обновляем данные после обработки
-                appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
-                    user_id: appState.currentUserId
-                });
-                
-            } catch (error) {
-                console.error('[EXPIRY CHECK ERROR]:', error);
-            }
-        }
-
-        async function initApp() {
-            console.log('[APP INIT] Starting application initialization');
-            const success = await loadAllData();
-            if (!success) return;
-            
-            renderVIPPackages();
+            // 6. Обновляем состояние приложения
+            await loadAllData();
             updateUI();
-            updateClaimButton();
-            startTimer();
-            startCarousel();
-            updateVerificationStatus();
-            console.log('[APP INIT] Application initialized successfully');
+            renderVIPPackages();
+            
+            showCustomAlert(`VIP ${pkg.level} package purchased successfully!`);
+            
+        } catch (error) {
+            console.error('[VIP PURCHASE DIRECT ERROR]:', error);
+            showCustomAlert('Purchase failed. Please try again.');
         }
+    }
 
-        function startCarousel() {
-            console.log('[CAROUSEL] Starting carousel');
-            let currentSlide = 0;
-            const slides = document.querySelectorAll('.carousel-slide');
-            
-            setInterval(() => {
-                slides[currentSlide].classList.remove('active');
-                currentSlide = (currentSlide + 1) % slides.length;
-                slides[currentSlide].classList.add('active');
-                console.log(`[CAROUSEL] Slide changed to: ${currentSlide}`);
-            }, 5000);
-        }
-
-        function toggleVideo() {
-            console.log('[VIDEO] Toggle video');
-            const video = document.getElementById('promoVideo');
-            const playBtn = document.querySelector('.play-btn');
-            
-            if (video.paused) {
-                video.play();
-                playBtn.style.display = 'none';
-                console.log('[VIDEO] Video playing');
-            } else {
-                video.pause();
-                playBtn.style.display = 'flex';
-                console.log('[VIDEO] Video paused');
-            }
-        }
-
-        function showTransactionType(type) {
-            console.log(`[TRANSACTIONS] Showing type: ${type}`);
-            const tabs = document.querySelectorAll('.transaction-tab');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            
-            updateTransactionsHistory(type);
-        }
-
-        function updateTransactionsHistory(type = 'all') {
-            console.log(`[TRANSACTIONS] Updating history for type: ${type}`);
-            const transactionHistory = document.getElementById('transaction-history');
-            const transactionHistoryAssets = document.getElementById('transaction-history-assets');
-            
-            if (transactionHistory) updateTransactionList(transactionHistory, type);
-            if (transactionHistoryAssets) updateTransactionList(transactionHistoryAssets, type);
-        }
-
-        function updateTransactionList(container, type = 'all') {
-            console.log(`[TRANSACTIONS] Updating list for container, type: ${type}`);
-            container.innerHTML = '';
-            
-            let filteredTransactions = appState.transactions;
-            
-            if (type !== 'all') {
-                filteredTransactions = appState.transactions.filter(transaction => {
-                    if (type === 'deposits') return transaction.type === 'deposit';
-                    if (type === 'withdrawals') return transaction.type === 'withdraw';
-                    if (type === 'referrals') return transaction.type === 'referral';
-                    if (type === 'quantification') return transaction.type === 'daily_income';
-                    return true;
-                });
-            }
-            
-            console.log(`[TRANSACTIONS] Filtered transactions: ${filteredTransactions.length}`);
-            
-            if (filteredTransactions.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No transactions found</div>';
+    // 🔥 НОВАЯ ФУНКЦИЯ: Обработка реферального дохода
+    async function processReferralIncome(packagePrice) {
+        try {
+            if (!appState.user.referred_by) {
+                console.log('[REFERRAL INCOME] No referrer found');
                 return;
             }
-            
-            filteredTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            
-            filteredTransactions.forEach(transaction => {
-                const transactionItem = document.createElement('div');
-                transactionItem.className = 'transaction-item';
-                
-                let iconClass = '';
-                let icon = '';
-                
-                switch(transaction.type) {
-                    case 'deposit':
-                        iconClass = 'deposit';
-                        icon = 'fa-arrow-down';
-                        break;
-                    case 'withdraw':
-                        iconClass = 'withdraw';
-                        icon = 'fa-arrow-up';
-                        break;
-                    case 'bonus':
-                        iconClass = 'deposit';
-                        icon = 'fa-gift';
-                        break;
-                    case 'referral':
-                        iconClass = 'deposit';
-                        icon = 'fa-users';
-                        break;
-                    case 'vip_purchase':
-                        iconClass = 'withdraw';
-                        icon = 'fa-crown';
-                        break;
-                    case 'daily_income':
-                        iconClass = 'deposit';
-                        icon = 'fa-coins';
-                        break;
-                    case 'deposit_return':
-                        iconClass = 'deposit';
-                        icon = 'fa-undo';
-                        break;
-                    default:
-                        iconClass = 'deposit';
-                        icon = 'fa-coins';
-                }
-                
-                transactionItem.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 30px; height: 30px; border-radius: 50%; background: ${transaction.positive ? 'rgba(76,217,100,0.1)' : 'rgba(255,59,48,0.1)'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas ${icon}" style="color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight:600;">${transaction.title}</div>
-                            <div style="font-size:12px; color:var(--gray);">${formatDate(new Date(transaction.created_at))}</div>
-                        </div>
-                    </div>
-                    <div style="font-weight:600; color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};">
-                        ${transaction.positive ? '+' : '-'}${formatCurrency(transaction.amount)} USDT
-                    </div>
-                `;
-                
-                container.appendChild(transactionItem);
-            });
-        }
 
-        function renderVIPPackages() {
-            console.log('[VIP] Rendering packages');
-            const packagesList = document.getElementById('vip-packages-list');
-            packagesList.innerHTML = '';
-            
-            vipPackages.forEach(pkg => {
-                const isPurchased = appState.activeVipPackages.some(purchase => 
-                    purchase.vip_package_id === pkg.id && purchase.active === true
-                );
-                const packageElement = document.createElement('div');
-                let packageClass = 'vip-package';
-                if (isPurchased) packageClass += ' active';
-                
-                packageElement.className = packageClass;
-                packageElement.style.backgroundImage = `url('${pkg.bgImage}')`;
-                packageElement.onclick = () => purchaseVIPPackage(pkg);
-                
-                packageElement.innerHTML = `
-                    <div>
-                        <div style="font-weight:600; font-size:16px; color: white;">VIP ${pkg.level}</div>
-                        <div style="font-size:14px; color: white;">${formatCurrency(pkg.price)} USDT</div>
-                        <div style="font-size:12px; opacity:0.9; color: white;">+${formatCurrency(pkg.dailyIncome)} USDT/day</div>
-                        <div style="font-size:10px; opacity:0.8; color: white;">${pkg.percentage}% daily for 30 days</div>
-                    </div>
-                    <div class="vip-icon">
-                        <img src="${pkg.icon}" alt="VIP ${pkg.level}">
-                    </div>
-                    <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: white; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
-                        ${isPurchased ? 'ACTIVE' : 'BUY'}
-                    </div>
-                `;
-                
-                packagesList.appendChild(packageElement);
-            });
-            console.log('[VIP] Packages rendered');
-        }
-
-        async function purchaseVIPPackage(pkg) {
-            console.log(`[VIP PURCHASE] Attempting to purchase VIP ${pkg.level}`);
-            
-            // 🔥 ВЫЗЫВАЕМ ФУНКЦИЮ БАЗЫ ДАННЫХ вместо ручной обработки
-            try {
-                const result = await callPostgresFunction('purchase_vip_package', {
-                    p_user_id: appState.currentUserId,
-                    p_vip_package_id: pkg.id
-                });
-                
-                if (result.success) {
-                    // Обновляем состояние приложения
-                    await loadAllData();
-                    updateUI();
-                    renderVIPPackages();
-                    showCustomAlert(result.message);
-                } else {
-                    showCustomAlert(result.message);
-                }
-            } catch (error) {
-                console.error('[VIP PURCHASE ERROR]:', error);
-                showCustomAlert('Purchase failed. Please try again.');
-            }
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
-        }
-
-        function formatDate(date) {
-            return new Intl.DateTimeFormat('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(date);
-        }
-
-        function updateClaimButton() {
-            console.log('[CLAIM BUTTON] Updating claim button state');
-            const claimButton = document.getElementById('claim-button');
-            const claimTimer = document.getElementById('claim-timer');
-            
-            const availableIncome = calculateDailyIncome();
-            const canClaim = canClaimDailyIncome();
-            
-            console.log(`[CLAIM BUTTON] availableIncome=${availableIncome}, canClaim=${canClaim}`);
-            
-            if (availableIncome === 0) {
-                claimButton.disabled = true;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> NO AVAILABLE INCOME';
-                claimTimer.textContent = 'Buy a VIP package to earn income';
-                console.log('[CLAIM BUTTON] No available income');
+            // Получаем информацию о реферере
+            const referrers = await safeSupabaseFetch('users', '*', { id: appState.user.referred_by });
+            if (referrers.length === 0) {
+                console.log('[REFERRAL INCOME] Referrer not found');
                 return;
             }
-            
-            if (canClaim) {
-                claimButton.disabled = false;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
-                
-                const nextClaim = getNextClaimTime();
-                const now = new Date();
-                const timeLeft = nextClaim - now;
-                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                
-                claimTimer.textContent = `Available for: ${hoursLeft}h ${minutesLeft}m`;
-                console.log(`[CLAIM BUTTON] Can claim, available for: ${hoursLeft}h ${minutesLeft}m`);
-            } else {
-                claimButton.disabled = true;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ALREADY CLAIMED';
-                
-                const nextClaim = getNextClaimTime();
-                const now = new Date();
-                const timeLeft = nextClaim - now;
-                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                
-                claimTimer.textContent = `Next claim: ${hoursLeft}h ${minutesLeft}m`;
-                console.log(`[CLAIM BUTTON] Already claimed, next claim in: ${hoursLeft}h ${minutesLeft}m`);
-            }
-        }
 
-        function startTimer() {
-            console.log('[TIMER] Starting claim button update timer');
-            setInterval(updateClaimButton, 60000);
-        }
+            const referrer = referrers[0];
+            
+            // Уровень 1: 8%
+            const level1Bonus = packagePrice * 0.08;
+            await safeSupabaseUpdate('users', 
+                { balance: referrer.balance + level1Bonus }, 
+                'id', 
+                referrer.id
+            );
 
-        async function claimDailyIncome() {
-            console.log('[CLAIM INCOME] Claim daily income initiated');
-            const claimBtn = document.getElementById('claim-button');
-            
-            if (claimBtn.disabled) {
-                console.log('[CLAIM INCOME] Button disabled, cannot claim');
-                showCustomAlert('You cannot claim income at this time. Please check the timer.');
-                return;
-            }
-            
-            const dailyIncome = calculateDailyIncome();
-            
-            if (dailyIncome === 0) {
-                console.log('[CLAIM INCOME] No daily income available');
-                showCustomAlert('No available income to claim. Purchase a VIP package to start earning.');
-                return;
-            }
-            
-            if (!canClaimDailyIncome()) {
-                console.log('[CLAIM INCOME] Cannot claim - already claimed today');
-                showCustomAlert('You have already claimed your daily income. Come back tomorrow at 22:00 UTC.');
-                return;
-            }
-            
-            console.log('[CLAIM INCOME] All checks passed, starting trading process');
-            await startTradingProcess(dailyIncome);
-        }
+            const level1Transaction = {
+                user_id: referrer.id,
+                type: 'referral',
+                title: `Referral Income (Level 1) from ${appState.user.name}`,
+                amount: level1Bonus,
+                positive: true,
+                created_at: new Date().toISOString()
+            };
+            await safeSupabaseInsert('transactions', level1Transaction);
 
-        async function startTradingProcess(dailyIncome) {
-            console.log(`[TRADING PROCESS] Starting with income: ${dailyIncome}`);
-            const claimBtn = document.getElementById('claim-button');
-            const steps = [1, 2, 3];
-            
-            claimBtn.disabled = true;
-            claimBtn.classList.add('processing');
-            claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
-            
-            for (let i = 0; i < steps.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                const step = steps[i];
-                const stepIcon = document.getElementById(`step-${step}`);
-                stepIcon.classList.add('active');
-                
-                if (step === 1) {
-                    claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
-                    console.log('[TRADING PROCESS] Step 1 completed');
-                } else if (step === 2) {
-                    claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
-                    console.log('[TRADING PROCESS] Step 2 completed');
-                } else if (step === 3) {
-                    claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
-                    claimBtn.classList.remove('processing');
-                    claimBtn.classList.add('completed');
+            console.log(`[REFERRAL INCOME] Level 1 bonus: ${level1Bonus} USDT to ${referrer.name}`);
+
+            // Уровень 2: 3% (реферер реферера)
+            if (referrer.referred_by) {
+                const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
+                if (level2Referrers.length > 0) {
+                    const level2Referrer = level2Referrers[0];
+                    const level2Bonus = packagePrice * 0.03;
                     
-                    // 🔥 ВЫЗЫВАЕМ ФУНКЦИЮ БАЗЫ ДАННЫХ для забора дохода
-                    try {
-                        const result = await callPostgresFunction('claim_daily_income', {
-                            p_user_id: appState.currentUserId
-                        });
+                    await safeSupabaseUpdate('users', 
+                        { balance: level2Referrer.balance + level2Bonus }, 
+                        'id', 
+                        level2Referrer.id
+                    );
+
+                    const level2Transaction = {
+                        user_id: level2Referrer.id,
+                        type: 'referral',
+                        title: `Referral Income (Level 2) from ${appState.user.name}`,
+                        amount: level2Bonus,
+                        positive: true,
+                        created_at: new Date().toISOString()
+                    };
+                    await safeSupabaseInsert('transactions', level2Transaction);
+
+                    console.log(`[REFERRAL INCOME] Level 2 bonus: ${level2Bonus} USDT to ${level2Referrer.name}`);
+                }
+            }
+
+            // Уровень 3: 1% (реферер реферера реферера)
+            if (referrer.referred_by) {
+                const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
+                if (level2Referrers.length > 0 && level2Referrers[0].referred_by) {
+                    const level3Referrers = await safeSupabaseFetch('users', '*', { id: level2Referrers[0].referred_by });
+                    if (level3Referrers.length > 0) {
+                        const level3Referrer = level3Referrers[0];
+                        const level3Bonus = packagePrice * 0.01;
                         
-                        if (result.success) {
-                            // Обновляем состояние приложения
-                            await loadAllData();
-                            updateUI();
-                            
-                            console.log(`[TRADING PROCESS] Income claimed: ${dailyIncome}`);
-                            showCustomAlert(`Successfully claimed ${formatCurrency(result.amount)} USDT daily income!`);
-                        } else {
-                            showCustomAlert(result.message);
-                        }
-                    } catch (error) {
-                        console.error('[CLAIM INCOME ERROR]:', error);
-                        showCustomAlert('Failed to claim income. Please try again.');
+                        await safeSupabaseUpdate('users', 
+                            { balance: level3Referrer.balance + level3Bonus }, 
+                            'id', 
+                            level3Referrer.id
+                        );
+
+                        const level3Transaction = {
+                            user_id: level3Referrer.id,
+                            type: 'referral',
+                            title: `Referral Income (Level 3) from ${appState.user.name}`,
+                            amount: level3Bonus,
+                            positive: true,
+                            created_at: new Date().toISOString()
+                        };
+                        await safeSupabaseInsert('transactions', level3Transaction);
+
+                        console.log(`[REFERRAL INCOME] Level 3 bonus: ${level3Bonus} USDT to ${level3Referrer.name}`);
                     }
-                    
-                    setTimeout(() => {
-                        resetTradingProcess();
-                    }, 3000);
                 }
             }
-        }
 
-        function resetTradingProcess() {
-            console.log('[TRADING PROCESS] Resetting trading process');
-            const claimBtn = document.getElementById('claim-button');
-            const steps = [1, 2, 3];
-            
-            claimBtn.classList.remove('processing', 'completed');
-            claimBtn.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
-            
-            steps.forEach(step => {
-                const stepIcon = document.getElementById(`step-${step}`);
-                stepIcon.classList.remove('active');
-            });
-            
-            updateClaimButton();
+        } catch (error) {
+            console.error('[REFERRAL INCOME ERROR]:', error);
         }
+    }
 
-        function updateUI() {
-            console.log('[UI UPDATE] Updating user interface');
-            if (!appState.user) return;
-            
-            document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-            
-            const referralIncome = appState.transactions
-                .filter(t => t.type === 'referral' && t.positive)
-                .reduce((sum, t) => sum + t.amount, 0);
-            const bonusIncome = appState.transactions
-                .filter(t => t.type === 'bonus' && t.positive)
-                .reduce((sum, t) => sum + t.amount, 0);
-            const quantIncome = appState.transactions
-                .filter(t => t.type === 'daily_income' && t.positive)
-                .reduce((sum, t) => sum + t.amount, 0);
-            
-            document.getElementById('referral-balance').textContent = `${formatCurrency(referralIncome)} USDT`;
-            document.getElementById('bonus-balance').textContent = `${formatCurrency(bonusIncome)} USDT`;
-            document.getElementById('quant-balance').textContent = `${formatCurrency(quantIncome)} USDT`;
-            document.getElementById('available-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-            
-            document.getElementById('profile-name').textContent = appState.user.name;
-            document.getElementById('profile-id').textContent = appState.user.id;
-            document.getElementById('email').value = appState.user.email;
-            
-            document.getElementById('vip-level-display').textContent = `VIP ${appState.user.vip_level}`;
-            
-            const referralLink = `${window.location.origin}/index.html?ref=${appState.user.referral_code}`;
-            document.getElementById('referral-link').textContent = referralLink;
-            document.getElementById('team-referral-link').textContent = referralLink;
-            
-            updateTeamScreen();
-            updateEarnScreen();
-            updateTransactionsHistory('all');
-            console.log('[UI UPDATE] User interface updated');
-        }
-
-        function updateTeamScreen() {
-            console.log('[TEAM SCREEN] Updating team screen');
-            document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
-            document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
-            document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
-            
-            const gen1Income = calculateReferralIncome(1);
-            const gen2Income = calculateReferralIncome(2);
-            const gen3Income = calculateReferralIncome(3);
-            
-            document.getElementById('gen1-income').textContent = `${formatCurrency(gen1Income)} USDT`;
-            document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
-            document.getElementById('gen3-income').textContent = `${formatCurrency(gen3Income)} USDT`;
-            
-            const referralList = document.getElementById('referral-list');
-            referralList.innerHTML = '';
-            
-            if (appState.referrals.gen1.length === 0) {
-                referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No referrals yet</div>';
-                return;
-            }
-            
-            appState.referrals.gen1.forEach(ref => {
-                const referralItem = document.createElement('div');
-                referralItem.className = 'referral-item';
-                
-                const referralIncome = calculateReferralIncomeForUser(ref.referred_id);
-                
-                referralItem.innerHTML = `
-                    <div class="referral-info">
-                        <div class="referral-avatar">${ref.referred_id.substring(2, 4)}</div>
-                        <div>
-                            <div class="name" style="font-weight:600;">User ${ref.referred_id}</div>
-                            <div class="date" style="font-size:11px; color:var(--gray);">Level 1</div>
-                        </div>
-                    </div>
-                    <div class="referral-income" style="font-weight:600; color:var(--success);">+${formatCurrency(referralIncome)} USDT</div>
-                `;
-                referralList.appendChild(referralItem);
-            });
-        }
-
-        function calculateReferralIncome(level) {
-            const income = appState.transactions
-                .filter(t => t.type === 'referral' && t.title.includes(`Level ${level}`))
-                .reduce((sum, t) => sum + t.amount, 0);
-            console.log(`[REFERRAL INCOME CALC] Level ${level}: ${income}`);
-            return income;
-        }
-
-        function calculateReferralIncomeForUser(userId) {
-            const income = appState.transactions
-                .filter(t => t.type === 'referral' && t.title.includes(userId))
-                .reduce((sum, t) => sum + t.amount, 0);
-            return income;
-        }
-
-        function updateEarnScreen() {
-            console.log('[EARN SCREEN] Updating earn screen');
-            const dailyIncome = calculateDailyIncome();
-            
-            document.getElementById('available-income').textContent = `${formatCurrency(dailyIncome)} USDT`;
-            
-            let percentage = 0;
-            const totalInvested = appState.activeVipPackages
-                .filter(p => p.active && !p.deposit_returned)
-                .reduce((sum, purchase) => {
-                    const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
-                    return sum + (vipPackage ? vipPackage.price : 0);
-                }, 0);
-            
-            if (totalInvested > 0) {
-                percentage = (dailyIncome / totalInvested) * 100;
-            }
-            document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
-            console.log(`[EARN SCREEN] Daily income: ${dailyIncome}, percentage: ${percentage}%`);
-        }
-
-        function updateVerificationStatus() {
-            console.log('[VERIFICATION] Updating verification status');
-            const phoneStatus = document.getElementById('phone-status');
-            const phoneText = document.getElementById('phone-text');
-            const phoneButton = document.getElementById('phone-button');
-            
-            const idStatus = document.getElementById('id-status');
-            const idText = document.getElementById('id-text');
-            const idButton = document.getElementById('id-button');
-            
-            if (appState.user.phone_verified) {
-                phoneStatus.className = 'status-icon verified';
-                phoneStatus.innerHTML = '<i class="fas fa-check"></i>';
-                phoneText.textContent = 'Verified';
-                phoneButton.textContent = 'Verified';
-                phoneButton.disabled = true;
-                phoneButton.style.background = '#c7c7cc';
-            } else {
-                phoneStatus.className = 'status-icon';
-                phoneStatus.innerHTML = '<i class="fas fa-times"></i>';
-                phoneText.textContent = 'Not verified';
-                phoneButton.textContent = 'Verify';
-                phoneButton.disabled = false;
-                phoneButton.style.background = '';
-            }
-            
-            if (appState.user.id_verified) {
-                idStatus.className = 'status-icon verified';
-                idStatus.innerHTML = '<i class="fas fa-check"></i>';
-                idText.textContent = 'Verified';
-                idButton.textContent = 'Verified';
-                idButton.disabled = true;
-                idButton.style.background = '#c7c7cc';
-            } else {
-                idStatus.className = 'status-icon';
-                idStatus.innerHTML = '<i class="fas fa-times"></i>';
-                idText.textContent = 'Not verified';
-                idButton.textContent = 'Verify';
-                idButton.disabled = false;
-                idButton.style.background = '';
-            }
-        }
-
-        function showPage(pageId) {
-            console.log(`[PAGE NAV] Showing page: ${pageId}`);
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            document.getElementById(pageId).classList.add('active');
-            
-            updateNavActiveState(pageId);
+    // 🔥 ПРОСТАЯ ЛОГИКА ВРЕМЕНИ - строго 22:00 UTC
+    function canClaimDailyIncome() {
+        console.log('[INCOME DEBUG] Checking if can claim daily income');
+        
+        if (!appState.user.last_claim_date) {
+            console.log('[INCOME DEBUG] No last claim date - CAN CLAIM');
+            return true;
         }
         
-        function updateNavActiveState(pageId) {
-            const navItems = document.querySelectorAll('.uni-tabbar-item');
-            navItems.forEach(item => {
-                item.classList.remove('active');
-            });
+        const lastClaim = new Date(appState.user.last_claim_date);
+        const now = new Date();
+        
+        // Простая логика: если с последнего забора прошло более 24 часов
+        // и текущее время после 22:00 UTC
+        const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+        const currentHourUTC = now.getUTCHours();
+        
+        const canClaim = hoursSinceLastClaim >= 24 && currentHourUTC >= 22;
+        console.log(`[INCOME DEBUG] Can claim: ${canClaim} (hoursSinceLastClaim: ${hoursSinceLastClaim}, currentHourUTC: ${currentHourUTC})`);
+        
+        return canClaim;
+    }
+
+    function getNextClaimTime() {
+        const now = new Date();
+        let nextClaim = new Date(now);
+        
+        // Если сейчас до 22:00 UTC, то следующий забор сегодня в 22:00
+        if (now.getUTCHours() < 22) {
+            nextClaim.setUTCHours(22, 0, 0, 0);
+        } else {
+            // Если сейчас после 22:00 UTC, то следующий забор завтра в 22:00
+            nextClaim.setUTCDate(nextClaim.getUTCDate() + 1);
+            nextClaim.setUTCHours(22, 0, 0, 0);
+        }
+        
+        return nextClaim;
+    }
+
+    function calculateDailyIncome() {
+        console.log('[INCOME CALC] Starting daily income calculation');
+        
+        let dailyIncome = 0;
+        const now = new Date();
+        
+        const activePackages = appState.activeVipPackages.filter(purchase => {
+            // Пакет активен если не истек срок и депозит не возвращен
+            const purchaseDate = new Date(purchase.purchase_date);
+            const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+            const isActive = purchase.active === true && 
+                            purchase.deposit_returned === false && 
+                            now < expiryDate;
             
-            if (pageId === 'mainPage') {
-                navItems[0].classList.add('active');
-            } else if (pageId === 'vipPage') {
-                navItems[1].classList.add('active');
-            } else if (pageId === 'earnPage') {
-                navItems[2].classList.add('active');
-            } else if (pageId === 'assetsPage') {
-                navItems[3].classList.add('active');
-            } else if (pageId === 'profilePage') {
-                navItems[4].classList.add('active');
+            console.log(`[INCOME CALC] Package ${purchase.vip_package_id}: active=${purchase.active}, deposit_returned=${purchase.deposit_returned}, notExpired=${now < expiryDate}, isActive=${isActive}`);
+            return isActive;
+        });
+        
+        console.log(`[INCOME CALC] Found ${activePackages.length} active packages`);
+        
+        activePackages.forEach(purchase => {
+            const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+            if (vipPackage) {
+                dailyIncome += vipPackage.dailyIncome;
+                console.log(`[INCOME CALC] Added ${vipPackage.dailyIncome} from VIP ${vipPackage.level}, total: ${dailyIncome}`);
             }
-            console.log(`[NAV] Active page: ${pageId}`);
-        }
+        });
+        
+        console.log(`[INCOME CALC] Final daily income: ${dailyIncome}`);
+        return dailyIncome;
+    }
 
-        function copyToClipboard(elementId) {
-            console.log(`[CLIPBOARD] Copying from element: ${elementId}`);
-            const element = document.getElementById(elementId);
-            let text = element.textContent || element.innerText;
+    async function safeSupabaseFetch(table, query = '*', filters = null) {
+        console.log(`[DB FETCH] Table: ${table}, Query: ${query}`, filters);
+        try {
+            let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
             
-            if (elementId === 'profile-id') {
-                text = appState.user.id;
+            if (filters) {
+                Object.keys(filters).forEach(key => {
+                    url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
+                });
             }
             
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = element.textContent;
-                element.textContent = 'Copied!';
-                setTimeout(() => {
-                    element.textContent = originalText;
-                }, 2000);
-                console.log('[CLIPBOARD] Text copied successfully');
-            }).catch(() => {
-                console.error('[CLIPBOARD] Failed to copy text');
-                showCustomAlert('Failed to copy to clipboard');
-            });
-        }
-
-        function verifyPhone() {
-            console.log('[VERIFICATION] Phone verification initiated');
-            const phoneNumber = prompt('Please enter your phone number for verification:');
-            if (phoneNumber) {
-                setTimeout(async () => {
-                    await safeSupabaseUpdate('users', { phone_verified: true }, 'id', appState.currentUserId);
-                    appState.user.phone_verified = true;
-                    updateVerificationStatus();
-                    console.log('[VERIFICATION] Phone verified successfully');
-                    showCustomAlert('Phone number verified successfully!');
-                }, 1500);
-            }
-        }
-
-        function verifyID() {
-            console.log('[VERIFICATION] ID verification initiated');
-            const idNumber = prompt('Please enter your ID or Passport number:');
-            if (idNumber) {
-                setTimeout(async () => {
-                    await safeSupabaseUpdate('users', { id_verified: true }, 'id', appState.currentUserId);
-                    appState.user.id_verified = true;
-                    updateVerificationStatus();
-                    console.log('[VERIFICATION] ID verified successfully');
-                    showCustomAlert('ID/Passport verified successfully!');
-                }, 1500);
-            }
-        }
-
-        function updatePassword() {
-            console.log('[PASSWORD] Password update requested');
-            showCustomAlert('Password change feature will be implemented in the next update');
-        }
-
-        function logout() {
-            console.log('[LOGOUT] Logout initiated');
-            showCustomConfirm(
-                'Are you sure you want to logout?',
-                () => {
-                    sessionStorage.removeItem('currentUserId');
-                    console.log('[LOGOUT] User logged out');
-                    window.location.href = 'index.html';
+            const response = await fetch(url, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                 }
-            );
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const result = await response.json();
+            console.log(`[DB FETCH SUCCESS] Table: ${table}, Results: ${result.length}`);
+            return result;
+        } catch (error) {
+            console.error('[DB FETCH ERROR]:', error);
+            throw error;
         }
+    }
 
-        window.onload = function() {
-            console.log('[WINDOW LOAD] Dashboard loading');
-            if (!sessionStorage.getItem('currentUserId')) {
-                console.log('[WINDOW LOAD] No user ID found, redirecting to login');
+    async function safeSupabaseInsert(table, data) {
+        console.log(`[DB INSERT] Table: ${table}`, data);
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const result = await response.json();
+            console.log('[DB INSERT SUCCESS]', result);
+            return result;
+        } catch (error) {
+            console.error('[DB INSERT ERROR]:', error);
+            throw error;
+        }
+    }
+
+    async function safeSupabaseUpdate(table, data, column, value) {
+        console.log(`[DB UPDATE] Table: ${table}, Where: ${column}=${value}`, data);
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const result = await response.json();
+            console.log('[DB UPDATE SUCCESS]', result);
+            return result;
+        } catch (error) {
+            console.error('[DB UPDATE ERROR]:', error);
+            throw error;
+        }
+    }
+
+    function showCustomAlert(message) {
+        console.log('[ALERT]', message);
+        const overlay = document.createElement('div');
+        overlay.className = 'custom-alert-overlay';
+        
+        overlay.innerHTML = `
+            <div class="custom-alert">
+                <div class="custom-alert-icon">
+                    <img src="assets/quant.png" alt="Uipath">
+                </div>
+                <div class="custom-alert-message">${message}</div>
+                <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+    }
+
+    // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ: Подтверждение с правильной обработкой callback
+    function showCustomConfirm(message, confirmCallback) {
+        console.log('[CONFIRM]', message);
+        const overlay = document.createElement('div');
+        overlay.className = 'custom-confirm-overlay';
+        
+        overlay.innerHTML = `
+            <div class="custom-confirm">
+                <div class="custom-alert-icon">
+                    <img src="assets/quant.png" alt="Uipath">
+                </div>
+                <div class="custom-alert-message">${message}</div>
+                <div class="custom-confirm-buttons">
+                    <button class="custom-confirm-button cancel">Cancel</button>
+                    <button class="custom-confirm-button confirm">Confirm</button>
+                </div>
+            </div>
+        `;
+        
+        // Правильная привязка событий
+        const confirmBtn = overlay.querySelector('.confirm');
+        const cancelBtn = overlay.querySelector('.cancel');
+        
+        confirmBtn.onclick = function() {
+            document.body.removeChild(overlay);
+            if (typeof confirmCallback === 'function') {
+                confirmCallback();
+            }
+        };
+        
+        cancelBtn.onclick = function() {
+            document.body.removeChild(overlay);
+        };
+        
+        document.body.appendChild(overlay);
+    }
+
+    async function loadAllData() {
+        console.log('[LOAD DATA] Starting data load');
+        try {
+            const userId = sessionStorage.getItem('currentUserId');
+            if (!userId) {
+                console.log('[LOAD DATA] No user ID found, redirecting to login');
                 window.location.href = 'index.html';
                 return;
             }
-            console.log('[WINDOW LOAD] User ID found, initializing app');
-            initApp();
-        };
-    </script>
+            
+            appState.currentUserId = userId;
+            console.log('[LOAD DATA] User ID:', userId);
+            
+            const users = await safeSupabaseFetch('users', '*', { id: userId });
+            if (users.length === 0) {
+                console.log('[LOAD DATA] User not found, redirecting to login');
+                sessionStorage.removeItem('currentUserId');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            appState.user = users[0];
+            console.log('[LOAD DATA] User loaded:', appState.user);
+            
+            appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
+                user_id: userId 
+            });
+            console.log('[LOAD DATA] VIP packages:', appState.activeVipPackages.length);
+            
+            appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
+            console.log('[LOAD DATA] Transactions:', appState.transactions.length);
+            
+            // Загрузка рефералов
+            const allReferrals = await safeSupabaseFetch('referrals', '*', { referrer_id: userId });
+            appState.referrals.gen1 = allReferrals.filter(ref => ref.level === 1);
+            appState.referrals.gen2 = allReferrals.filter(ref => ref.level === 2);
+            appState.referrals.gen3 = allReferrals.filter(ref => ref.level === 3);
+            console.log(`[LOAD DATA] Referrals: gen1=${appState.referrals.gen1.length}, gen2=${appState.referrals.gen2.length}, gen3=${appState.referrals.gen3.length}`);
+            
+            await processExpiredVipPackages();
+            console.log('[LOAD DATA] Data load completed successfully');
+            return true;
+        } catch (error) {
+            console.error('[LOAD DATA ERROR]:', error);
+            showCustomAlert('Error loading data. Please refresh the page.');
+            return false;
+        }
+    }
+
+    async function processExpiredVipPackages() {
+        console.log('[EXPIRY CHECK] Starting expired packages check');
+        try {
+            // Автоматическая обработка истекших пакетов
+            const now = new Date();
+            const expiredPackages = appState.activeVipPackages.filter(purchase => {
+                const purchaseDate = new Date(purchase.purchase_date);
+                const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+                return purchase.active && !purchase.deposit_returned && now >= expiryDate;
+            });
+
+            for (const purchase of expiredPackages) {
+                // Возвращаем депозит
+                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                if (vipPackage) {
+                    // Обновляем баланс пользователя
+                    const newBalance = appState.user.balance + vipPackage.price;
+                    await safeSupabaseUpdate('users', 
+                        { balance: newBalance }, 
+                        'id', 
+                        appState.currentUserId
+                    );
+
+                    // Помечаем пакет как неактивный и возвращенный
+                    await safeSupabaseUpdate('vip_purchases', 
+                        { active: false, deposit_returned: true }, 
+                        'id', 
+                        purchase.id
+                    );
+
+                    // Создаем транзакцию возврата
+                    const returnTransaction = {
+                        user_id: appState.currentUserId,
+                        type: 'deposit_return',
+                        title: `VIP ${vipPackage.level} Deposit Return`,
+                        amount: vipPackage.price,
+                        positive: true,
+                        created_at: new Date().toISOString()
+                    };
+                    await safeSupabaseInsert('transactions', returnTransaction);
+
+                    console.log(`[EXPIRY CHECK] Returned deposit for VIP ${vipPackage.level}: ${vipPackage.price} USDT`);
+                }
+            }
+
+            if (expiredPackages.length > 0) {
+                // Перезагружаем данные
+                await loadAllData();
+            }
+            
+        } catch (error) {
+            console.error('[EXPIRY CHECK ERROR]:', error);
+        }
+    }
+
+    async function initApp() {
+        console.log('[APP INIT] Starting application initialization');
+        const success = await loadAllData();
+        if (!success) return;
+        
+        renderVIPPackages();
+        updateUI();
+        updateClaimButton();
+        startTimer();
+        startCarousel();
+        updateVerificationStatus();
+        console.log('[APP INIT] Application initialized successfully');
+    }
+
+    function startCarousel() {
+        console.log('[CAROUSEL] Starting carousel');
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+            console.log(`[CAROUSEL] Slide changed to: ${currentSlide}`);
+        }, 5000);
+    }
+
+    function toggleVideo() {
+        console.log('[VIDEO] Toggle video');
+        const video = document.getElementById('promoVideo');
+        const playBtn = document.querySelector('.play-btn');
+        
+        if (video.paused) {
+            video.play();
+            playBtn.style.display = 'none';
+            console.log('[VIDEO] Video playing');
+        } else {
+            video.pause();
+            playBtn.style.display = 'flex';
+            console.log('[VIDEO] Video paused');
+        }
+    }
+
+    function showTransactionType(type) {
+        console.log(`[TRANSACTIONS] Showing type: ${type}`);
+        const tabs = document.querySelectorAll('.transaction-tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        
+        updateTransactionsHistory(type);
+    }
+
+    function updateTransactionsHistory(type = 'all') {
+        console.log(`[TRANSACTIONS] Updating history for type: ${type}`);
+        const transactionHistory = document.getElementById('transaction-history');
+        const transactionHistoryAssets = document.getElementById('transaction-history-assets');
+        
+        if (transactionHistory) updateTransactionList(transactionHistory, type);
+        if (transactionHistoryAssets) updateTransactionList(transactionHistoryAssets, type);
+    }
+
+    function updateTransactionList(container, type = 'all') {
+        console.log(`[TRANSACTIONS] Updating list for container, type: ${type}`);
+        container.innerHTML = '';
+        
+        let filteredTransactions = appState.transactions;
+        
+        if (type !== 'all') {
+            filteredTransactions = appState.transactions.filter(transaction => {
+                if (type === 'deposits') return transaction.type === 'deposit';
+                if (type === 'withdrawals') return transaction.type === 'withdraw';
+                if (type === 'referrals') return transaction.type === 'referral';
+                if (type === 'quantification') return transaction.type === 'daily_income';
+                return true;
+            });
+        }
+        
+        console.log(`[TRANSACTIONS] Filtered transactions: ${filteredTransactions.length}`);
+        
+        if (filteredTransactions.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No transactions found</div>';
+            return;
+        }
+        
+        filteredTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        filteredTransactions.forEach(transaction => {
+            const transactionItem = document.createElement('div');
+            transactionItem.className = 'transaction-item';
+            
+            let iconClass = '';
+            let icon = '';
+            
+            switch(transaction.type) {
+                case 'deposit':
+                    iconClass = 'deposit';
+                    icon = 'fa-arrow-down';
+                    break;
+                case 'withdraw':
+                    iconClass = 'withdraw';
+                    icon = 'fa-arrow-up';
+                    break;
+                case 'bonus':
+                    iconClass = 'deposit';
+                    icon = 'fa-gift';
+                    break;
+                case 'referral':
+                    iconClass = 'deposit';
+                    icon = 'fa-users';
+                    break;
+                case 'vip_purchase':
+                    iconClass = 'withdraw';
+                    icon = 'fa-crown';
+                    break;
+                case 'daily_income':
+                    iconClass = 'deposit';
+                    icon = 'fa-coins';
+                    break;
+                case 'deposit_return':
+                    iconClass = 'deposit';
+                    icon = 'fa-undo';
+                    break;
+                default:
+                    iconClass = 'deposit';
+                    icon = 'fa-coins';
+            }
+            
+            transactionItem.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 30px; height: 30px; border-radius: 50%; background: ${transaction.positive ? 'rgba(76,217,100,0.1)' : 'rgba(255,59,48,0.1)'}; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas ${icon}" style="color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:600;">${transaction.title}</div>
+                        <div style="font-size:12px; color:var(--gray);">${formatDate(new Date(transaction.created_at))}</div>
+                    </div>
+                </div>
+                <div style="font-weight:600; color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};">
+                    ${transaction.positive ? '+' : '-'}${formatCurrency(transaction.amount)} USDT
+                </div>
+            `;
+            
+            container.appendChild(transactionItem);
+        });
+    }
+
+    function renderVIPPackages() {
+        console.log('[VIP] Rendering packages');
+        const packagesList = document.getElementById('vip-packages-list');
+        packagesList.innerHTML = '';
+        
+        vipPackages.forEach(pkg => {
+            const isPurchased = appState.activeVipPackages.some(purchase => 
+                purchase.vip_package_id === pkg.id && purchase.active === true
+            );
+            const packageElement = document.createElement('div');
+            let packageClass = 'vip-package';
+            if (isPurchased) packageClass += ' active';
+            
+            packageElement.className = packageClass;
+            packageElement.style.backgroundImage = `url('${pkg.bgImage}')`;
+            packageElement.onclick = () => purchaseVIPPackage(pkg);
+            
+            packageElement.innerHTML = `
+                <div>
+                    <div style="font-weight:600; font-size:16px; color: white;">VIP ${pkg.level}</div>
+                    <div style="font-size:14px; color: white;">${formatCurrency(pkg.price)} USDT</div>
+                    <div style="font-size:12px; opacity:0.9; color: white;">+${formatCurrency(pkg.dailyIncome)} USDT/day</div>
+                    <div style="font-size:10px; opacity:0.8; color: white;">${pkg.percentage}% daily for 30 days</div>
+                </div>
+                <div class="vip-icon">
+                    <img src="${pkg.icon}" alt="VIP ${pkg.level}">
+                </div>
+                <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: white; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
+                    ${isPurchased ? 'ACTIVE' : 'BUY'}
+                </div>
+            `;
+            
+            packagesList.appendChild(packageElement);
+        });
+        console.log('[VIP] Packages rendered');
+    }
+
+    // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ: Покупка VIP пакета
+    async function purchaseVIPPackage(pkg) {
+        console.log(`[VIP PURCHASE] Attempting to purchase VIP ${pkg.level}`);
+        
+        // Сначала пробуем через прямую вставку
+        await purchaseVIPPackageDirect(pkg);
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(amount);
+    }
+
+    function formatDate(date) {
+        return new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    }
+
+    function updateClaimButton() {
+        console.log('[CLAIM BUTTON] Updating claim button state');
+        const claimButton = document.getElementById('claim-button');
+        const claimTimer = document.getElementById('claim-timer');
+        
+        const availableIncome = calculateDailyIncome();
+        const canClaim = canClaimDailyIncome();
+        
+        console.log(`[CLAIM BUTTON] availableIncome=${availableIncome}, canClaim=${canClaim}`);
+        
+        if (availableIncome === 0) {
+            claimButton.disabled = true;
+            claimButton.innerHTML = '<i class="fas fa-bolt"></i> NO AVAILABLE INCOME';
+            claimTimer.textContent = 'Buy a VIP package to earn income';
+            console.log('[CLAIM BUTTON] No available income');
+            return;
+        }
+        
+        if (canClaim) {
+            claimButton.disabled = false;
+            claimButton.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
+            
+            const nextClaim = getNextClaimTime();
+            const now = new Date();
+            const timeLeft = nextClaim - now;
+            const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            
+            claimTimer.textContent = `Available for: ${hoursLeft}h ${minutesLeft}m`;
+            console.log(`[CLAIM BUTTON] Can claim, available for: ${hoursLeft}h ${minutesLeft}m`);
+        } else {
+            claimButton.disabled = true;
+            claimButton.innerHTML = '<i class="fas fa-bolt"></i> ALREADY CLAIMED';
+            
+            const nextClaim = getNextClaimTime();
+            const now = new Date();
+            const timeLeft = nextClaim - now;
+            const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            
+            claimTimer.textContent = `Next claim: ${hoursLeft}h ${minutesLeft}m`;
+            console.log(`[CLAIM BUTTON] Already claimed, next claim in: ${hoursLeft}h ${minutesLeft}m`);
+        }
+    }
+
+    function startTimer() {
+        console.log('[TIMER] Starting claim button update timer');
+        setInterval(updateClaimButton, 60000);
+    }
+
+    async function claimDailyIncome() {
+        console.log('[CLAIM INCOME] Claim daily income initiated');
+        const claimBtn = document.getElementById('claim-button');
+        
+        if (claimBtn.disabled) {
+            console.log('[CLAIM INCOME] Button disabled, cannot claim');
+            showCustomAlert('You cannot claim income at this time. Please check the timer.');
+            return;
+        }
+        
+        const dailyIncome = calculateDailyIncome();
+        
+        if (dailyIncome === 0) {
+            console.log('[CLAIM INCOME] No daily income available');
+            showCustomAlert('No available income to claim. Purchase a VIP package to start earning.');
+            return;
+        }
+        
+        if (!canClaimDailyIncome()) {
+            console.log('[CLAIM INCOME] Cannot claim - already claimed today');
+            showCustomAlert('You have already claimed your daily income. Come back tomorrow at 22:00 UTC.');
+            return;
+        }
+        
+        console.log('[CLAIM INCOME] All checks passed, starting trading process');
+        await startTradingProcess(dailyIncome);
+    }
+
+    async function startTradingProcess(dailyIncome) {
+        console.log(`[TRADING PROCESS] Starting with income: ${dailyIncome}`);
+        const claimBtn = document.getElementById('claim-button');
+        const steps = [1, 2, 3];
+        
+        claimBtn.disabled = true;
+        claimBtn.classList.add('processing');
+        claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
+        
+        for (let i = 0; i < steps.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const step = steps[i];
+            const stepIcon = document.getElementById(`step-${step}`);
+            stepIcon.classList.add('active');
+            
+            if (step === 1) {
+                claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
+                console.log('[TRADING PROCESS] Step 1 completed');
+            } else if (step === 2) {
+                claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
+                console.log('[TRADING PROCESS] Step 2 completed');
+            } else if (step === 3) {
+                claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
+                claimBtn.classList.remove('processing');
+                claimBtn.classList.add('completed');
+                
+                try {
+                    // Обновляем баланс пользователя
+                    const newBalance = appState.user.balance + dailyIncome;
+                    await safeSupabaseUpdate('users', 
+                        { 
+                            balance: newBalance, 
+                            last_claim_date: new Date().toISOString() 
+                        }, 
+                        'id', 
+                        appState.currentUserId
+                    );
+
+                    // Создаем транзакцию дохода
+                    const incomeTransaction = {
+                        user_id: appState.currentUserId,
+                        type: 'daily_income',
+                        title: 'Daily Quantification Income',
+                        amount: dailyIncome,
+                        positive: true,
+                        created_at: new Date().toISOString()
+                    };
+                    await safeSupabaseInsert('transactions', incomeTransaction);
+
+                    // Обновляем состояние приложения
+                    await loadAllData();
+                    updateUI();
+                    
+                    console.log(`[TRADING PROCESS] Income claimed: ${dailyIncome}`);
+                    showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
+                } catch (error) {
+                    console.error('[CLAIM INCOME ERROR]:', error);
+                    showCustomAlert('Failed to claim income. Please try again.');
+                }
+                
+                setTimeout(() => {
+                    resetTradingProcess();
+                }, 3000);
+            }
+        }
+    }
+
+    function resetTradingProcess() {
+        console.log('[TRADING PROCESS] Resetting trading process');
+        const claimBtn = document.getElementById('claim-button');
+        const steps = [1, 2, 3];
+        
+        claimBtn.classList.remove('processing', 'completed');
+        claimBtn.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
+        
+        steps.forEach(step => {
+            const stepIcon = document.getElementById(`step-${step}`);
+            stepIcon.classList.remove('active');
+        });
+        
+        updateClaimButton();
+    }
+
+    function updateUI() {
+        console.log('[UI UPDATE] Updating user interface');
+        if (!appState.user) return;
+        
+        document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
+        
+        const referralIncome = appState.transactions
+            .filter(t => t.type === 'referral' && t.positive)
+            .reduce((sum, t) => sum + t.amount, 0);
+        const bonusIncome = appState.transactions
+            .filter(t => t.type === 'bonus' && t.positive)
+            .reduce((sum, t) => sum + t.amount, 0);
+        const quantIncome = appState.transactions
+            .filter(t => t.type === 'daily_income' && t.positive)
+            .reduce((sum, t) => sum + t.amount, 0);
+        
+        document.getElementById('referral-balance').textContent = `${formatCurrency(referralIncome)} USDT`;
+        document.getElementById('bonus-balance').textContent = `${formatCurrency(bonusIncome)} USDT`;
+        document.getElementById('quant-balance').textContent = `${formatCurrency(quantIncome)} USDT`;
+        document.getElementById('available-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
+        
+        document.getElementById('profile-name').textContent = appState.user.name;
+        document.getElementById('profile-id').textContent = appState.user.id;
+        document.getElementById('email').value = appState.user.email;
+        
+        document.getElementById('vip-level-display').textContent = `VIP ${appState.user.vip_level}`;
+        
+        const referralLink = `${window.location.origin}/index.html?ref=${appState.user.referral_code}`;
+        document.getElementById('referral-link').textContent = referralLink;
+        document.getElementById('team-referral-link').textContent = referralLink;
+        
+        updateTeamScreen();
+        updateEarnScreen();
+        updateTransactionsHistory('all');
+        console.log('[UI UPDATE] User interface updated');
+    }
+
+    function updateTeamScreen() {
+        console.log('[TEAM SCREEN] Updating team screen');
+        document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
+        document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
+        document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
+        
+        const gen1Income = calculateReferralIncome(1);
+        const gen2Income = calculateReferralIncome(2);
+        const gen3Income = calculateReferralIncome(3);
+        
+        document.getElementById('gen1-income').textContent = `${formatCurrency(gen1Income)} USDT`;
+        document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
+        document.getElementById('gen3-income').textContent = `${formatCurrency(gen3Income)} USDT`;
+        
+        const referralList = document.getElementById('referral-list');
+        referralList.innerHTML = '';
+        
+        if (appState.referrals.gen1.length === 0) {
+            referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No referrals yet</div>';
+            return;
+        }
+        
+        appState.referrals.gen1.forEach(ref => {
+            const referralItem = document.createElement('div');
+            referralItem.className = 'referral-item';
+            
+            const referralIncome = calculateReferralIncomeForUser(ref.referred_id);
+            
+            referralItem.innerHTML = `
+                <div class="referral-info">
+                    <div class="referral-avatar">${ref.referred_id.substring(2, 4)}</div>
+                    <div>
+                        <div class="name" style="font-weight:600;">User ${ref.referred_id}</div>
+                        <div class="date" style="font-size:11px; color:var(--gray);">Level 1</div>
+                    </div>
+                </div>
+                <div class="referral-income" style="font-weight:600; color:var(--success);">+${formatCurrency(referralIncome)} USDT</div>
+            `;
+            referralList.appendChild(referralItem);
+        });
+    }
+
+    function calculateReferralIncome(level) {
+        const income = appState.transactions
+            .filter(t => t.type === 'referral' && t.title.includes(`Level ${level}`))
+            .reduce((sum, t) => sum + t.amount, 0);
+        console.log(`[REFERRAL INCOME CALC] Level ${level}: ${income}`);
+        return income;
+    }
+
+    function calculateReferralIncomeForUser(userId) {
+        const income = appState.transactions
+            .filter(t => t.type === 'referral' && t.title.includes(userId))
+            .reduce((sum, t) => sum + t.amount, 0);
+        return income;
+    }
+
+    function updateEarnScreen() {
+        console.log('[EARN SCREEN] Updating earn screen');
+        const dailyIncome = calculateDailyIncome();
+        
+        document.getElementById('available-income').textContent = `${formatCurrency(dailyIncome)} USDT`;
+        
+        let percentage = 0;
+        const totalInvested = appState.activeVipPackages
+            .filter(p => p.active && !p.deposit_returned)
+            .reduce((sum, purchase) => {
+                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                return sum + (vipPackage ? vipPackage.price : 0);
+            }, 0);
+        
+        if (totalInvested > 0) {
+            percentage = (dailyIncome / totalInvested) * 100;
+        }
+        document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
+        console.log(`[EARN SCREEN] Daily income: ${dailyIncome}, percentage: ${percentage}%`);
+    }
+
+    function updateVerificationStatus() {
+        console.log('[VERIFICATION] Updating verification status');
+        const phoneStatus = document.getElementById('phone-status');
+        const phoneText = document.getElementById('phone-text');
+        const phoneButton = document.getElementById('phone-button');
+        
+        const idStatus = document.getElementById('id-status');
+        const idText = document.getElementById('id-text');
+        const idButton = document.getElementById('id-button');
+        
+        if (appState.user.phone_verified) {
+            phoneStatus.className = 'status-icon verified';
+            phoneStatus.innerHTML = '<i class="fas fa-check"></i>';
+            phoneText.textContent = 'Verified';
+            phoneButton.textContent = 'Verified';
+            phoneButton.disabled = true;
+            phoneButton.style.background = '#c7c7cc';
+        } else {
+            phoneStatus.className = 'status-icon';
+            phoneStatus.innerHTML = '<i class="fas fa-times"></i>';
+            phoneText.textContent = 'Not verified';
+            phoneButton.textContent = 'Verify';
+            phoneButton.disabled = false;
+            phoneButton.style.background = '';
+        }
+        
+        if (appState.user.id_verified) {
+            idStatus.className = 'status-icon verified';
+            idStatus.innerHTML = '<i class="fas fa-check"></i>';
+            idText.textContent = 'Verified';
+            idButton.textContent = 'Verified';
+            idButton.disabled = true;
+            idButton.style.background = '#c7c7cc';
+        } else {
+            idStatus.className = 'status-icon';
+            idStatus.innerHTML = '<i class="fas fa-times"></i>';
+            idText.textContent = 'Not verified';
+            idButton.textContent = 'Verify';
+            idButton.disabled = false;
+            idButton.style.background = '';
+        }
+    }
+
+    function showPage(pageId) {
+        console.log(`[PAGE NAV] Showing page: ${pageId}`);
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        
+        document.getElementById(pageId).classList.add('active');
+        
+        updateNavActiveState(pageId);
+    }
+    
+    function updateNavActiveState(pageId) {
+        const navItems = document.querySelectorAll('.uni-tabbar-item');
+        navItems.forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        if (pageId === 'mainPage') {
+            navItems[0].classList.add('active');
+        } else if (pageId === 'vipPage') {
+            navItems[1].classList.add('active');
+        } else if (pageId === 'earnPage') {
+            navItems[2].classList.add('active');
+        } else if (pageId === 'assetsPage') {
+            navItems[3].classList.add('active');
+        } else if (pageId === 'profilePage') {
+            navItems[4].classList.add('active');
+        }
+        console.log(`[NAV] Active page: ${pageId}`);
+    }
+
+    function copyToClipboard(elementId) {
+        console.log(`[CLIPBOARD] Copying from element: ${elementId}`);
+        const element = document.getElementById(elementId);
+        let text = element.textContent || element.innerText;
+        
+        if (elementId === 'profile-id') {
+            text = appState.user.id;
+        }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = element.textContent;
+            element.textContent = 'Copied!';
+            setTimeout(() => {
+                element.textContent = originalText;
+            }, 2000);
+            console.log('[CLIPBOARD] Text copied successfully');
+        }).catch(() => {
+            console.error('[CLIPBOARD] Failed to copy text');
+            showCustomAlert('Failed to copy to clipboard');
+        });
+    }
+
+    function verifyPhone() {
+        console.log('[VERIFICATION] Phone verification initiated');
+        const phoneNumber = prompt('Please enter your phone number for verification:');
+        if (phoneNumber) {
+            setTimeout(async () => {
+                await safeSupabaseUpdate('users', { phone_verified: true }, 'id', appState.currentUserId);
+                appState.user.phone_verified = true;
+                updateVerificationStatus();
+                console.log('[VERIFICATION] Phone verified successfully');
+                showCustomAlert('Phone number verified successfully!');
+            }, 1500);
+        }
+    }
+
+    function verifyID() {
+        console.log('[VERIFICATION] ID verification initiated');
+        const idNumber = prompt('Please enter your ID or Passport number:');
+        if (idNumber) {
+            setTimeout(async () => {
+                await safeSupabaseUpdate('users', { id_verified: true }, 'id', appState.currentUserId);
+                appState.user.id_verified = true;
+                updateVerificationStatus();
+                console.log('[VERIFICATION] ID verified successfully');
+                showCustomAlert('ID/Passport verified successfully!');
+            }, 1500);
+        }
+    }
+
+    function updatePassword() {
+        console.log('[PASSWORD] Password update requested');
+        showCustomAlert('Password change feature will be implemented in the next update');
+    }
+
+    // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ: Выход из системы
+    function logout() {
+        console.log('[LOGOUT] Logout initiated');
+        showCustomConfirm(
+            'Are you sure you want to logout?',
+            function() {
+                sessionStorage.removeItem('currentUserId');
+                console.log('[LOGOUT] User logged out');
+                window.location.href = 'index.html';
+            }
+        );
+    }
+
+    window.onload = function() {
+        console.log('[WINDOW LOAD] Dashboard loading');
+        if (!sessionStorage.getItem('currentUserId')) {
+            console.log('[WINDOW LOAD] No user ID found, redirecting to login');
+            window.location.href = 'index.html';
+            return;
+        }
+        console.log('[WINDOW LOAD] User ID found, initializing app');
+        initApp();
+    };
+</script>
 </body>
 </html>
+
