@@ -181,45 +181,43 @@
             color: var(--gray);
         }
 
-        .deposit-form {
+        .deposit-history {
             margin-top: 20px;
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
+        .history-amount {
             font-weight: 600;
-            font-size: 14px;
+            color: var(--success);
         }
 
-        .uni-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e5e5e5;
-            border-radius: 5px;
-            font-size: 16px;
-            background: var(--white);
+        .history-date {
+            font-size: 12px;
+            color: var(--gray);
         }
 
-        .uni-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            width: 100%;
-            margin: 10px 0;
-            cursor: pointer;
+        .history-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
             font-weight: 600;
-            border-radius: 5px;
         }
 
-        .uni-button:hover {
-            background: var(--primary-light);
+        .status-confirmed {
+            background: rgba(76, 217, 100, 0.1);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: rgba(255, 157, 0, 0.1);
+            color: var(--accent);
         }
 
         .custom-alert-overlay {
@@ -380,15 +378,11 @@
             </div>
 
             <div class="deposit-card">
-                <div class="card-title">Manual Deposit Check</div>
-                <div class="deposit-form">
-                    <div class="form-group">
-                        <label class="form-label">Transaction Hash (Optional)</label>
-                        <input type="text" id="txHash" class="uni-input" placeholder="Enter your transaction hash for faster processing">
+                <div class="card-title">Deposit History</div>
+                <div class="deposit-history" id="depositHistory">
+                    <div style="text-align: center; color: var(--gray); padding: 20px 0;">
+                        Loading deposit history...
                     </div>
-                    <button class="uni-button" onclick="checkDeposit()">
-                        <i class="fas fa-sync-alt"></i> Check Deposit Status
-                    </button>
                 </div>
             </div>
         </div>
@@ -402,9 +396,7 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
-
+        const API_BASE_URL = 'https://your-app.railway.app'; // Замените на ваш Railway URL
         let currentNetwork = 'trc20';
         let currentUserId = null;
 
@@ -447,6 +439,7 @@
             document.querySelector(`[data-network="${network}"]`).classList.add('active');
             
             generateWalletAddress();
+            loadDepositHistory();
         }
 
         async function generateWalletAddress() {
@@ -461,7 +454,7 @@
                 
                 currentUserId = userId;
                 
-                const response = await fetch(`https://api.uipath.finance/deposit/generate?user_id=${userId}&network=${currentNetwork}`);
+                const response = await fetch(`${API_BASE_URL}/api/deposit/generate?user_id=${userId}&network=${currentNetwork}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -480,6 +473,43 @@
             }
         }
 
+        async function loadDepositHistory() {
+            try {
+                const userId = sessionStorage.getItem('currentUserId');
+                if (!userId) return;
+
+                const response = await fetch(`${API_BASE_URL}/api/deposit/history?user_id=${userId}&network=${currentNetwork}`);
+                const data = await response.json();
+                
+                const historyContainer = document.getElementById('depositHistory');
+                
+                if (data.success && data.deposits && data.deposits.length > 0) {
+                    let historyHTML = '';
+                    data.deposits.forEach(deposit => {
+                        const date = new Date(deposit.created_at).toLocaleDateString();
+                        const time = new Date(deposit.created_at).toLocaleTimeString();
+                        
+                        historyHTML += `
+                            <div class="history-item">
+                                <div>
+                                    <div class="history-amount">+${parseFloat(deposit.amount).toFixed(2)} USDT</div>
+                                    <div class="history-date">${date} ${time}</div>
+                                </div>
+                                <div class="history-status status-confirmed">CONFIRMED</div>
+                            </div>
+                        `;
+                    });
+                    
+                    historyContainer.innerHTML = historyHTML;
+                } else {
+                    historyContainer.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No deposit history</div>';
+                }
+            } catch (error) {
+                console.error('Error loading deposit history:', error);
+                document.getElementById('depositHistory').innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Error loading history</div>';
+            }
+        }
+
         function copyAddress() {
             const address = document.getElementById('walletAddress').textContent;
             
@@ -495,67 +525,11 @@
             });
         }
 
-        async function checkDeposit() {
-            const txHash = document.getElementById('txHash').value.trim();
-            showLoading();
-            
-            try {
-                const userId = sessionStorage.getItem('currentUserId');
-                if (!userId) {
-                    window.location.href = 'index.html';
-                    return;
-                }
-                
-                const response = await fetch('https://api.uipath.finance/deposit/check', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        network: currentNetwork,
-                        tx_hash: txHash || null
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    if (data.deposited) {
-                        showCustomAlert(`Deposit confirmed! ${data.amount} USDT has been added to your balance.`);
-                    } else {
-                        showCustomAlert('No deposit found. Please wait for blockchain confirmation.');
-                    }
-                } else {
-                    showCustomAlert('Deposit check failed. Please try again.');
-                }
-            } catch (error) {
-                console.error('Deposit check error:', error);
-                showCustomAlert('Network error during deposit check.');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        async function safeSupabaseUpdate(table, data, column, value) {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return await response.json();
-            } catch (error) {
-                console.error('DB update error:', error);
-                throw error;
-            }
+        // Auto-check for new deposits every 30 seconds
+        function startDepositMonitoring() {
+            setInterval(() => {
+                loadDepositHistory();
+            }, 30000);
         }
 
         window.onload = function() {
@@ -565,26 +539,8 @@
             }
             
             generateWalletAddress();
-            
-            setInterval(async () => {
-                try {
-                    const userId = sessionStorage.getItem('currentUserId');
-                    const response = await fetch(`https://api.uipath.finance/deposit/status?user_id=${userId}&network=${currentNetwork}`);
-                    const data = await response.json();
-                    
-                    if (data.success && data.deposited) {
-                        showCustomAlert(`Deposit detected! ${data.amount} USDT has been added to your account.`);
-                        
-                        const users = await safeSupabaseUpdate('users', 
-                            { balance: data.new_balance }, 
-                            'id', 
-                            userId
-                        );
-                    }
-                } catch (error) {
-                    console.error('Auto-check error:', error);
-                }
-            }, 30000);
+            loadDepositHistory();
+            startDepositMonitoring();
         };
     </script>
 </body>
