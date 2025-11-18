@@ -779,7 +779,7 @@
                     id_verified: false,
                     created_at: new Date().toISOString()
                 };
-                
+        
                 const result = await safeSupabaseInsert('users', userData);
                 
                 if (result) {
