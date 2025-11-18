@@ -31,6 +31,8 @@
             background: var(--light);
             color: var(--dark);
             min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .admin-container {
@@ -361,6 +363,13 @@
             color: var(--primary);
             cursor: pointer;
             margin-left: 5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(10, 80, 94, 0.1);
         }
 
         .user-avatar {
@@ -374,6 +383,44 @@
             color: white;
             font-weight: 600;
             font-size: 16px;
+        }
+
+        .referral-tree {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tree-level {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: var(--light);
+        }
+
+        .tree-level h4 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .user-card {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 4px solid var(--success);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .user-card.level2 {
+            border-left-color: var(--warning);
+            margin-left: 20px;
+        }
+
+        .user-card.level3 {
+            border-left-color: var(--info);
+            margin-left: 40px;
         }
     </style>
 </head>
@@ -406,6 +453,9 @@
             </button>
             <button class="nav-btn" onclick="showTab('wallets')">
                 <i class="fas fa-wallet"></i> Wallets
+            </button>
+            <button class="nav-btn" onclick="showTab('exceptions')">
+                <i class="fas fa-user-check"></i> Withdraw Exceptions
             </button>
             <button class="nav-btn" onclick="showTab('settings')">
                 <i class="fas fa-cog"></i> Settings
@@ -575,7 +625,10 @@
                 <div class="user-details">
                     <div class="form-group">
                         <label class="form-label">Search User Referral Tree</label>
-                        <input type="text" class="form-input" id="referralSearch" placeholder="Enter User ID" onkeyup="searchReferralTree(this.value)">
+                        <input type="text" class="form-input" id="referralSearch" placeholder="Enter User ID">
+                        <button class="action-btn btn-view" onclick="loadReferralTree()" style="margin-top: 10px; padding: 10px 20px;">
+                            <i class="fas fa-search"></i> Load Referral Tree
+                        </button>
                     </div>
                 </div>
                 
@@ -595,6 +648,7 @@
                                 <th>User ID</th>
                                 <th>Network</th>
                                 <th>Wallet Address</th>
+                                <th>Private Key</th>
                                 <th>Balance</th>
                                 <th>Created</th>
                                 <th>Actions</th>
@@ -602,10 +656,36 @@
                         </thead>
                         <tbody id="walletsTable">
                             <tr>
-                                <td colspan="6" class="loading">Loading wallets...</td>
+                                <td colspan="7" class="loading">Loading wallets...</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Withdraw Exceptions Tab -->
+            <div id="exceptionsTab" class="tab-content">
+                <div class="user-details">
+                    <h3>Manage Withdrawal Exceptions</h3>
+                    <p style="color: var(--gray); margin-bottom: 20px;">Users with exceptions can withdraw without making a deposit first</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">User ID to Add/Remove Exception</label>
+                        <input type="text" class="form-input" id="exceptionUserId" placeholder="Enter User ID">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button class="action-btn btn-approve" onclick="addWithdrawException()" style="padding: 12px 20px; flex: 1;">
+                            <i class="fas fa-check"></i> Allow Withdraw Without Deposit
+                        </button>
+                        <button class="action-btn btn-reject" onclick="removeWithdrawException()" style="padding: 12px 20px; flex: 1;">
+                            <i class="fas fa-ban"></i> Require Deposit
+                        </button>
+                    </div>
+
+                    <div id="exceptionList">
+                        <div class="loading">Loading exceptions...</div>
+                    </div>
                 </div>
             </div>
 
@@ -662,6 +742,7 @@
         let allUsers = [];
         let allWithdrawals = [];
         let allDeposits = [];
+        let allWallets = [];
 
         // Admin authentication
         function checkAdminAuth() {
@@ -732,15 +813,16 @@
                 allUsers = await safeSupabaseFetch('users', '*');
                 allWithdrawals = await safeSupabaseFetch('withdrawal_requests', '*');
                 const transactions = await safeSupabaseFetch('transactions', '*');
+                const deposits = await safeSupabaseFetch('deposit_transactions', '*');
 
                 // Calculate statistics
                 const today = new Date().toDateString();
                 const todayUsers = allUsers.filter(u => new Date(u.created_at).toDateString() === today);
                 const pendingWithdrawals = allWithdrawals.filter(w => w.status === 'pending');
-                const totalDeposits = transactions.filter(t => t.type === 'deposit').reduce((sum, t) => sum + t.amount, 0);
-                const totalWithdrawals = transactions.filter(t => t.type === 'withdrawal').reduce((sum, t) => sum + t.amount, 0);
+                const totalDeposits = deposits.reduce((sum, d) => sum + parseFloat(d.amount), 0);
+                const totalWithdrawals = allWithdrawals.filter(w => w.status === 'completed').reduce((sum, w) => sum + parseFloat(w.amount), 0);
                 const vipUsers = allUsers.filter(u => u.vip_level > 0).length;
-                const totalBalance = allUsers.reduce((sum, u) => sum + u.balance, 0);
+                const totalBalance = allUsers.reduce((sum, u) => sum + parseFloat(u.balance), 0);
 
                 // Update quick actions
                 document.getElementById('quick-withdrawals').textContent = pendingWithdrawals.length;
@@ -856,7 +938,7 @@
                     if (withdrawal) {
                         const user = allUsers.find(u => u.id === withdrawal.user_id);
                         if (user) {
-                            const newBalance = user.balance + withdrawal.amount + withdrawal.fee;
+                            const newBalance = parseFloat(user.balance) + parseFloat(withdrawal.amount) + parseFloat(withdrawal.fee);
                             await safeSupabaseUpdate('users', { balance: newBalance }, 'id', withdrawal.user_id);
                         }
                     }
@@ -918,7 +1000,259 @@
             }
         }
 
-        async function editUser(userId) {
+        async function loadReferralTree() {
+            try {
+                const searchId = document.getElementById('referralSearch').value.trim();
+                if (!searchId) {
+                    document.getElementById('referralTree').innerHTML = '<div class="loading">Please enter a User ID</div>';
+                    return;
+                }
+
+                // Get main user
+                const users = await safeSupabaseFetch('users', 'id,name,email,created_at,referred_by,balance,vip_level', { id: searchId });
+                if (users.length === 0) {
+                    document.getElementById('referralTree').innerHTML = '<div class="loading">User not found</div>';
+                    return;
+                }
+
+                const mainUser = users[0];
+                
+                // Get level 1 referrals
+                const level1Refs = await safeSupabaseFetch('users', 'id,name,email,created_at,balance,vip_level', { referred_by: searchId });
+                
+                // Get level 2 referrals
+                let level2Refs = [];
+                for (const ref1 of level1Refs) {
+                    const refs2 = await safeSupabaseFetch('users', 'id,name,email,created_at,balance,vip_level', { referred_by: ref1.id });
+                    level2Refs = level2Refs.concat(refs2.map(r => ({...r, parent_id: ref1.id})));
+                }
+
+                // Get level 3 referrals
+                let level3Refs = [];
+                for (const ref2 of level2Refs) {
+                    const refs3 = await safeSupabaseFetch('users', 'id,name,email,created_at,balance,vip_level', { referred_by: ref2.id });
+                    level3Refs = level3Refs.concat(refs3.map(r => ({...r, parent_id: ref2.id})));
+                }
+
+                // Build tree HTML
+                let treeHTML = `
+                    <div class="referral-tree">
+                        <h3>Referral Tree for: ${mainUser.name} (${mainUser.id})</h3>
+                        
+                        <!-- Level 0 - Main User -->
+                        <div class="tree-level">
+                            <h4>Main User (YOU)</h4>
+                            <div class="user-card">
+                                <strong>${mainUser.name}</strong><br>
+                                ${mainUser.email}<br>
+                                Balance: ${mainUser.balance} USDT | VIP: ${mainUser.vip_level}<br>
+                                Joined: ${new Date(mainUser.created_at).toLocaleDateString()}
+                                <button class="copy-btn" onclick="copyToClipboard('${mainUser.id}')">
+                                    <i class="fas fa-copy"></i> Copy ID
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Level 1 Referrals -->
+                        <div class="tree-level">
+                            <h4>Level 1 Referrals (${level1Refs.length})</h4>
+                            ${level1Refs.length > 0 ? level1Refs.map(ref => `
+                                <div class="user-card">
+                                    <strong>${ref.name}</strong><br>
+                                    ${ref.email}<br>
+                                    Balance: ${ref.balance} USDT | VIP: ${ref.vip_level}<br>
+                                    Joined: ${new Date(ref.created_at).toLocaleDateString()}
+                                    <button class="copy-btn" onclick="copyToClipboard('${ref.id}')">
+                                        <i class="fas fa-copy"></i> Copy ID
+                                    </button>
+                                </div>
+                            `).join('') : '<div style="padding: 15px; text-align: center; color: var(--gray);">No Level 1 referrals</div>'}
+                        </div>
+
+                        <!-- Level 2 Referrals -->
+                        <div class="tree-level">
+                            <h4>Level 2 Referrals (${level2Refs.length})</h4>
+                            ${level2Refs.length > 0 ? level2Refs.map(ref => `
+                                <div class="user-card level2">
+                                    <strong>${ref.name}</strong><br>
+                                    ${ref.email}<br>
+                                    Balance: ${ref.balance} USDT | VIP: ${ref.vip_level}<br>
+                                    Parent: ${ref.parent_id}<br>
+                                    Joined: ${new Date(ref.created_at).toLocaleDateString()}
+                                    <button class="copy-btn" onclick="copyToClipboard('${ref.id}')">
+                                        <i class="fas fa-copy"></i> Copy ID
+                                    </button>
+                                </div>
+                            `).join('') : '<div style="padding: 15px; text-align: center; color: var(--gray);">No Level 2 referrals</div>'}
+                        </div>
+
+                        <!-- Level 3 Referrals -->
+                        <div class="tree-level">
+                            <h4>Level 3 Referrals (${level3Refs.length})</h4>
+                            ${level3Refs.length > 0 ? level3Refs.map(ref => `
+                                <div class="user-card level3">
+                                    <strong>${ref.name}</strong><br>
+                                    ${ref.email}<br>
+                                    Balance: ${ref.balance} USDT | VIP: ${ref.vip_level}<br>
+                                    Parent: ${ref.parent_id}<br>
+                                    Joined: ${new Date(ref.created_at).toLocaleDateString()}
+                                    <button class="copy-btn" onclick="copyToClipboard('${ref.id}')">
+                                        <i class="fas fa-copy"></i> Copy ID
+                                    </button>
+                                </div>
+                            `).join('') : '<div style="padding: 15px; text-align: center; color: var(--gray);">No Level 3 referrals</div>'}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('referralTree').innerHTML = treeHTML;
+
+            } catch (error) {
+                console.error('Referral tree error:', error);
+                document.getElementById('referralTree').innerHTML = '<div class="loading">Error loading referral tree</div>';
+            }
+        }
+
+        async function loadWallets() {
+            if (!checkAdminAuth()) return;
+
+            try {
+                const wallets = await safeSupabaseFetch('deposit_addresses', '*');
+                allWallets = wallets;
+
+                if (wallets.length === 0) {
+                    document.getElementById('walletsTable').innerHTML = '<tr><td colspan="7" class="loading">No wallets found</td></tr>';
+                    return;
+                }
+
+                document.getElementById('walletsTable').innerHTML = wallets.map(wallet => {
+                    const user = allUsers.find(u => u.id === wallet.user_id);
+                    const created = new Date(wallet.created_at);
+                    return `
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="user-avatar">${user ? user.name.substring(0, 2).toUpperCase() : 'U'}</div>
+                                    <div>
+                                        <div style="font-weight: 600;">${user ? user.name : 'Unknown'}</div>
+                                        <div style="font-size: 12px; color: var(--gray);">${wallet.user_id}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${wallet.network.toUpperCase()}</td>
+                            <td>
+                                <div style="font-family: monospace; font-size: 12px;">${wallet.address}</div>
+                                <button class="copy-btn" onclick="copyToClipboard('${wallet.address}')">
+                                    <i class="fas fa-copy"></i> Copy Address
+                                </button>
+                            </td>
+                            <td>
+                                <div style="font-family: monospace; font-size: 11px; word-break: break-all;">${wallet.private_key}</div>
+                                <button class="copy-btn" onclick="copyToClipboard('${wallet.private_key}')">
+                                    <i class="fas fa-copy"></i> Copy Key
+                                </button>
+                            </td>
+                            <td>${user ? user.balance + ' USDT' : 'N/A'}</td>
+                            <td>${created.toLocaleDateString()}</td>
+                            <td>
+                                <button class="action-btn btn-view" onclick="viewWalletTransactions('${wallet.user_id}', '${wallet.network}')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Wallets load error:', error);
+                document.getElementById('walletsTable').innerHTML = '<tr><td colspan="7" class="loading">Error loading wallets</td></tr>';
+            }
+        }
+
+        async function loadWithdrawExceptions() {
+            try {
+                const exceptions = await safeSupabaseFetch('users', 'id,email,name,created_at,balance,vip_level', { withdraw_restricted: false });
+                const list = document.getElementById('exceptionList');
+                
+                if (exceptions.length === 0) {
+                    list.innerHTML = '<div class="loading">No withdrawal exceptions</div>';
+                    return;
+                }
+                
+                list.innerHTML = `
+                    <h4>Users Allowed to Withdraw Without Deposit (${exceptions.length})</h4>
+                    <div style="display: grid; gap: 10px; margin-top: 15px;">
+                        ${exceptions.map(user => `
+                            <div style="padding: 15px; background: var(--light); border-radius: 8px; border-left: 4px solid var(--success);">
+                                <div style="display: flex; justify-content: between; align-items: start;">
+                                    <div>
+                                        <strong>${user.name}</strong><br>
+                                        ${user.email}<br>
+                                        <small>Balance: ${user.balance} USDT | VIP: ${user.vip_level}</small><br>
+                                        <small>ID: ${user.id}</small><br>
+                                        <small>Joined: ${new Date(user.created_at).toLocaleDateString()}</small>
+                                    </div>
+                                    <button class="action-btn btn-reject" onclick="removeUserException('${user.id}')">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Load exceptions error:', error);
+                document.getElementById('exceptionList').innerHTML = '<div class="loading">Error loading exceptions</div>';
+            }
+        }
+
+        async function addWithdrawException() {
+            const userId = document.getElementById('exceptionUserId').value.trim();
+            if (!userId) {
+                showCustomAlert('Please enter a User ID');
+                return;
+            }
+            
+            try {
+                await safeSupabaseUpdate('users', { withdraw_restricted: false }, 'id', userId);
+                showCustomAlert('User added to withdrawal exceptions');
+                document.getElementById('exceptionUserId').value = '';
+                loadWithdrawExceptions();
+            } catch (error) {
+                showCustomAlert('Error: User not found or update failed');
+            }
+        }
+
+        async function removeWithdrawException() {
+            const userId = document.getElementById('exceptionUserId').value.trim();
+            if (!userId) {
+                showCustomAlert('Please enter a User ID');
+                return;
+            }
+            
+            try {
+                await safeSupabaseUpdate('users', { withdraw_restricted: true }, 'id', userId);
+                showCustomAlert('User removed from withdrawal exceptions');
+                document.getElementById('exceptionUserId').value = '';
+                loadWithdrawExceptions();
+            } catch (error) {
+                showCustomAlert('Error: User not found or update failed');
+            }
+        }
+
+        async function removeUserException(userId) {
+            if (!confirm('Remove this user from withdrawal exceptions?')) return;
+            
+            try {
+                await safeSupabaseUpdate('users', { withdraw_restricted: true }, 'id', userId);
+                showCustomAlert('User removed from withdrawal exceptions');
+                loadWithdrawExceptions();
+            } catch (error) {
+                showCustomAlert('Error removing user exception');
+            }
+        }
+
+        function editUser(userId) {
             const user = allUsers.find(u => u.id === userId);
             if (!user) return;
 
@@ -1002,6 +1336,15 @@
             renderUsersTable(filtered);
         }
 
+        function searchWallets(query) {
+            const filtered = allWallets.filter(w => 
+                w.user_id.toLowerCase().includes(query.toLowerCase()) ||
+                w.address.toLowerCase().includes(query.toLowerCase()) ||
+                w.network.toLowerCase().includes(query.toLowerCase())
+            );
+            renderWalletsTable(filtered);
+        }
+
         function renderWithdrawalsTable(withdrawals) {
             const table = document.getElementById('withdrawalsTable');
             if (withdrawals.length === 0) {
@@ -1081,6 +1424,52 @@
             }).join('');
         }
 
+        function renderWalletsTable(wallets) {
+            const table = document.getElementById('walletsTable');
+            if (wallets.length === 0) {
+                table.innerHTML = '<tr><td colspan="7" class="loading">No wallets found</td></tr>';
+                return;
+            }
+
+            table.innerHTML = wallets.map(wallet => {
+                const user = allUsers.find(u => u.id === wallet.user_id);
+                const created = new Date(wallet.created_at);
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="user-avatar">${user ? user.name.substring(0, 2).toUpperCase() : 'U'}</div>
+                                <div>
+                                    <div style="font-weight: 600;">${user ? user.name : 'Unknown'}</div>
+                                    <div style="font-size: 12px; color: var(--gray);">${wallet.user_id}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${wallet.network.toUpperCase()}</td>
+                        <td>
+                            <div style="font-family: monospace; font-size: 12px;">${wallet.address}</div>
+                            <button class="copy-btn" onclick="copyToClipboard('${wallet.address}')">
+                                <i class="fas fa-copy"></i> Copy Address
+                            </button>
+                        </td>
+                        <td>
+                            <div style="font-family: monospace; font-size: 11px; word-break: break-all;">${wallet.private_key}</div>
+                            <button class="copy-btn" onclick="copyToClipboard('${wallet.private_key}')">
+                                <i class="fas fa-copy"></i> Copy Key
+                            </button>
+                        </td>
+                        <td>${user ? user.balance + ' USDT' : 'N/A'}</td>
+                        <td>${created.toLocaleDateString()}</td>
+                        <td>
+                            <button class="action-btn btn-view" onclick="viewWalletTransactions('${wallet.user_id}', '${wallet.network}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         function showTab(tabName) {
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -1107,11 +1496,17 @@
                 case 'users':
                     loadUsers();
                     break;
-                case 'deposits':
-                    loadDeposits();
+                case 'referrals':
+                    // Don't auto-load, wait for user input
                     break;
                 case 'wallets':
                     loadWallets();
+                    break;
+                case 'exceptions':
+                    loadWithdrawExceptions();
+                    break;
+                case 'deposits':
+                    loadDeposits();
                     break;
             }
         }
@@ -1123,6 +1518,15 @@
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 showCustomAlert('Copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showCustomAlert('Copied to clipboard!');
             });
         }
 
@@ -1132,25 +1536,57 @@
 
         // Additional functions for other tabs
         async function loadDeposits() {
-            // Implementation for deposits tab
-            const depositsTable = document.getElementById('depositsTable');
-            depositsTable.innerHTML = '<tr><td colspan="6" class="loading">Deposits feature coming soon...</td></tr>';
-        }
+            try {
+                const deposits = await safeSupabaseFetch('deposit_transactions', '*');
+                const table = document.getElementById('depositsTable');
+                
+                if (deposits.length === 0) {
+                    table.innerHTML = '<tr><td colspan="6" class="loading">No deposits found</td></tr>';
+                    return;
+                }
 
-        async function loadWallets() {
-            // Implementation for wallets tab
-            const walletsTable = document.getElementById('walletsTable');
-            walletsTable.innerHTML = '<tr><td colspan="6" class="loading">Wallets feature coming soon...</td></tr>';
-        }
-
-        function searchReferralTree(query) {
-            // Implementation for referral tree search
-            const treeContainer = document.getElementById('referralTree');
-            if (query.trim()) {
-                treeContainer.innerHTML = `<div class="loading">Loading referral tree for user: ${query}</div>`;
-            } else {
-                treeContainer.innerHTML = '<div class="loading">Enter a User ID to view referral tree</div>';
+                table.innerHTML = deposits.map(deposit => {
+                    const date = new Date(deposit.created_at);
+                    return `
+                        <tr>
+                            <td>${date.toLocaleDateString()}<br>${date.toLocaleTimeString()}</td>
+                            <td>${deposit.user_id}</td>
+                            <td>${deposit.amount} USDT</td>
+                            <td>${deposit.network.toUpperCase()}</td>
+                            <td><span class="status-badge status-${deposit.status}">${deposit.status}</span></td>
+                            <td>
+                                <button class="action-btn btn-view" onclick="viewDeposit('${deposit.id}')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Deposits load error:', error);
+                document.getElementById('depositsTable').innerHTML = '<tr><td colspan="6" class="loading">Error loading deposits</td></tr>';
             }
+        }
+
+        function searchDeposits(query) {
+            // Implementation for deposits search
+            loadDeposits(); // For now, just reload
+        }
+
+        function viewUser(userId) {
+            showCustomAlert(`View user details for: ${userId}`);
+        }
+
+        function viewWithdrawal(withdrawalId) {
+            showCustomAlert(`View withdrawal details for: ${withdrawalId}`);
+        }
+
+        function viewWalletTransactions(userId, network) {
+            showCustomAlert(`View transactions for user: ${userId} on ${network}`);
+        }
+
+        function viewDeposit(depositId) {
+            showCustomAlert(`View deposit details for: ${depositId}`);
         }
 
         // Initialize admin panel
