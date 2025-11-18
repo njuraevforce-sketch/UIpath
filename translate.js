@@ -1745,7 +1745,6 @@ const translations = {
         "confirm": "Підтвердити",
         "active": "АКТИВНО",
         "buy": "КУПИТИ",
-            uk: {
         // Deposit & Withdraw
         "deposit_usdt": "Депозит USDT",
         "trc20": "TRC20",
@@ -2191,7 +2190,7 @@ const translations = {
         "ok": "OK",
         "cancel": "Annulla",
         "confirm": "Conferma",
-        "processing": "Elaborazione in corso...",
+        "processing": "Elaborazione in corso..."
     }
 };
 
