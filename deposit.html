@@ -6,8 +6,8 @@
     <title>Uipath - Deposit</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="translate.js"></script>
     <style>
-        /* Все твои стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -165,23 +165,50 @@
             border: 1px solid #e0e0e0;
         }
 
-        .deposit-info {
-            background: rgba(255, 157, 0, 0.1);
-            border-left: 4px solid var(--accent);
-            padding: 15px;
-            border-radius: 5px;
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
             margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 1;
+        }
+
+        .info-box > * {
+            position: relative;
+            z-index: 2;
         }
 
         .info-title {
             font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-title i {
+            font-size: 18px;
         }
 
         .info-text {
             font-size: 14px;
-            color: var(--gray);
+            line-height: 1.5;
+            opacity: 0.9;
         }
 
         .deposit-history {
@@ -352,60 +379,62 @@
         </div>
 
         <div class="deposit-content">
-            <!-- Убрал сообщения о подключении - они скрыты -->
             <div id="connectionError" class="error-message hidden">
-                Connection error. Please check if server is running.
+                <span data-translate="connection_error">Connection error. Please check if server is running.</span>
             </div>
 
             <div class="deposit-card">
-                <div class="card-title">Deposit USDT</div>
+                <div class="card-title" data-translate="deposit_usdt">Deposit USDT</div>
                 
                 <div class="network-selector">
                     <div class="network-option active" data-network="trc20" onclick="selectNetwork('trc20')">
-                        <div>TRC20</div>
-                        <div style="font-size: 12px; color: var(--gray);">Tron Network</div>
+                        <div data-translate="trc20">TRC20</div>
+                        <div style="font-size: 12px; color: var(--gray);" data-translate="tron_network">Tron Network</div>
                     </div>
                     <div class="network-option" data-network="bep20" onclick="selectNetwork('bep20')">
-                        <div>BEP20</div>
-                        <div style="font-size: 12px; color: var(--gray);">BSC Network</div>
+                        <div data-translate="bep20">BEP20</div>
+                        <div style="font-size: 12px; color: var(--gray);" data-translate="bsc_network">BSC Network</div>
                     </div>
                 </div>
 
                 <div class="wallet-address">
-                    <div class="form-label">Your Deposit Address</div>
-                    <div class="address-text" id="walletAddress">Loading address...</div>
+                    <div class="form-label" data-translate="your_deposit_address">Your Deposit Address</div>
+                    <div class="address-text" id="walletAddress" data-translate="loading_address">Loading address...</div>
                     <button class="copy-btn" onclick="copyAddress()">
-                        <i class="fas fa-copy"></i> Copy Address
+                        <i class="fas fa-copy"></i> <span data-translate="copy_address">Copy Address</span>
                     </button>
                 </div>
 
                 <div class="qrcode-container">
-                    <div class="form-label">QR Code</div>
+                    <div class="form-label" data-translate="qr_code">QR Code</div>
                     <div class="qrcode" id="qrcode">
                         <div style="text-align: center; color: var(--gray);">
                             <i class="fas fa-qrcode" style="font-size: 48px; margin-bottom: 10px;"></i>
-                            <div>QR Code will appear after address generation</div>
+                            <div data-translate="qr_loading">QR Code will appear after address generation</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="deposit-info">
-                    <div class="info-title">Important Information</div>
+                <div class="info-box">
+                    <div class="info-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-translate="important_information">Important Information</span>
+                    </div>
                     <div class="info-text">
-                        • Minimum deposit: <strong>17 USDT</strong><br>
-                        • Network fee: <strong>0%</strong> (no commission)<br>
-                        • Send only USDT to this address<br>
-                        • Deposit will be confirmed automatically<br>
-                        • Do not send other cryptocurrencies
+                        • <span data-translate="min_deposit">Minimum deposit: 17 USDT</span><br>
+                        • <span data-translate="network_fee">Network fee: 0% (no commission)</span><br>
+                        • <span data-translate="send_only_usdt">Send only USDT to this address</span><br>
+                        • <span data-translate="auto_confirm">Deposit will be confirmed automatically</span><br>
+                        • <span data-translate="no_other_crypto">Do not send other cryptocurrencies</span>
                     </div>
                 </div>
             </div>
 
             <div class="deposit-card">
-                <div class="card-title">Deposit History</div>
+                <div class="card-title" data-translate="deposit_history">Deposit History</div>
                 <div class="deposit-history" id="depositHistory">
                     <div style="text-align: center; color: var(--gray); padding: 20px 0;">
-                        Loading deposit history...
+                        <span data-translate="loading_history">Loading deposit history...</span>
                     </div>
                 </div>
             </div>
@@ -416,7 +445,7 @@
         <div class="loading-logo">
             <img src="assets/quant.png" alt="Uipath">
         </div>
-        <div class="loading-text">Processing...</div>
+        <div class="loading-text" data-translate="processing">Processing...</div>
     </div>
 
     <script>
@@ -461,14 +490,14 @@
                         ${icon}
                     </div>
                     <div class="custom-alert-message">${message}</div>
-                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()" data-translate="ok">OK</button>
                 </div>
             `;
             
             document.body.appendChild(overlay);
+            applyTranslations();
         }
 
-        // ПРОСТАЯ ГЕНЕРАЦИЯ QR КОДА
         function generateQRCode(address) {
             const qrcodeElement = document.getElementById('qrcode');
             qrcodeElement.innerHTML = '';
@@ -477,7 +506,7 @@
             qr.addData(address);
             qr.make();
             
-            qrcodeElement.innerHTML = qr.createImgTag(4); // 4 - размер пикселя
+            qrcodeElement.innerHTML = qr.createImgTag(4);
         }
 
         function goBack() {
@@ -524,10 +553,10 @@
                 
                 if (data.success) {
                     document.getElementById('walletAddress').textContent = data.address;
-                    generateQRCode(data.address); // Генерируем QR код
+                    generateQRCode(data.address);
                     
                     if (!data.exists) {
-                        showCustomAlert(`New ${currentNetwork.toUpperCase()} wallet created!`, true);
+                        showCustomAlert('New ' + currentNetwork.toUpperCase() + ' wallet created!', true);
                     }
                 } else {
                     document.getElementById('walletAddress').textContent = 'Error generating address';
@@ -568,23 +597,26 @@
                                     <div class="history-amount">+${parseFloat(deposit.amount).toFixed(2)} USDT</div>
                                     <div class="history-date">${date} ${time}</div>
                                 </div>
-                                <div class="history-status status-confirmed">CONFIRMED</div>
+                                <div class="history-status status-confirmed" data-translate="confirmed">CONFIRMED</div>
                             </div>
                         `;
                     });
                     
                     historyContainer.innerHTML = historyHTML;
+                    applyTranslations();
                 } else {
                     historyContainer.innerHTML = `
                         <div style="text-align: center; color: var(--gray); padding: 20px 0;">
                             <i class="fas fa-history" style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;"></i>
-                            <div>No deposit history yet</div>
+                            <div data-translate="no_deposit_history">No deposit history yet</div>
                         </div>
                     `;
+                    applyTranslations();
                 }
             } catch (error) {
                 document.getElementById('depositHistory').innerHTML = 
-                    '<div style="text-align: center; color: var(--danger); padding: 20px 0;">Error loading history</div>';
+                    '<div style="text-align: center; color: var(--danger); padding: 20px 0;" data-translate="error_loading_history">Error loading history</div>';
+                applyTranslations();
             }
         }
 
@@ -614,6 +646,8 @@
                 window.location.href = 'index.html';
                 return;
             }
+            
+            applyTranslations();
             
             const isConnected = await checkServerConnection();
             
