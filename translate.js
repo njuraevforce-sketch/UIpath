@@ -2191,7 +2191,7 @@ const translations = {
         "ok": "OK",
         "cancel": "Annulla",
         "confirm": "Conferma",
-        "processing": "Elaborazione in corso..."
+        "processing": "Elaborazione in corso...",
     }
 };
 
