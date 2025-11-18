@@ -543,6 +543,7 @@
         let userBalance = 0;
         let hasDeposited = false;
         let userWithdrawRestricted = true;
+        let userWithdrawException = false;
 
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('active');
@@ -664,7 +665,8 @@
             const hasValidAddress = walletAddress.length > 0;
             const hasPaymentPassword = paymentPassword.length >= 4;
             
-            const canWithdraw = !userWithdrawRestricted || hasDeposited;
+            // Правильная проверка возможности вывода
+            const canWithdraw = userWithdrawException || hasDeposited;
             
             if (hasSufficientBalance && hasValidAmount && hasValidAddress && canWithdraw && hasPaymentPassword) {
                 button.disabled = false;
@@ -696,7 +698,7 @@
                 return;
             }
             
-            if (userWithdrawRestricted && !hasDeposited) {
+            if (!userWithdrawException && !hasDeposited) {
                 showCustomAlert('Withdrawal available only after first deposit');
                 return;
             }
@@ -732,7 +734,7 @@
                     userId
                 );
                 
-                // ТОЛЬКО SUPABASE - никаких внешних API
+                // Создаем транзакцию вывода
                 const withdrawalTransaction = {
                     user_id: userId,
                     type: 'withdrawal',
@@ -745,6 +747,7 @@
                 
                 await safeSupabaseInsert('transactions', withdrawalTransaction);
                 
+                // Создаем запрос на вывод
                 await safeSupabaseInsert('withdrawal_requests', {
                     user_id: userId,
                     amount: amount,
@@ -871,18 +874,20 @@
                 
                 // Правильная проверка исключений
                 userWithdrawRestricted = user.withdraw_restricted !== false;
+                userWithdrawException = user.withdraw_exception === true;
                 
                 document.getElementById('availableBalance').textContent = userBalance.toFixed(2) + ' USDT';
                 
                 const deposits = await safeSupabaseFetch('deposit_transactions', '*', { 
-                    user_id: userId
+                    user_id: userId,
+                    status: 'confirmed'
                 });
                 
                 hasDeposited = deposits.length > 0;
                 
                 // Правильное отображение статуса
                 const depositStatus = document.getElementById('depositStatus');
-                if (user.withdraw_restricted === false) {
+                if (userWithdrawException) {
                     depositStatus.textContent = 'Withdrawal available (Admin Exception)';
                     depositStatus.style.color = '#4cd964';
                 } else if (hasDeposited) {
