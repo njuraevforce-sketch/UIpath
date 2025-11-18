@@ -16,6 +16,16 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: none;
+            -ms-text-size-adjust: none;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
         }
 
         :root {
@@ -34,8 +44,8 @@
             background-color: var(--light);
             color: var(--dark);
             height: 100vh;
-            overflow: hidden;
             touch-action: pan-y;
+            overscroll-behavior: none;
         }
 
         .login-container {
@@ -45,6 +55,95 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        .language-support-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
+
+        .current-flag {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--primary);
+        }
+
+        .language-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            min-width: 150px;
+            z-index: 1001;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .language-option {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s ease;
+        }
+
+        .language-option:last-child {
+            border-bottom: none;
+        }
+
+        .language-option:hover {
+            background: var(--light);
+        }
+
+        .language-flag {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .language-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        .support-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            text-decoration: none;
         }
 
         .login-header {
@@ -55,7 +154,6 @@
             align-items: center;
             justify-content: center;
             height: 120px;
-            position: relative;
         }
 
         .logo {
@@ -264,110 +362,69 @@
             cursor: pointer;
             width: 100%;
         }
-
-        /* Language Selector Styles */
-        .language-selector-container {
-            position: absolute;
-            top: 20px;
-            right: 70px;
-            z-index: 1001;
-        }
-        
-        .language-globe {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        
-        .language-selector {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background: white;
-            border-radius: 10px;
-            padding: 10px;
-            display: none;
-            flex-wrap: wrap;
-            gap: 5px;
-            width: 220px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 1002;
-        }
-        
-        .language-option {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .language-option:hover {
-            transform: scale(1.1);
-        }
-        
-        .language-option.active {
-            border: 2px solid var(--primary);
-        }
-        
-        .support-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 18px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-            z-index: 1001;
-            color: white;
-            text-decoration: none;
-        }
-        
-        .support-icon:hover {
-            background: rgba(255,255,255,0.3);
-        }
     </style>
 </head>
 <body>
     <div class="login-container">
+        <div class="language-support-container">
+            <div class="language-selector">
+                <div class="current-flag" onclick="toggleLanguageMenu()">🌐</div>
+                <div class="language-menu" id="languageMenu">
+                    <div class="language-option" onclick="setLanguage('en')">
+                        <span class="language-flag">🇺🇸</span>
+                        <span class="language-name">English</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('es')">
+                        <span class="language-flag">🇪🇸</span>
+                        <span class="language-name">Español</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('de')">
+                        <span class="language-flag">🇩🇪</span>
+                        <span class="language-name">Deutsch</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('pl')">
+                        <span class="language-flag">🇵🇱</span>
+                        <span class="language-name">Polski</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('ru')">
+                        <span class="language-flag">🇷🇺</span>
+                        <span class="language-name">Русский</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('tr')">
+                        <span class="language-flag">🇹🇷</span>
+                        <span class="language-name">Türkçe</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('ar')">
+                        <span class="language-flag">🇸🇦</span>
+                        <span class="language-name">العربية</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('ro')">
+                        <span class="language-flag">🇷🇴</span>
+                        <span class="language-name">Română</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('uk')">
+                        <span class="language-flag">🇺🇦</span>
+                        <span class="language-name">Українська</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('fr')">
+                        <span class="language-flag">🇫🇷</span>
+                        <span class="language-name">Français</span>
+                    </div>
+                    <div class="language-option" onclick="setLanguage('it')">
+                        <span class="language-flag">🇮🇹</span>
+                        <span class="language-name">Italiano</span>
+                    </div>
+                </div>
+            </div>
+            <a href="https://t.me/Ui_seo" class="support-button" target="_blank">
+                <i class="fas fa-headset"></i>
+            </a>
+        </div>
+
         <div class="login-header">
             <div class="logo">
                 <img src="assets/logo.png" alt="Uipath">
             </div>
-            
-            <!-- Language Selector -->
-            <div class="language-selector-container">
-                <div class="language-globe" onclick="toggleLanguageSelector()">
-                    <i class="fas fa-globe"></i>
-                </div>
-                <div class="language-selector" id="languageSelector">
-                    <!-- Languages will be populated by JavaScript -->
-                </div>
-            </div>
-            
-            <!-- Support Icon -->
-            <a href="https://t.me/Ui_seo" class="support-icon" target="_blank">
-                <i class="fas fa-headset"></i>
-            </a>
         </div>
 
         <div class="login-content">
@@ -387,7 +444,7 @@
                     <div class="form-group">
                         <label class="form-label" data-translate="username">Username</label>
                         <input type="text" id="loginUsername" class="uni-input" data-translate="enter_username" placeholder="Enter username">
-                        <div class="error-message" id="loginUsernameError" data-translate="enter_username">Enter username</div>
+                        <div class="error-message" id="loginUsernameError" data-translate="enter_username_error">Enter username</div>
                     </div>
 
                     <div class="form-group">
@@ -398,7 +455,7 @@
                                 <i class="far fa-eye"></i>
                             </button>
                         </div>
-                        <div class="error-message" id="loginPasswordError" data-translate="enter_password">Enter password</div>
+                        <div class="error-message" id="loginPasswordError" data-translate="enter_password_error">Enter password</div>
                     </div>
 
                     <button class="uni-button" onclick="login()" data-translate="login">Login</button>
@@ -408,13 +465,13 @@
                     <div class="form-group">
                         <label class="form-label" data-translate="username">Username</label>
                         <input type="text" id="registerUsername" class="uni-input" data-translate="enter_username" placeholder="Enter username">
-                        <div class="error-message" id="registerUsernameError" data-translate="enter_username">Enter username</div>
+                        <div class="error-message" id="registerUsernameError" data-translate="enter_username_error">Enter username</div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" data-translate="email">Email</label>
                         <input type="email" id="registerEmail" class="uni-input" data-translate="enter_email" placeholder="Enter email">
-                        <div class="error-message" id="registerEmailError" data-translate="enter_email">Enter email</div>
+                        <div class="error-message" id="registerEmailError" data-translate="enter_email_error">Enter email</div>
                     </div>
 
                     <div class="form-group">
@@ -436,7 +493,7 @@
                                 <i class="far fa-eye"></i>
                             </button>
                         </div>
-                        <div class="error-message" id="registerConfirmPasswordError" data-translate="passwords_match_error">Passwords don't match</div>
+                        <div class="error-message" id="registerConfirmPasswordError" data-translate="passwords_dont_match">Passwords don't match</div>
                     </div>
 
                     <div class="form-group">
@@ -451,7 +508,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" data-translate="referral_code">Referral Code (optional)</label>
+                        <label class="form-label" data-translate="referral_code">Referral Code <span data-translate="optional">(optional)</span></label>
                         <input type="text" id="registerReferralCode" class="uni-input" data-translate="enter_referral_code" placeholder="Enter referral code">
                     </div>
 
@@ -501,11 +558,12 @@
                         <img src="assets/quant.png" alt="Uipath">
                     </div>
                     <div class="custom-alert-message">${message}</div>
-                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()" data-translate="confirm">OK</button>
                 </div>
             `;
             
             document.body.appendChild(overlay);
+            applyTranslations();
         }
 
         function showTab(tabName) {
@@ -635,11 +693,11 @@
                     sessionStorage.setItem('currentUserId', user.id);
                     showSuccessAnimation();
                 } else {
-                    showCustomAlert(getTranslation('invalid_credentials'));
+                    showCustomAlert(translations[currentLanguage]['invalid_credentials'] || 'Invalid login credentials');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showCustomAlert('Login error occurred. Please try again.');
+                showCustomAlert(translations[currentLanguage]['login_error'] || 'Login error occurred. Please try again.');
             }
         }
 
@@ -687,7 +745,7 @@
                 const existingUser = existingUsers.find(u => u.name === username || u.email === email);
                 
                 if (existingUser) {
-                    showCustomAlert('Username or email already exists');
+                    showCustomAlert(translations[currentLanguage]['username_exists'] || 'Username or email already exists');
                     return;
                 }
 
@@ -699,7 +757,7 @@
                     if (referrers.length > 0) {
                         referredBy = referrers[0].id;
                     } else {
-                        showCustomAlert(getTranslation('invalid_referral'));
+                        showCustomAlert(translations[currentLanguage]['invalid_referral'] || 'Invalid referral code');
                         return;
                     }
                 }
@@ -724,7 +782,7 @@
                 if (result) {
                     sessionStorage.setItem('currentUserId', userId);
                     
-                    showCustomAlert(getTranslation('registration_bonus'));
+                    showCustomAlert(translations[currentLanguage]['registration_bonus'] || 'Congratulations! You received 3.00 USDT registration bonus!');
                     
                     setTimeout(() => {
                         showSuccessAnimation();
@@ -732,7 +790,7 @@
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                showCustomAlert('Registration error occurred. Please try again.');
+                showCustomAlert(translations[currentLanguage]['registration_error'] || 'Registration error occurred. Please try again.');
             }
         }
     </script>
