@@ -646,7 +646,7 @@
         async function verifyPaymentPassword(password) {
             try {
                 const userId = sessionStorage.getItem('currentUserId');
-                const users = await safeSupabaseFetch('users', 'payment_password', { id: userId });
+                const users = await safeSupabaseFetch('users', 'id,payment_password', { id: userId });
                 return users.length > 0 && users[0].payment_password === password;
             } catch (error) {
                 return false;
@@ -665,7 +665,6 @@
             const hasValidAddress = walletAddress.length > 0;
             const hasPaymentPassword = paymentPassword.length >= 4;
             
-            // Правильная проверка возможности вывода
             const canWithdraw = userWithdrawException || hasDeposited;
             
             if (hasSufficientBalance && hasValidAmount && hasValidAddress && canWithdraw && hasPaymentPassword) {
@@ -734,15 +733,14 @@
                     userId
                 );
                 
-                // Создаем транзакцию вывода
+                // СОЗДАЕМ ТРАНЗАКЦИЮ ВЫВОДА (ИСПРАВЛЕННАЯ ВЕРСИЯ)
                 const withdrawalTransaction = {
                     user_id: userId,
-                    type: 'withdrawal',
+                    type: 'withdraw',
                     title: `Withdrawal to ${currentNetwork.toUpperCase()}`,
-                    amount: amount + fee,
+                    amount: parseFloat((amount + fee).toFixed(2)),
                     positive: false,
-                    status: 'pending',
-                    created_at: new Date().toISOString()
+                    status: 'pending'
                 };
                 
                 await safeSupabaseInsert('transactions', withdrawalTransaction);
@@ -750,12 +748,11 @@
                 // Создаем запрос на вывод
                 await safeSupabaseInsert('withdrawal_requests', {
                     user_id: userId,
-                    amount: amount,
-                    fee: fee,
+                    amount: parseFloat(amount.toFixed(2)),
+                    fee: parseFloat(fee.toFixed(2)),
                     network: currentNetwork,
                     address: walletAddress,
-                    status: 'pending',
-                    created_at: new Date().toISOString()
+                    status: 'pending'
                 });
                 
                 showCustomAlert('Withdrawal request submitted successfully! It will be processed within 1-60 minutes.');
