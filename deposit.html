@@ -211,38 +211,81 @@
             opacity: 0.9;
         }
 
-        .deposit-history {
-            margin-top: 20px;
-        }
-
-        .history-item {
+        /* Новые стили для истории депозитов */
+        .deposit-history-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            align-items: flex-start;
         }
 
-        .history-amount {
+        .deposit-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .deposit-left {
+            flex: 1;
+        }
+
+        .deposit-amount {
             font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
             color: var(--success);
         }
 
-        .history-date {
+        .deposit-details {
             font-size: 12px;
             color: var(--gray);
+            display: flex;
+            gap: 8px;
         }
 
-        .history-status {
+        .deposit-details span {
+            padding-right: 8px;
+            border-right: 1px solid #d0d0d0;
+        }
+
+        .deposit-details span:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .deposit-status {
+            font-size: 12px;
             padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
+            border-radius: 4px;
             font-weight: 600;
         }
 
         .status-confirmed {
-            background: rgba(76, 217, 100, 0.1);
-            color: var(--success);
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .deposit-history-container {
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 23px,
+                #f0f0f0 23px,
+                #f0f0f0 24px
+            );
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #d0d0d0;
+            background-color: #fafafa;
         }
 
         .custom-alert-overlay {
@@ -432,7 +475,7 @@
 
             <div class="deposit-card">
                 <div class="card-title" data-translate="deposit_history">Deposit History</div>
-                <div class="deposit-history" id="depositHistory">
+                <div class="deposit-history-container" id="depositHistory">
                     <div style="text-align: center; color: var(--gray); padding: 20px 0;">
                         <span data-translate="loading_history">Loading deposit history...</span>
                     </div>
@@ -592,12 +635,18 @@
                         const time = new Date(deposit.created_at).toLocaleTimeString();
                         
                         historyHTML += `
-                            <div class="history-item">
-                                <div>
-                                    <div class="history-amount">+${parseFloat(deposit.amount).toFixed(2)} USDT</div>
-                                    <div class="history-date">${date} ${time}</div>
+                            <div class="deposit-history-item">
+                                <div class="deposit-left">
+                                    <div class="deposit-amount">+${parseFloat(deposit.amount).toFixed(2)} USDT</div>
+                                    <div class="deposit-details">
+                                        <span>${date}</span>
+                                        <span>${time}</span>
+                                        <span>${currentNetwork.toUpperCase()}</span>
+                                    </div>
                                 </div>
-                                <div class="history-status status-confirmed" data-translate="confirmed">CONFIRMED</div>
+                                <div class="deposit-status status-confirmed">
+                                    CONFIRMED
+                                </div>
                             </div>
                         `;
                     });
