@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Uipath - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
@@ -15,6 +15,17 @@
             -webkit-tap-highlight-color: transparent;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             font-weight: 200;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        html, body {
+            touch-action: pan-y;
+            overflow-x: hidden;
+            max-width: 100%;
         }
 
         :root {
@@ -47,6 +58,7 @@
             background: var(--white);
             min-height: 100vh;
             position: relative;
+            overflow-x: hidden;
         }
 
         .page {
@@ -61,6 +73,73 @@
         .page.active {
             display: block;
             opacity: 1;
+        }
+
+        /* Language and Support Controls */
+        .header-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .language-selector, .support-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .language-selector:hover, .support-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 10px;
+            min-width: 150px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .language-dropdown.active {
+            display: block;
+        }
+
+        .language-option {
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .language-option:hover {
+            background: var(--light);
+        }
+
+        .language-flag {
+            width: 20px;
+            height: 15px;
+            border-radius: 2px;
         }
 
         .loading-overlay {
@@ -210,6 +289,7 @@
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
             height: 80px;
+            position: relative;
         }
 
         .page-title {
@@ -1058,6 +1138,48 @@
         .license-content > div {
             animation: documentAppear 0.6s ease-out;
         }
+
+        /* Real Seal Style */
+        .official-seal {
+            width: 120px;
+            height: 120px;
+            border: 3px solid #8B0000;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            position: relative;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
+        }
+
+        .seal-content {
+            text-align: center;
+            padding: 10px;
+            color: #8B0000;
+            font-weight: bold;
+        }
+
+        .seal-outer-ring {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px solid #8B0000;
+            border-radius: 50%;
+        }
+
+        .seal-inner-ring {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 1px solid #8B0000;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
@@ -1066,7 +1188,7 @@
             <div class="loading-logo">
                 <img src="assets/quant.png" alt="Uipath">
             </div>
-            <div class="loading-text">Loading...</div>
+            <div class="loading-text" data-translate="loading">Loading...</div>
         </div>
 
         <div id="mainPage" class="page active">
@@ -1074,6 +1196,63 @@
                 <div class="logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
+                
+                <!-- Language and Support Controls -->
+                <div class="header-controls">
+                    <div class="support-button" onclick="window.open('https://t.me/Ui_seo', '_blank')">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="language-selector" onclick="toggleLanguageDropdown()">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <div class="language-option" onclick="setLanguage('en')">
+                            <span class="language-flag" style="background: #1a237e; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            English
+                        </div>
+                        <div class="language-option" onclick="setLanguage('es')">
+                            <span class="language-flag" style="background: #aa151b; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Español
+                        </div>
+                        <div class="language-option" onclick="setLanguage('de')">
+                            <span class="language-flag" style="background: #ff0000; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Deutsch
+                        </div>
+                        <div class="language-option" onclick="setLanguage('pl')">
+                            <span class="language-flag" style="background: #dc143c; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Polski
+                        </div>
+                        <div class="language-option" onclick="setLanguage('ru')">
+                            <span class="language-flag" style="background: #d52b1e; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Русский
+                        </div>
+                        <div class="language-option" onclick="setLanguage('tr')">
+                            <span class="language-flag" style="background: #e30a17; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Türkçe
+                        </div>
+                        <div class="language-option" onclick="setLanguage('ar')">
+                            <span class="language-flag" style="background: #ce1126; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            العربية
+                        </div>
+                        <div class="language-option" onclick="setLanguage('ro')">
+                            <span class="language-flag" style="background: #ffcc00; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Română
+                        </div>
+                        <div class="language-option" onclick="setLanguage('uk')">
+                            <span class="language-flag" style="background: #0057b7; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Українська
+                        </div>
+                        <div class="language-option" onclick="setLanguage('fr')">
+                            <span class="language-flag" style="background: #0055a4; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Français
+                        </div>
+                        <div class="language-option" onclick="setLanguage('it')">
+                            <span class="language-flag" style="background: #009246; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
+                            Italiano
+                        </div>
+                    </div>
+                </div>
+
                 <div class="video-background"></div>
                 <div class="video-container">
                     <div class="video-player">
@@ -1094,49 +1273,49 @@
                         <div class="action-icon">
                             <img src="assets/deposit.png" alt="Deposit">
                         </div>
-                        <div>Deposit</div>
+                        <div data-translate="deposit">Deposit</div>
                     </div>
                     <div class="action-item" onclick="window.location.href='withdraw.html'">
                         <div class="action-icon">
                             <img src="assets/withdraw.png" alt="Withdraw">
                         </div>
-                        <div>Withdraw</div>
+                        <div data-translate="withdraw">Withdraw</div>
                     </div>
                     <div class="action-item" onclick="showPage('teamPage')">
                         <div class="action-icon">
                             <img src="assets/team.png" alt="Team">
                         </div>
-                        <div>Team</div>
+                        <div data-translate="team">Team</div>
                     </div>
                     <div class="action-item" onclick="showPage('taskCenterPage')">
                         <div class="action-icon">
                             <img src="assets/task.png" alt="Task Center">
                         </div>
-                        <div>Task Center</div>
+                        <div data-translate="task_center">Task Center</div>
                     </div>
                     <div class="action-item" onclick="showPage('referralPage')">
                         <div class="action-icon">
                             <img src="assets/telegram.png" alt="Telegram">
                         </div>
-                        <div>Invite Friends</div>
+                        <div data-translate="invite_friends">Invite Friends</div>
                     </div>
                     <div class="action-item" onclick="showPage('historyPage')">
                         <div class="action-icon">
                             <img src="assets/history.png" alt="History">
                         </div>
-                        <div>History</div>
+                        <div data-translate="history">History</div>
                     </div>
                     <div class="action-item">
                         <div class="action-icon">
                             <img src="assets/download.png" alt="Download">
                         </div>
-                        <div>Download</div>
+                        <div data-translate="download">Download</div>
                     </div>
                     <div class="action-item" onclick="showPage('licensePage')">
                         <div class="action-icon">
                             <img src="assets/license.png" alt="License">
                         </div>
-                        <div>License</div>
+                        <div data-translate="license">License</div>
                     </div>
                 </div>
             </div>
@@ -1177,28 +1356,28 @@
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">Assets</div>
+                <div class="page-title" data-translate="assets">Assets</div>
                 <div style="width: 132px;"></div>
             </div>
 
             <div class="balance-card">
-                <div class="balance-label">Total Balance</div>
+                <div class="balance-label" data-translate="total_balance">Total Balance</div>
                 <div class="balance-amount" id="total-balance">0.00 USDT</div>
                 <div class="balance-details">
                     <div class="balance-detail">
-                        <div class="balance-label">From Referrals</div>
+                        <div class="balance-label" data-translate="from_referrals">From Referrals</div>
                         <div class="stats-value" id="referral-balance">0.00 USDT</div>
                     </div>
                     <div class="balance-detail">
-                        <div class="balance-label">From Bonuses</div>
+                        <div class="balance-label" data-translate="from_bonuses">From Bonuses</div>
                         <div class="stats-value" id="bonus-balance">0.00 USDT</div>
                     </div>
                     <div class="balance-detail">
-                        <div class="balance-label">From Quantification</div>
+                        <div class="balance-label" data-translate="from_quantification">From Quantification</div>
                         <div class="stats-value" id="quant-balance">0.00 USDT</div>
                     </div>
                     <div class="balance-detail">
-                        <div class="balance-label">Available</div>
+                        <div class="balance-label" data-translate="available">Available</div>
                         <div class="stats-value" id="available-balance">0.00 USDT</div>
                     </div>
                 </div>
@@ -1210,26 +1389,26 @@
                         <div class="assets-button-icon">
                             <img src="assets/deposit.png" alt="Deposit">
                         </div>
-                        <div>Deposit</div>
+                        <div data-translate="deposit">Deposit</div>
                     </div>
                     <div class="assets-button" onclick="window.location.href='withdraw.html'">
                         <div class="assets-button-icon">
                             <img src="assets/withdraw.png" alt="Withdraw">
                         </div>
-                        <div>Withdraw</div>
+                        <div data-translate="withdraw">Withdraw</div>
                     </div>
                 </div>
             </div>
 
             <div class="uni-card">
                 <div class="history-section">
-                    <div class="history-title">Transaction History</div>
+                    <div class="history-title" data-translate="transaction_history">Transaction History</div>
                     <div class="transaction-tabs">
-                        <div class="transaction-tab active" onclick="showTransactionType('all')">All</div>
-                        <div class="transaction-tab" onclick="showTransactionType('deposits')">Deposits</div>
-                        <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Withdrawals</div>
-                        <div class="transaction-tab" onclick="showTransactionType('referrals')">Referrals</div>
-                        <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
+                        <div class="transaction-tab active" onclick="showTransactionType('all')" data-translate="all">All</div>
+                        <div class="transaction-tab" onclick="showTransactionType('deposits')" data-translate="deposits">Deposits</div>
+                        <div class="transaction-tab" onclick="showTransactionType('withdrawals')" data-translate="withdrawals">Withdrawals</div>
+                        <div class="transaction-tab" onclick="showTransactionType('referrals')" data-translate="referrals">Referrals</div>
+                        <div class="transaction-tab" onclick="showTransactionType('quantification')" data-translate="quantification">Quantification</div>
                     </div>
                     
                     <div id="transaction-history-assets">
@@ -1246,7 +1425,7 @@
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">Team</div>
+                <div class="page-title" data-translate="team">Team</div>
                 <div style="width: 40px;"></div>
             </div>
 
@@ -1254,15 +1433,15 @@
                 <div class="referral-stats">
                     <div class="referral-stat">
                         <div class="stats-value" id="gen1-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);">1st Generation</div>
+                        <div class="stats-label" style="color: var(--dark);" data-translate="1st_generation">1st Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen2-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);">2nd Generation</div>
+                        <div class="stats-label" style="color: var(--dark);" data-translate="2nd_generation">2nd Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen3-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);">3rd Generation</div>
+                        <div class="stats-label" style="color: var(--dark);" data-translate="3rd_generation">3rd Generation</div>
                     </div>
                 </div>
             </div>
@@ -1271,15 +1450,15 @@
                 <div class="referral-stats">
                     <div class="referral-stat">
                         <div class="stats-value" id="gen1-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);">8% from 1st Generation</div>
+                        <div class="stats-label" style="color: var(--dark);" data-translate="from_1st_generation">8% from 1st Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen2-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);">3% from 2nd Generation</div>
+                        <div class="stats-label" style="color: var(--dark);" data-translate="from_2nd_generation">3% from 2nd Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen3-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);">1% from 3rd Generation</div>
+                        <div class="stats-label" style="color: var(--dark);" data-translate="from_3rd_generation">1% from 3rd Generation</div>
                     </div>
                 </div>
                 
@@ -1307,7 +1486,7 @@
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">VIP Packages</div>
+                <div class="page-title" data-translate="vip_packages">VIP Packages</div>
                 <div style="width: 132px;"></div>
             </div>
 
@@ -1339,24 +1518,24 @@
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">Quantification</div>
+                <div class="page-title" data-translate="quantification">Quantification</div>
                 <div style="width: 132px;"></div>
             </div>
 
             <div class="uni-card">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 14px; opacity: 0.9;">Current Status</div>
+                    <div style="font-size: 14px; opacity: 0.9;" data-translate="current_status">Current Status</div>
                     <div style="font-size: 24px; font-weight: 600; margin: 10px 0;" id="vip-level-display">VIP 0</div>
-                    <div style="font-size: 14px; opacity: 0.9;">Purchase a package to access premium features</div>
+                    <div style="font-size: 14px; opacity: 0.9;" data-translate="purchase_package">Purchase a package to access premium features</div>
                 </div>
             </div>
 
             <div class="income-display">
-                <div style="font-size:14px;">Available for withdrawal</div>
+                <div style="font-size:14px;" data-translate="available_for_withdrawal">Available for withdrawal</div>
                 <div style="font-size:32px; font-weight:600; margin: 10px 0;" id="available-income">0.00 USDT</div>
                 <div style="font-size:14px;" id="today-percent">+0.0% today</div>
                 <button class="uni-button uni-button-success" id="claim-button" onclick="claimDailyIncome()" style="margin-top: 15px; background: var(--accent);">
-                    <i class="fas fa-bolt"></i> CLAIM INCOME
+                    <i class="fas fa-bolt"></i> <span data-translate="claim_income">CLAIM INCOME</span>
                 </button>
                 <div style="font-size:12px; margin-top: 10px;" id="claim-timer"></div>
             </div>
@@ -1367,19 +1546,19 @@
                         <div class="step-icon" id="step-1">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="step-label">Analysis</div>
+                        <div class="step-label" data-translate="analysis">Analysis</div>
                     </div>
                     <div class="process-step">
                         <div class="step-icon" id="step-2">
                             <i class="fas fa-cog"></i>
                         </div>
-                        <div class="step-label">Processing</div>
+                        <div class="step-label" data-translate="processing">Processing</div>
                     </div>
                     <div class="process-step">
                         <div class="step-icon" id="step-3">
                             <i class="fas fa-check"></i>
                         </div>
-                        <div class="step-label">Completion</div>
+                        <div class="step-label" data-translate="completion">Completion</div>
                     </div>
                 </div>
             </div>
@@ -1390,17 +1569,17 @@
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">History</div>
+                <div class="page-title" data-translate="history">History</div>
                 <div style="width: 40px;"></div>
             </div>
 
             <div class="uni-card">
                 <div class="transaction-tabs">
-                    <div class="transaction-tab active" onclick="showTransactionType('all')">All</div>
-                    <div class="transaction-tab" onclick="showTransactionType('deposits')">Deposits</div>
-                    <div class="transaction-tab" onclick="showTransactionType('withdrawals')">Withdrawals</div>
-                    <div class="transaction-tab" onclick="showTransactionType('referrals')">Referrals</div>
-                    <div class="transaction-tab" onclick="showTransactionType('quantification')">Quantification</div>
+                    <div class="transaction-tab active" onclick="showTransactionType('all')" data-translate="all">All</div>
+                    <div class="transaction-tab" onclick="showTransactionType('deposits')" data-translate="deposits">Deposits</div>
+                    <div class="transaction-tab" onclick="showTransactionType('withdrawals')" data-translate="withdrawals">Withdrawals</div>
+                    <div class="transaction-tab" onclick="showTransactionType('referrals')" data-translate="referrals">Referrals</div>
+                    <div class="transaction-tab" onclick="showTransactionType('quantification')" data-translate="quantification">Quantification</div>
                 </div>
                 
                 <div id="transaction-history">
@@ -1416,7 +1595,7 @@
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">Profile</div>
+                <div class="page-title" data-translate="profile">Profile</div>
                 <div style="width: 132px;"></div>
             </div>
 
@@ -1439,26 +1618,26 @@
                     </div>
                     
                     <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Change Password</label>
-                        <input type="password" id="currentPassword" class="uni-input" placeholder="Current Password">
-                        <input type="password" id="newPassword" class="uni-input" placeholder="New Password">
-                        <input type="password" id="confirmPassword" class="uni-input" placeholder="Confirm Password">
-                        <button class="uni-button" onclick="updatePassword()" style="margin-top: 10px;">Update Password</button>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;" data-translate="change_password">Change Password</label>
+                        <input type="password" id="currentPassword" class="uni-input" data-translate="current_password" placeholder="Current Password">
+                        <input type="password" id="newPassword" class="uni-input" data-translate="new_password" placeholder="New Password">
+                        <input type="password" id="confirmPassword" class="uni-input" data-translate="confirm_new_password" placeholder="Confirm Password">
+                        <button class="uni-button" onclick="updatePassword()" style="margin-top: 10px;" data-translate="update_password">Update Password</button>
                     </div>
                 </div>
                 
                 <div class="verification-section">
-                    <div class="verification-title">Identity Verification</div>
+                    <div class="verification-title" data-translate="identity_verification">Identity Verification</div>
                     
                     <div class="verification-status">
                         <div class="status-icon" id="phone-status">
                             <i class="fas fa-times"></i>
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-weight:600;">Phone Number</div>
-                            <div style="font-size:12px; color:var(--gray);" id="phone-text">Not verified</div>
+                            <div style="font-weight:600;" data-translate="phone_number">Phone Number</div>
+                            <div style="font-size:12px; color:var(--gray);" id="phone-text" data-translate="not_verified">Not verified</div>
                         </div>
-                        <button class="verification-button" onclick="verifyPhone()" id="phone-button">Verify</button>
+                        <button class="verification-button" onclick="verifyPhone()" id="phone-button" data-translate="verify">Verify</button>
                     </div>
                     
                     <div class="verification-status">
@@ -1466,15 +1645,15 @@
                             <i class="fas fa-times"></i>
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-weight:600;">ID/Passport</div>
-                            <div style="font-size:12px; color:var(--gray);" id="id-text">Not verified</div>
+                            <div style="font-weight:600;" data-translate="id_passport">ID/Passport</div>
+                            <div style="font-size:12px; color:var(--gray);" id="id-text" data-translate="not_verified">Not verified</div>
                         </div>
-                        <button class="verification-button" onclick="verifyID()" id="id-button">Verify</button>
+                        <button class="verification-button" onclick="verifyID()" id="id-button" data-translate="verify">Verify</button>
                     </div>
                 </div>
                 
                 <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                    <i class="fas fa-sign-out-alt"></i> <span data-translate="logout">Logout</span>
                 </button>
             </div>
         </div>
@@ -1484,14 +1663,14 @@
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">Invite Friends</div>
+                <div class="page-title" data-translate="invite_friends">Invite Friends</div>
                 <div style="width: 40px;"></div>
             </div>
 
             <div class="referral-screen">
                 <div class="uni-card">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;">Invite Friends</div>
+                        <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="invite_friends">Invite Friends</div>
                         <div style="color: var(--gray);">Invite friends and earn income from 3 referral generations</div>
                     </div>
                     
@@ -1500,24 +1679,24 @@
                             Loading...
                         </div>
                         <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
-                            Copy
+                            <span data-translate="copy">Copy</span>
                         </button>
                     </div>
                     
                     <div style="margin-top: 30px;">
-                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); text-align: center;">Your Bonuses</div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); text-align: center;" data-translate="your_bonuses">Your Bonuses</div>
                         <div class="referral-stats">
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">8%</div>
-                                <div class="stats-label" style="color: var(--dark);">1st Generation</div>
+                                <div class="stats-label" style="color: var(--dark);" data-translate="from_1st_generation">1st Generation</div>
                             </div>
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">3%</div>
-                                <div class="stats-label" style="color: var(--dark);">2nd Generation</div>
+                                <div class="stats-label" style="color: var(--dark);" data-translate="from_2nd_generation">2nd Generation</div>
                             </div>
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">1%</div>
-                                <div class="stats-label" style="color: var(--dark);">3rd Generation</div>
+                                <div class="stats-label" style="color: var(--dark);" data-translate="from_3rd_generation">3rd Generation</div>
                             </div>
                         </div>
                     </div>
@@ -1540,27 +1719,27 @@
                 <div class="header-logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                <div class="page-title">Task Center</div>
+                <div class="page-title" data-translate="task_center">Task Center</div>
                 <div style="width: 40px;"></div>
             </div>
 
             <div class="uni-card">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;">Available Bonuses</div>
-                    <div style="color: var(--gray);">Complete tasks and earn additional rewards</div>
+                    <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="available_bonuses">Available Bonuses</div>
+                    <div style="color: var(--gray);" data-translate="complete_tasks">Complete tasks and earn additional rewards</div>
                 </div>
 
                 <table class="task-center-table">
                     <thead>
                         <tr>
-                            <th>Task</th>
-                            <th>Bonus</th>
-                            <th>Status</th>
+                            <th data-translate="task">Task</th>
+                            <th data-translate="bonus">Bonus</th>
+                            <th data-translate="status">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Registration Bonus</td>
+                            <td data-translate="registration_bonus_task">Registration Bonus</td>
                             <td class="bonus-amount">3.00 USDT</td>
                             <td>Completed</td>
                         </tr>
@@ -1603,7 +1782,7 @@
                 </table>
 
                 <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
-                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">Terms & Conditions:</div>
+                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="terms_conditions">Terms & Conditions:</div>
                     <div style="font-size: 14px; color: var(--gray); text-align: left;">
                         • All bonuses are credited manually by administration<br>
                         • VIP purchase bonuses are awarded after successful package activation<br>
@@ -1621,7 +1800,7 @@
                 <div class="back-btn" onclick="showPage('mainPage')">
                     <i class="fas fa-arrow-left"></i>
                 </div>
-                <div class="page-title">License & Documents</div>
+                <div class="page-title" data-translate="license_documents">License & Documents</div>
                 <div style="width: 40px;"></div>
             </div>
 
@@ -1635,8 +1814,8 @@
                     
                     <!-- Заголовок документа -->
                     <div style="text-align: center; margin-bottom: 30px; position: relative; z-index: 2;">
-                        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">OFFICIAL FINANCIAL LICENSE</div>
-                        <div style="font-size: 28px; font-weight: bold; color: #b8860b; margin-bottom: 10px; text-transform: uppercase;">Certificate of Authorization</div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 5px;" data-translate="official_financial_license">OFFICIAL FINANCIAL LICENSE</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #b8860b; margin-bottom: 10px; text-transform: uppercase;" data-translate="certificate_authorization">Certificate of Authorization</div>
                         <div style="height: 2px; background: linear-gradient(90deg, transparent, #d4af37, transparent); margin: 15px 0;"></div>
                     </div>
 
@@ -1645,17 +1824,17 @@
                         <!-- Левая колонка -->
                         <div>
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;">License Number</div>
+                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="license_number">License Number</div>
                                 <div style="font-size: 18px; font-weight: bold; color: var(--primary); letter-spacing: 2px;">IFSC/2020/UI789456</div>
                             </div>
                             
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Company Name</div>
+                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="company_name">Company Name</div>
                                 <div style="font-size: 16px; font-weight: 600;">Uipath Financial Services Ltd.</div>
                             </div>
                             
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Registration Address</div>
+                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="registration_address">Registration Address</div>
                                 <div style="font-size: 14px; line-height: 1.4;">
                                     25-28 Old Burlington Street,<br>
                                     London, W1S 3AN,<br>
@@ -1667,17 +1846,17 @@
                         <!-- Правая колонка -->
                         <div>
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Date of Issue</div>
+                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="date_issue">Date of Issue</div>
                                 <div style="font-size: 16px; font-weight: 600;">March 15, 2020</div>
                             </div>
                             
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Valid Until</div>
+                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="valid_until">Valid Until</div>
                                 <div style="font-size: 16px; font-weight: 600;">December 31, 2037</div>
                             </div>
                             
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Regulatory Body</div>
+                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="regulatory_body">Regulatory Body</div>
                                 <div style="font-size: 14px; font-weight: 600;">International Financial Services Commission</div>
                             </div>
                         </div>
@@ -1687,52 +1866,49 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px; position: relative; z-index: 2;">
                         <div style="text-align: center;">
                             <div style="height: 1px; background: #ddd; margin-bottom: 60px; position: relative;">
-                                <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; font-size: 12px; color: #666;">Authorized Signature</div>
+                                <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; font-size: 12px; color: #666;" data-translate="authorized_signature">Authorized Signature</div>
                             </div>
                             <div style="font-size: 12px; color: #666;">James Wilson</div>
                             <div style="font-size: 11px; color: #999;">Director of Licensing</div>
                         </div>
                         
                         <div style="text-align: center;">
-                            <!-- Настоящая синяя печать -->
-                            <div style="width: 120px; height: 120px; border: 3px solid #1e3a8a; border-radius: 50%; margin: 0 auto 15px; position: relative; background: radial-gradient(circle, #3b82f6, #1e40af); display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(30, 64, 175, 0.3);">
-                                <div style="text-align: center; padding: 10px; color: white;">
-                                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">OFFICIAL SEAL</div>
-                                    <div style="font-size: 10px; line-height: 1.2; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">IFSC<br>VERIFIED<br>2020</div>
+                            <!-- Real Official Seal -->
+                            <div class="official-seal">
+                                <div class="seal-outer-ring"></div>
+                                <div class="seal-inner-ring"></div>
+                                <div class="seal-content">
+                                    <div style="font-size: 14px; margin-bottom: 5px;">OFFICIAL SEAL</div>
+                                    <div style="font-size: 10px; line-height: 1.2;">IFSC<br>VERIFIED<br>2020</div>
                                 </div>
                             </div>
-                            <div style="font-size: 11px; color: #999;">Official Regulatory Seal</div>
+                            <div style="font-size: 11px; color: #999;" data-translate="official_seal">Official Regulatory Seal</div>
                         </div>
-                    </div>
-
-                    <!-- Декоративные элементы -->
-                    <div style="position: absolute; top: 20px; right: 30px; width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; transform: rotate(5deg); box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
-                        OFFICIAL
                     </div>
                 </div>
 
                 <!-- Дополнительные документы -->
                 <div style="background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
-                    <h3 style="color: var(--primary); margin-bottom: 20px; text-align: center;">Supporting Documents</h3>
+                    <h3 style="color: var(--primary); margin-bottom: 20px; text-align: center;" data-translate="supporting_documents">Supporting Documents</h3>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 8px;">
                             <div style="font-size: 24px; margin-bottom: 10px;">📊</div>
-                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;">Financial Report 2024</div>
-                            <div style="font-size: 11px; color: var(--gray);">Annual Audit Statement</div>
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;" data-translate="financial_report">Financial Report 2024</div>
+                            <div style="font-size: 11px; color: var(--gray);" data-translate="annual_audit">Annual Audit Statement</div>
                         </div>
                         
                         <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 8px;">
                             <div style="font-size: 24px; margin-bottom: 10px;">🛡️</div>
-                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;">Insurance Certificate</div>
-                            <div style="font-size: 11px; color: var(--gray);">Client Fund Protection</div>
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;" data-translate="insurance_certificate">Insurance Certificate</div>
+                            <div style="font-size: 11px; color: var(--gray);" data-translate="client_fund_protection">Client Fund Protection</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Юридическая информация -->
                 <div style="background: var(--light); padding: 20px; border-radius: 10px;">
-                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px; text-align: center;">Legal Information</div>
+                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px; text-align: center;" data-translate="legal_information">Legal Information</div>
                     <div style="font-size: 12px; color: var(--gray); line-height: 1.5; text-align: center;">
                         Uipath Financial Services Ltd. is registered in England and Wales (Company No. 12345678)<br>
                         VAT Registration: GB 123 4567 89 • FCA Reference: 123456<br>
@@ -1741,7 +1917,7 @@
                     <div style="text-align: center; margin-top: 15px;">
                         <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px;">
                             <i class="fas fa-shield-alt"></i>
-                            VERIFIED LICENSE • VALID UNTIL 2037
+                            <span data-translate="verified_license">VERIFIED LICENSE • VALID UNTIL 2037</span>
                         </div>
                     </div>
                 </div>
@@ -1770,1232 +1946,1281 @@
                 <div class="uni-tabbar-icon">
                     <img src="assets/asset.png" alt="Assets">
                 </div>
-                <div>Assets</div>
+                <div data-translate="assets">Assets</div>
             </div>
             <div class="uni-tabbar-item" onclick="showPage('profilePage')">
                 <div class="uni-tabbar-icon">
                     <img src="assets/Profile.png" alt="Profile">
                 </div>
-                <div>Profile</div>
+                <div data-translate="profile">Profile</div>
             </div>
         </div>
     </div>
 
-<script>
-    const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
-
-    const vipPackages = [
-        { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, duration: 30, bgImage: 'assets/vip1.png', icon: 'assets/vip1-icon.png' },
-        { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, duration: 30, bgImage: 'assets/vip2.png', icon: 'assets/vip2-icon.png' },
-        { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, duration: 30, bgImage: 'assets/vip3.png', icon: 'assets/vip3-icon.png' },
-        { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, duration: 30, bgImage: 'assets/vip4.png', icon: 'assets/vip4-icon.png' },
-        { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, duration: 30, bgImage: 'assets/vip5.png', icon: 'assets/vip5-icon.png' },
-        { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, duration: 30, bgImage: 'assets/vip6.png', icon: 'assets/vip6-icon.png' }
-    ];
-
-    let appState = {
-        currentUserId: null,
-        user: null,
-        activeVipPackages: [],
-        referrals: { gen1: [], gen2: [], gen3: [] },
-        transactions: []
-    };
-
-    let dataCache = {
-        user: null,
-        vipPurchases: null,
-        transactions: null,
-        lastUpdated: null
-    };
-
-    // PWA Installation
-    let deferredPrompt;
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        
-        // Для Android - сразу предлагаем установку
-        if (/Android/.test(navigator.userAgent)) {
-            setTimeout(() => {
-                showInstallPromotion();
-            }, 3000);
+    <script src="translate.js"></script>
+    <script>
+        // Language dropdown toggle function
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('active');
         }
-    });
 
-    function showInstallPromotion() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                } else {
-                    console.log('User dismissed the install prompt');
-                }
-                deferredPrompt = null;
-            });
-        }
-    }
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('languageDropdown');
+            const selector = document.querySelector('.language-selector');
+            if (!selector.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
 
-    function showLoading() {
-        document.getElementById('loadingOverlay').classList.add('active');
-    }
-
-    function hideLoading() {
-        document.getElementById('loadingOverlay').classList.remove('active');
-    }
-
-    async function safeSupabaseFetch(table, query = '*', filters = null) {
-        try {
-            let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
+        // Override setLanguage to close dropdown
+        const originalSetLanguage = setLanguage;
+        setLanguage = function(lang) {
+            originalSetLanguage(lang);
+            document.getElementById('languageDropdown').classList.remove('active');
             
-            if (filters) {
-                Object.keys(filters).forEach(key => {
-                    url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
+            // Update all dynamic content that uses getTranslation
+            updateDynamicContent();
+        };
+
+        function updateDynamicContent() {
+            // Update any dynamic content that uses getTranslation here
+            // For example, update alert messages, button states, etc.
+        }
+
+        // Rest of the existing JavaScript code remains the same
+        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
+
+        const vipPackages = [
+            { id: 1, level: 1, price: 20, dailyIncome: 0.52, percentage: 2.6, duration: 30, bgImage: 'assets/vip1.png', icon: 'assets/vip1-icon.png' },
+            { id: 2, level: 2, price: 100, dailyIncome: 3.10, percentage: 3.1, duration: 30, bgImage: 'assets/vip2.png', icon: 'assets/vip2-icon.png' },
+            { id: 3, level: 3, price: 300, dailyIncome: 10.80, percentage: 3.6, duration: 30, bgImage: 'assets/vip3.png', icon: 'assets/vip3-icon.png' },
+            { id: 4, level: 4, price: 1000, dailyIncome: 41.00, percentage: 4.1, duration: 30, bgImage: 'assets/vip4.png', icon: 'assets/vip4-icon.png' },
+            { id: 5, level: 5, price: 3000, dailyIncome: 138.00, percentage: 4.6, duration: 30, bgImage: 'assets/vip5.png', icon: 'assets/vip5-icon.png' },
+            { id: 6, level: 6, price: 5000, dailyIncome: 255.00, percentage: 5.1, duration: 30, bgImage: 'assets/vip6.png', icon: 'assets/vip6-icon.png' }
+        ];
+
+        let appState = {
+            currentUserId: null,
+            user: null,
+            activeVipPackages: [],
+            referrals: { gen1: [], gen2: [], gen3: [] },
+            transactions: []
+        };
+
+        let dataCache = {
+            user: null,
+            vipPurchases: null,
+            transactions: null,
+            lastUpdated: null
+        };
+
+        // PWA Installation
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Для Android - сразу предлагаем установку
+            if (/Android/.test(navigator.userAgent)) {
+                setTimeout(() => {
+                    showInstallPromotion();
+                }, 3000);
+            }
+        });
+
+        function showInstallPromotion() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    deferredPrompt = null;
                 });
             }
-            
-            const response = await fetch(url, {
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                }
-            });
-            
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error('DB fetch error:', error);
-            throw error;
         }
-    }
 
-    async function safeSupabaseInsert(table, data) {
-        try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-                method: 'POST',
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify(data)
-            });
-            
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error('DB insert error:', error);
-            throw error;
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
         }
-    }
 
-    async function safeSupabaseUpdate(table, data, column, value) {
-        try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
-                method: 'PATCH',
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify(data)
-            });
-            
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error('DB update error:', error);
-            throw error;
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
         }
-    }
 
-    async function loadReferrals() {
-        try {
-            console.log('Loading referrals for user:', appState.currentUserId);
-            
-            // 1st generation - direct referrals
-            const gen1Referrals = await safeSupabaseFetch('users', 'id, name, created_at', { 
-                referred_by: appState.currentUserId 
-            });
-            appState.referrals.gen1 = gen1Referrals || [];
-
-            // 2nd generation - referrals of referrals
-            let gen2Referrals = [];
-            if (appState.referrals.gen1.length > 0) {
-                // Для каждого реферала 1-го поколения находим его рефералов
-                for (const gen1User of appState.referrals.gen1) {
-                    const gen2Users = await safeSupabaseFetch('users', 'id, name, created_at', {
-                        referred_by: gen1User.id
+        async function safeSupabaseFetch(table, query = '*', filters = null) {
+            try {
+                let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
+                
+                if (filters) {
+                    Object.keys(filters).forEach(key => {
+                        url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
                     });
-                    gen2Referrals = gen2Referrals.concat(gen2Users || []);
                 }
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('DB fetch error:', error);
+                throw error;
             }
-            appState.referrals.gen2 = gen2Referrals;
+        }
 
-            // 3rd generation - referrals of referrals of referrals
-            let gen3Referrals = [];
-            if (appState.referrals.gen2.length > 0) {
-                for (const gen2User of appState.referrals.gen2) {
-                    const gen3Users = await safeSupabaseFetch('users', 'id, name, created_at', {
-                        referred_by: gen2User.id
-                    });
-                    gen3Referrals = gen3Referrals.concat(gen3Users || []);
+        async function safeSupabaseInsert(table, data) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('DB insert error:', error);
+                throw error;
+            }
+        }
+
+        async function safeSupabaseUpdate(table, data, column, value) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('DB update error:', error);
+                throw error;
+            }
+        }
+
+        async function loadReferrals() {
+            try {
+                console.log('Loading referrals for user:', appState.currentUserId);
+                
+                // 1st generation - direct referrals
+                const gen1Referrals = await safeSupabaseFetch('users', 'id, name, created_at', { 
+                    referred_by: appState.currentUserId 
+                });
+                appState.referrals.gen1 = gen1Referrals || [];
+
+                // 2nd generation - referrals of referrals
+                let gen2Referrals = [];
+                if (appState.referrals.gen1.length > 0) {
+                    // Для каждого реферала 1-го поколения находим его рефералов
+                    for (const gen1User of appState.referrals.gen1) {
+                        const gen2Users = await safeSupabaseFetch('users', 'id, name, created_at', {
+                            referred_by: gen1User.id
+                        });
+                        gen2Referrals = gen2Referrals.concat(gen2Users || []);
+                    }
                 }
+                appState.referrals.gen2 = gen2Referrals;
+
+                // 3rd generation - referrals of referrals of referrals
+                let gen3Referrals = [];
+                if (appState.referrals.gen2.length > 0) {
+                    for (const gen2User of appState.referrals.gen2) {
+                        const gen3Users = await safeSupabaseFetch('users', 'id, name, created_at', {
+                            referred_by: gen2User.id
+                        });
+                        gen3Referrals = gen3Referrals.concat(gen3Users || []);
+                    }
+                }
+                appState.referrals.gen3 = gen3Referrals;
+
+                console.log('Referrals loaded successfully:', {
+                    gen1: appState.referrals.gen1.length,
+                    gen2: appState.referrals.gen2.length,
+                    gen3: appState.referrals.gen3.length
+                });
+
+            } catch (error) {
+                console.error('Error loading referrals:', error);
+                // Инициализируем пустые массивы в случае ошибки
+                appState.referrals = { gen1: [], gen2: [], gen3: [] };
             }
-            appState.referrals.gen3 = gen3Referrals;
-
-            console.log('Referrals loaded successfully:', {
-                gen1: appState.referrals.gen1.length,
-                gen2: appState.referrals.gen2.length,
-                gen3: appState.referrals.gen3.length
-            });
-
-        } catch (error) {
-            console.error('Error loading referrals:', error);
-            // Инициализируем пустые массивы в случае ошибки
-            appState.referrals = { gen1: [], gen2: [], gen3: [] };
-        }
-    }
-
-    async function purchaseVIPPackageDirect(pkg) {
-        const existingPurchase = appState.activeVipPackages.find(purchase => 
-            purchase.vip_package_id === pkg.id && purchase.active === true
-        );
-        
-        if (existingPurchase) {
-            showCustomAlert(`VIP ${pkg.level} package is already active!`);
-            return;
         }
 
-        if (appState.user.balance < pkg.price) {
-            showCustomAlert('Insufficient balance to purchase this VIP package');
-            return;
-        }
-
-        showLoading();
-        
-        try {
-            const purchaseData = {
-                user_id: appState.currentUserId,
-                vip_package_id: pkg.id,
-                purchase_date: new Date().toISOString(),
-                expiry_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                active: true,
-                deposit_returned: false,
-                created_at: new Date().toISOString()
-            };
-
-            await safeSupabaseInsert('vip_purchases', purchaseData);
-
-            const newBalance = appState.user.balance - pkg.price;
-            await safeSupabaseUpdate('users', 
-                { 
-                    balance: newBalance, 
-                    vip_level: Math.max(appState.user.vip_level, pkg.level) 
-                }, 
-                'id', 
-                appState.currentUserId
+        async function purchaseVIPPackageDirect(pkg) {
+            const existingPurchase = appState.activeVipPackages.find(purchase => 
+                purchase.vip_package_id === pkg.id && purchase.active === true
             );
-
-            const transactionData = {
-                user_id: appState.currentUserId,
-                type: 'vip_purchase',
-                title: `VIP ${pkg.level} Purchase`,
-                amount: pkg.price,
-                positive: false,
-                created_at: new Date().toISOString()
-            };
-            await safeSupabaseInsert('transactions', transactionData);
-
-            await processReferralIncome(pkg.price, pkg.level);
-
-            await loadAllData();
-            updateUI();
-            renderVIPPackages();
             
-            showCustomAlert(`VIP ${pkg.level} package purchased successfully!`);
-            
-        } catch (error) {
-            console.error('VIP purchase error:', error);
-            showCustomAlert('Purchase failed. Please try again.');
-        } finally {
-            hideLoading();
-        }
-    }
-
-    async function processReferralIncome(packagePrice, vipLevel) {
-        try {
-            if (!appState.user.referred_by) return;
-
-            const referrers = await safeSupabaseFetch('users', '*', { id: appState.user.referred_by });
-            if (referrers.length === 0) return;
-
-            const referrer = referrers[0];
-            const currentUser = appState.user;
-            
-            const level1Bonus = packagePrice * 0.08;
-            await safeSupabaseUpdate('users', 
-                { balance: referrer.balance + level1Bonus }, 
-                'id', 
-                referrer.id
-            );
-
-            const level1Transaction = {
-                user_id: referrer.id,
-                type: 'referral',
-                title: `Referral Income (Level 1) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
-                amount: level1Bonus,
-                positive: true,
-                created_at: new Date().toISOString()
-            };
-            await safeSupabaseInsert('transactions', level1Transaction);
-
-            if (referrer.referred_by) {
-                const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
-                if (level2Referrers.length > 0) {
-                    const level2Referrer = level2Referrers[0];
-                    const level2Bonus = packagePrice * 0.03;
-                    
-                    await safeSupabaseUpdate('users', 
-                        { balance: level2Referrer.balance + level2Bonus }, 
-                        'id', 
-                        level2Referrer.id
-                    );
-
-                    const level2Transaction = {
-                        user_id: level2Referrer.id,
-                        type: 'referral',
-                        title: `Referral Income (Level 2) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
-                        amount: level2Bonus,
-                        positive: true,
-                        created_at: new Date().toISOString()
-                    };
-                    await safeSupabaseInsert('transactions', level2Transaction);
-                }
+            if (existingPurchase) {
+                showCustomAlert(getTranslation('package_already_active', {level: pkg.level}));
+                return;
             }
 
-            if (referrer.referred_by) {
-                const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
-                if (level2Referrers.length > 0 && level2Referrers[0].referred_by) {
-                    const level3Referrers = await safeSupabaseFetch('users', '*', { id: level2Referrers[0].referred_by });
-                    if (level3Referrers.length > 0) {
-                        const level3Referrer = level3Referrers[0];
-                        const level3Bonus = packagePrice * 0.01;
+            if (appState.user.balance < pkg.price) {
+                showCustomAlert(getTranslation('insufficient_balance'));
+                return;
+            }
+
+            showLoading();
+            
+            try {
+                const purchaseData = {
+                    user_id: appState.currentUserId,
+                    vip_package_id: pkg.id,
+                    purchase_date: new Date().toISOString(),
+                    expiry_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    active: true,
+                    deposit_returned: false,
+                    created_at: new Date().toISOString()
+                };
+
+                await safeSupabaseInsert('vip_purchases', purchaseData);
+
+                const newBalance = appState.user.balance - pkg.price;
+                await safeSupabaseUpdate('users', 
+                    { 
+                        balance: newBalance, 
+                        vip_level: Math.max(appState.user.vip_level, pkg.level) 
+                    }, 
+                    'id', 
+                    appState.currentUserId
+                );
+
+                const transactionData = {
+                    user_id: appState.currentUserId,
+                    type: 'vip_purchase',
+                    title: `VIP ${pkg.level} Purchase`,
+                    amount: pkg.price,
+                    positive: false,
+                    created_at: new Date().toISOString()
+                };
+                await safeSupabaseInsert('transactions', transactionData);
+
+                await processReferralIncome(pkg.price, pkg.level);
+
+                await loadAllData();
+                updateUI();
+                renderVIPPackages();
+                
+                showCustomAlert(getTranslation('vip_purchased', {level: pkg.level}));
+                
+            } catch (error) {
+                console.error('VIP purchase error:', error);
+                showCustomAlert('Purchase failed. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function processReferralIncome(packagePrice, vipLevel) {
+            try {
+                if (!appState.user.referred_by) return;
+
+                const referrers = await safeSupabaseFetch('users', '*', { id: appState.user.referred_by });
+                if (referrers.length === 0) return;
+
+                const referrer = referrers[0];
+                const currentUser = appState.user;
+                
+                const level1Bonus = packagePrice * 0.08;
+                await safeSupabaseUpdate('users', 
+                    { balance: referrer.balance + level1Bonus }, 
+                    'id', 
+                    referrer.id
+                );
+
+                const level1Transaction = {
+                    user_id: referrer.id,
+                    type: 'referral',
+                    title: `Referral Income (Level 1) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
+                    amount: level1Bonus,
+                    positive: true,
+                    created_at: new Date().toISOString()
+                };
+                await safeSupabaseInsert('transactions', level1Transaction);
+
+                if (referrer.referred_by) {
+                    const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
+                    if (level2Referrers.length > 0) {
+                        const level2Referrer = level2Referrers[0];
+                        const level2Bonus = packagePrice * 0.03;
                         
                         await safeSupabaseUpdate('users', 
-                            { balance: level3Referrer.balance + level3Bonus }, 
+                            { balance: level2Referrer.balance + level2Bonus }, 
                             'id', 
-                            level3Referrer.id
+                            level2Referrer.id
                         );
 
-                        const level3Transaction = {
-                            user_id: level3Referrer.id,
+                        const level2Transaction = {
+                            user_id: level2Referrer.id,
                             type: 'referral',
-                            title: `Referral Income (Level 3) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
-                            amount: level3Bonus,
+                            title: `Referral Income (Level 2) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
+                            amount: level2Bonus,
                             positive: true,
                             created_at: new Date().toISOString()
                         };
-                        await safeSupabaseInsert('transactions', level3Transaction);
+                        await safeSupabaseInsert('transactions', level2Transaction);
                     }
                 }
+
+                if (referrer.referred_by) {
+                    const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
+                    if (level2Referrers.length > 0 && level2Referrers[0].referred_by) {
+                        const level3Referrers = await safeSupabaseFetch('users', '*', { id: level2Referrers[0].referred_by });
+                        if (level3Referrers.length > 0) {
+                            const level3Referrer = level3Referrers[0];
+                            const level3Bonus = packagePrice * 0.01;
+                            
+                            await safeSupabaseUpdate('users', 
+                                { balance: level3Referrer.balance + level3Bonus }, 
+                                'id', 
+                                level3Referrer.id
+                            );
+
+                            const level3Transaction = {
+                                user_id: level3Referrer.id,
+                                type: 'referral',
+                                title: `Referral Income (Level 3) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
+                                amount: level3Bonus,
+                                positive: true,
+                                created_at: new Date().toISOString()
+                            };
+                            await safeSupabaseInsert('transactions', level3Transaction);
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error('Referral income error:', error);
             }
-
-        } catch (error) {
-            console.error('Referral income error:', error);
         }
-    }
 
-    function calculateReferralIncomeForUser(referralId) {
-        const income = appState.transactions
-            .filter(t => t.type === 'referral' && t.title.includes(`[${referralId}]`))
-            .reduce((sum, t) => sum + t.amount, 0);
-        return income;
-    }
-
-    function calculateReferralIncome(level) {
-        const income = appState.transactions
-            .filter(t => t.type === 'referral' && t.title.includes(`Level ${level}`))
-            .reduce((sum, t) => sum + t.amount, 0);
-        return income;
-    }
-
-    function canClaimDailyIncome() {
-        if (!appState.user.last_claim_date) {
-            return true;
+        function calculateReferralIncomeForUser(referralId) {
+            const income = appState.transactions
+                .filter(t => t.type === 'referral' && t.title.includes(`[${referralId}]`))
+                .reduce((sum, t) => sum + t.amount, 0);
+            return income;
         }
-        
-        const lastClaim = new Date(appState.user.last_claim_date);
-        const now = new Date();
-        
-        // Приводим оба времени к UTC для корректного сравнения
-        const lastClaimUTC = Date.UTC(
-            lastClaim.getUTCFullYear(),
-            lastClaim.getUTCMonth(), 
-            lastClaim.getUTCDate(),
-            lastClaim.getUTCHours(),
-            lastClaim.getUTCMinutes(),
-            lastClaim.getUTCSeconds()
-        );
-        
-        const nowUTC = Date.UTC(
-            now.getUTCFullYear(),
-            now.getUTCMonth(),
-            now.getUTCDate(), 
-            now.getUTCHours(),
-            now.getUTCMinutes(), 
-            now.getUTCSeconds()
-        );
-        
-        // Получаем начало текущего окна забора (22:00 UTC сегодня)
-        const today22UTC = new Date(Date.UTC(
-            now.getUTCFullYear(),
-            now.getUTCMonth(),
-            now.getUTCDate(),
-            22, 0, 0, 0
-        ));
-        
-        // Если сейчас время после 22:00 UTC, используем сегодняшнее окно, иначе - вчерашнее
-        const currentWindowStart = nowUTC >= today22UTC.getTime() ? 
-            today22UTC : 
-            new Date(Date.UTC(
+
+        function calculateReferralIncome(level) {
+            const income = appState.transactions
+                .filter(t => t.type === 'referral' && t.title.includes(`Level ${level}`))
+                .reduce((sum, t) => sum + t.amount, 0);
+            return income;
+        }
+
+        function canClaimDailyIncome() {
+            if (!appState.user.last_claim_date) {
+                return true;
+            }
+            
+            const lastClaim = new Date(appState.user.last_claim_date);
+            const now = new Date();
+            
+            // Приводим оба времени к UTC для корректного сравнения
+            const lastClaimUTC = Date.UTC(
+                lastClaim.getUTCFullYear(),
+                lastClaim.getUTCMonth(), 
+                lastClaim.getUTCDate(),
+                lastClaim.getUTCHours(),
+                lastClaim.getUTCMinutes(),
+                lastClaim.getUTCSeconds()
+            );
+            
+            const nowUTC = Date.UTC(
                 now.getUTCFullYear(),
                 now.getUTCMonth(),
-                now.getUTCDate() - 1,
+                now.getUTCDate(), 
+                now.getUTCHours(),
+                now.getUTCMinutes(), 
+                now.getUTCSeconds()
+            );
+            
+            // Получаем начало текущего окна забора (22:00 UTC сегодня)
+            const today22UTC = new Date(Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate(),
                 22, 0, 0, 0
             ));
-        
-        // Можно забирать если последний забор был ДО начала текущего окна
-        const canClaim = lastClaimUTC < currentWindowStart.getTime();
-        
-        console.log('Claim check:', {
-            lastClaim: new Date(lastClaimUTC).toISOString(),
-            now: new Date(nowUTC).toISOString(), 
-            currentWindowStart: currentWindowStart.toISOString(),
-            hoursSinceLastClaim: (nowUTC - lastClaimUTC) / (1000 * 60 * 60),
-            canClaim
-        });
-        
-        return canClaim;
-    }
-
-    function getNextClaimTime() {
-        const now = new Date();
-        const nextClaim = new Date(Date.UTC(
-            now.getUTCFullYear(),
-            now.getUTCMonth(), 
-            now.getUTCDate(),
-            22, 0, 0, 0
-        ));
-        
-        // Если уже прошло 22:00 сегодня, берем завтра
-        if (now.getTime() >= nextClaim.getTime()) {
-            nextClaim.setUTCDate(nextClaim.getUTCDate() + 1);
-        }
-        
-        return nextClaim;
-    }
-
-    function calculateDailyIncome() {
-        let dailyIncome = 0;
-        const now = new Date();
-        
-        const activePackages = appState.activeVipPackages.filter(purchase => {
-            const purchaseDate = new Date(purchase.purchase_date);
-            const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-            const isActive = purchase.active === true && 
-                            purchase.deposit_returned === false && 
-                            now < expiryDate;
             
-            return isActive;
-        });
-        
-        activePackages.forEach(purchase => {
-            const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
-            if (vipPackage) {
-                dailyIncome += vipPackage.dailyIncome;
-            }
-        });
-        
-        return dailyIncome;
-    }
+            // Если сейчас время после 22:00 UTC, используем сегодняшнее окно, иначе - вчерашнее
+            const currentWindowStart = nowUTC >= today22UTC.getTime() ? 
+                today22UTC : 
+                new Date(Date.UTC(
+                    now.getUTCFullYear(),
+                    now.getUTCMonth(),
+                    now.getUTCDate() - 1,
+                    22, 0, 0, 0
+                ));
+            
+            // Можно забирать если последний забор был ДО начала текущего окна
+            const canClaim = lastClaimUTC < currentWindowStart.getTime();
+            
+            console.log('Claim check:', {
+                lastClaim: new Date(lastClaimUTC).toISOString(),
+                now: new Date(nowUTC).toISOString(), 
+                currentWindowStart: currentWindowStart.toISOString(),
+                hoursSinceLastClaim: (nowUTC - lastClaimUTC) / (1000 * 60 * 60),
+                canClaim
+            });
+            
+            return canClaim;
+        }
 
-    async function processExpiredVipPackages() {
-        try {
+        function getNextClaimTime() {
             const now = new Date();
-            const expiredPackages = appState.activeVipPackages.filter(purchase => {
+            const nextClaim = new Date(Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(), 
+                now.getUTCDate(),
+                22, 0, 0, 0
+            ));
+            
+            // Если уже прошло 22:00 сегодня, берем завтра
+            if (now.getTime() >= nextClaim.getTime()) {
+                nextClaim.setUTCDate(nextClaim.getUTCDate() + 1);
+            }
+            
+            return nextClaim;
+        }
+
+        function calculateDailyIncome() {
+            let dailyIncome = 0;
+            const now = new Date();
+            
+            const activePackages = appState.activeVipPackages.filter(purchase => {
                 const purchaseDate = new Date(purchase.purchase_date);
                 const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-                return purchase.active && !purchase.deposit_returned && now >= expiryDate;
+                const isActive = purchase.active === true && 
+                                purchase.deposit_returned === false && 
+                                now < expiryDate;
+                
+                return isActive;
             });
-
-            for (const purchase of expiredPackages) {
+            
+            activePackages.forEach(purchase => {
                 const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
                 if (vipPackage) {
-                    const newBalance = appState.user.balance + vipPackage.price;
-                    await safeSupabaseUpdate('users', 
-                        { balance: newBalance }, 
-                        'id', 
-                        appState.currentUserId
-                    );
-
-                    await safeSupabaseUpdate('vip_purchases', 
-                        { active: false, deposit_returned: true }, 
-                        'id', 
-                        purchase.id
-                    );
-
-                    const returnTransaction = {
-                        user_id: appState.currentUserId,
-                        type: 'deposit_return',
-                        title: `VIP ${vipPackage.level} Deposit Return`,
-                        amount: vipPackage.price,
-                        positive: true,
-                        created_at: new Date().toISOString()
-                    };
-                    await safeSupabaseInsert('transactions', returnTransaction);
+                    dailyIncome += vipPackage.dailyIncome;
                 }
-            }
-
-            if (expiredPackages.length > 0) {
-                await loadAllData();
-            }
+            });
             
-        } catch (error) {
-            console.error('Expiry check error:', error);
+            return dailyIncome;
         }
-    }
 
-    async function loadAllData() {
-        try {
-            const userId = sessionStorage.getItem('currentUserId');
-            if (!userId) {
-                window.location.href = 'index.html';
-                return;
+        async function processExpiredVipPackages() {
+            try {
+                const now = new Date();
+                const expiredPackages = appState.activeVipPackages.filter(purchase => {
+                    const purchaseDate = new Date(purchase.purchase_date);
+                    const expiryDate = new Date(purchaseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+                    return purchase.active && !purchase.deposit_returned && now >= expiryDate;
+                });
+
+                for (const purchase of expiredPackages) {
+                    const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                    if (vipPackage) {
+                        const newBalance = appState.user.balance + vipPackage.price;
+                        await safeSupabaseUpdate('users', 
+                            { balance: newBalance }, 
+                            'id', 
+                            appState.currentUserId
+                        );
+
+                        await safeSupabaseUpdate('vip_purchases', 
+                            { active: false, deposit_returned: true }, 
+                            'id', 
+                            purchase.id
+                        );
+
+                        const returnTransaction = {
+                            user_id: appState.currentUserId,
+                            type: 'deposit_return',
+                            title: `VIP ${vipPackage.level} Deposit Return`,
+                            amount: vipPackage.price,
+                            positive: true,
+                            created_at: new Date().toISOString()
+                        };
+                        await safeSupabaseInsert('transactions', returnTransaction);
+                    }
+                }
+
+                if (expiredPackages.length > 0) {
+                    await loadAllData();
+                }
+                
+            } catch (error) {
+                console.error('Expiry check error:', error);
             }
-            
-            appState.currentUserId = userId;
-            
-            const now = new Date();
-            if (dataCache.lastUpdated && (now - dataCache.lastUpdated) < 10000) {
-                appState.user = dataCache.user;
-                appState.activeVipPackages = dataCache.vipPurchases;
-                appState.transactions = dataCache.transactions;
-            } else {
-                const users = await safeSupabaseFetch('users', '*', { id: userId });
-                if (users.length === 0) {
-                    sessionStorage.removeItem('currentUserId');
+        }
+
+        async function loadAllData() {
+            try {
+                const userId = sessionStorage.getItem('currentUserId');
+                if (!userId) {
                     window.location.href = 'index.html';
                     return;
                 }
                 
-                appState.user = users[0];
+                appState.currentUserId = userId;
                 
-                appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
-                    user_id: userId 
-                });
-                
-                appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
-                
-                dataCache = {
-                    user: appState.user,
-                    vipPurchases: appState.activeVipPackages,
-                    transactions: appState.transactions,
-                    lastUpdated: new Date()
-                };
-            }
-            
-            await loadReferrals();
-            
-            await processExpiredVipPackages();
-            return true;
-        } catch (error) {
-            console.error('Data load error:', error);
-            showCustomAlert('Error loading data. Please refresh the page.');
-            return false;
-        }
-    }
-
-    function showCustomAlert(message) {
-        const overlay = document.createElement('div');
-        overlay.className = 'custom-alert-overlay';
-        
-        overlay.innerHTML = `
-            <div class="custom-alert">
-                <div class="custom-alert-icon">
-                    <img src="assets/quant.png" alt="Uipath">
-                </div>
-                <div class="custom-alert-message">${message}</div>
-                <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
-            </div>
-        `;
-        
-        document.body.appendChild(overlay);
-    }
-
-    function showCustomConfirm(message, confirmCallback) {
-        const overlay = document.createElement('div');
-        overlay.className = 'custom-confirm-overlay';
-        
-        overlay.innerHTML = `
-            <div class="custom-confirm">
-                <div class="custom-alert-icon">
-                    <img src="assets/quant.png" alt="Uipath">
-                </div>
-                <div class="custom-alert-message">${message}</div>
-                <div class="custom-confirm-buttons">
-                    <button class="custom-confirm-button cancel">Cancel</button>
-                    <button class="custom-confirm-button confirm">Confirm</button>
-                </div>
-            </div>
-        `;
-        
-        const confirmBtn = overlay.querySelector('.confirm');
-        const cancelBtn = overlay.querySelector('.cancel');
-        
-        confirmBtn.onclick = function() {
-            document.body.removeChild(overlay);
-            if (typeof confirmCallback === 'function') {
-                confirmCallback();
-            }
-        };
-        
-        cancelBtn.onclick = function() {
-            document.body.removeChild(overlay);
-        };
-        
-        document.body.appendChild(overlay);
-    }
-
-    async function initApp() {
-        showLoading();
-        const success = await loadAllData();
-        if (!success) return;
-        
-        renderVIPPackages();
-        updateUI();
-        updateClaimButton();
-        startTimer();
-        startCarousel();
-        updateVerificationStatus();
-        hideLoading();
-    }
-
-    function startCarousel() {
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.carousel-slide');
-        
-        setInterval(() => {
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % slides.length;
-            slides[currentSlide].classList.add('active');
-        }, 5000);
-    }
-
-    function toggleVideo() {
-        const video = document.getElementById('promoVideo');
-        const playBtn = document.querySelector('.play-btn');
-        
-        if (video.paused) {
-            video.play();
-            playBtn.style.display = 'none';
-        } else {
-            video.pause();
-            playBtn.style.display = 'flex';
-        }
-    }
-
-    function showTransactionType(type) {
-        const tabs = document.querySelectorAll('.transaction-tab');
-        tabs.forEach(tab => tab.classList.remove('active'));
-        
-        event.target.classList.add('active');
-        
-        updateTransactionsHistory(type);
-    }
-
-    function updateTransactionsHistory(type = 'all') {
-        const transactionHistory = document.getElementById('transaction-history');
-        const transactionHistoryAssets = document.getElementById('transaction-history-assets');
-        
-        if (transactionHistory) updateTransactionList(transactionHistory, type);
-        if (transactionHistoryAssets) updateTransactionList(transactionHistoryAssets, type);
-    }
-
-    function updateTransactionList(container, type = 'all') {
-        container.innerHTML = '';
-        
-        let filteredTransactions = appState.transactions;
-        
-        if (type !== 'all') {
-            filteredTransactions = appState.transactions.filter(transaction => {
-                if (type === 'deposits') return transaction.type === 'deposit';
-                if (type === 'withdrawals') return transaction.type === 'withdraw';
-                if (type === 'referrals') return transaction.type === 'referral';
-                if (type === 'quantification') return transaction.type === 'daily_income';
-                return true;
-            });
-        }
-        
-        if (filteredTransactions.length === 0) {
-            container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No transactions found</div>';
-            return;
-        }
-        
-        filteredTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        
-        filteredTransactions.forEach(transaction => {
-            const transactionItem = document.createElement('div');
-            transactionItem.className = 'transaction-item';
-            
-            let iconClass = '';
-            let icon = '';
-            
-            switch(transaction.type) {
-                case 'deposit':
-                    iconClass = 'deposit';
-                    icon = 'fa-arrow-down';
-                    break;
-                case 'withdraw':
-                    iconClass = 'withdraw';
-                    icon = 'fa-arrow-up';
-                    break;
-                case 'bonus':
-                    iconClass = 'deposit';
-                    icon = 'fa-gift';
-                    break;
-                case 'referral':
-                    iconClass = 'deposit';
-                    icon = 'fa-users';
-                    break;
-                case 'vip_purchase':
-                    iconClass = 'withdraw';
-                    icon = 'fa-crown';
-                    break;
-                case 'daily_income':
-                    iconClass = 'deposit';
-                    icon = 'fa-coins';
-                    break;
-                case 'deposit_return':
-                    iconClass = 'deposit';
-                    icon = 'fa-undo';
-                    break;
-                default:
-                    iconClass = 'deposit';
-                    icon = 'fa-coins';
-            }
-            
-            transactionItem.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 30px; height: 30px; border-radius: 50%; background: ${transaction.positive ? 'rgba(76,217,100,0.1)' : 'rgba(255,59,48,0.1)'}; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas ${icon}" style="color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight:600;">${transaction.title}</div>
-                        <div style="font-size:12px; color:var(--gray);">${formatDate(new Date(transaction.created_at))}</div>
-                    </div>
-                </div>
-                <div style="font-weight:600; color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};">
-                    ${transaction.positive ? '+' : '-'}${formatCurrency(transaction.amount)} USDT
-                </div>
-            `;
-            
-            container.appendChild(transactionItem);
-        });
-    }
-
-    function renderVIPPackages() {
-        const packagesList = document.getElementById('vip-packages-list');
-        packagesList.innerHTML = '';
-        
-        vipPackages.forEach(pkg => {
-            const isPurchased = appState.activeVipPackages.some(purchase => 
-                purchase.vip_package_id === pkg.id && purchase.active === true
-            );
-            const packageElement = document.createElement('div');
-            let packageClass = 'vip-package';
-            if (isPurchased) packageClass += ' active';
-            
-            packageElement.className = packageClass;
-            packageElement.style.backgroundImage = `url('${pkg.bgImage}')`;
-            packageElement.onclick = () => purchaseVIPPackage(pkg);
-            
-            packageElement.innerHTML = `
-                <div>
-                    <div style="font-weight:600; font-size:16px; color: white;">VIP ${pkg.level}</div>
-                    <div style="font-size:14px; color: white;">${formatCurrency(pkg.price)} USDT</div>
-                    <div style="font-size:12px; opacity:0.9; color: white;">+${formatCurrency(pkg.dailyIncome)} USDT/day</div>
-                    <div style="font-size:10px; opacity:0.8; color: white;">${pkg.percentage}% daily for 30 days</div>
-                </div>
-                <div class="vip-icon">
-                    <img src="${pkg.icon}" alt="VIP ${pkg.level}">
-                </div>
-                <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: white; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
-                    ${isPurchased ? 'ACTIVE' : 'BUY'}
-                </div>
-            `;
-            
-            packagesList.appendChild(packageElement);
-        });
-    }
-
-    async function purchaseVIPPackage(pkg) {
-        await purchaseVIPPackageDirect(pkg);
-    }
-
-    function formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(amount);
-    }
-
-    function formatDate(date) {
-        return new Intl.DateTimeFormat('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).format(date);
-    }
-
-    function updateClaimButton() {
-        const claimButton = document.getElementById('claim-button');
-        const claimTimer = document.getElementById('claim-timer');
-        
-        const availableIncome = calculateDailyIncome();
-        const canClaim = canClaimDailyIncome();
-        
-        if (availableIncome === 0) {
-            claimButton.disabled = true;
-            claimButton.innerHTML = '<i class="fas fa-bolt"></i> NO AVAILABLE INCOME';
-            claimTimer.textContent = 'Buy a VIP package to earn income';
-            return;
-        }
-        
-        if (canClaim) {
-            claimButton.disabled = false;
-            claimButton.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
-            
-            const nextClaim = getNextClaimTime();
-            const now = new Date();
-            const timeLeft = nextClaim - now;
-            const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-            const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            
-            claimTimer.textContent = `Available for: ${hoursLeft}h ${minutesLeft}m`;
-        } else {
-            claimButton.disabled = true;
-            claimButton.innerHTML = '<i class="fas fa-bolt"></i> ALREADY CLAIMED';
-            
-            const nextClaim = getNextClaimTime();
-            const now = new Date();
-            const timeLeft = nextClaim - now;
-            const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-            const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            
-            claimTimer.textContent = `Next claim: ${hoursLeft}h ${minutesLeft}m`;
-        }
-    }
-
-    function startTimer() {
-        setInterval(updateClaimButton, 60000);
-    }
-
-    async function claimDailyIncome() {
-        const claimBtn = document.getElementById('claim-button');
-        
-        if (claimBtn.disabled) {
-            showCustomAlert('You cannot claim income at this time. Please check the timer.');
-            return;
-        }
-        
-        const dailyIncome = calculateDailyIncome();
-        
-        if (dailyIncome === 0) {
-            showCustomAlert('No available income to claim. Purchase a VIP package to start earning.');
-            return;
-        }
-        
-        if (!canClaimDailyIncome()) {
-            showCustomAlert('You have already claimed your daily income. Come back tomorrow at 22:00 UTC.');
-            return;
-        }
-        
-        await startTradingProcess(dailyIncome);
-    }
-
-    async function startTradingProcess(dailyIncome) {
-        const claimBtn = document.getElementById('claim-button');
-        const steps = [1, 2, 3];
-        
-        claimBtn.disabled = true;
-        claimBtn.classList.add('processing');
-        claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
-        
-        for (let i = 0; i < steps.length; i++) {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            const step = steps[i];
-            const stepIcon = document.getElementById(`step-${step}`);
-            stepIcon.classList.add('active');
-            
-            if (step === 1) {
-                claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
-            } else if (step === 2) {
-                claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
-            } else if (step === 3) {
-                claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
-                claimBtn.classList.remove('processing');
-                claimBtn.classList.add('completed');
-                
-                try {
-                    const newBalance = appState.user.balance + dailyIncome;
-                    await safeSupabaseUpdate('users', 
-                        { 
-                            balance: newBalance, 
-                            last_claim_date: new Date().toISOString() 
-                        }, 
-                        'id', 
-                        appState.currentUserId
-                    );
-
-                    const incomeTransaction = {
-                        user_id: appState.currentUserId,
-                        type: 'daily_income',
-                        title: 'Daily Quantification Income',
-                        amount: dailyIncome,
-                        positive: true,
-                        created_at: new Date().toISOString()
-                    };
-                    await safeSupabaseInsert('transactions', incomeTransaction);
-
-                    await loadAllData();
-                    updateUI();
+                const now = new Date();
+                if (dataCache.lastUpdated && (now - dataCache.lastUpdated) < 10000) {
+                    appState.user = dataCache.user;
+                    appState.activeVipPackages = dataCache.vipPurchases;
+                    appState.transactions = dataCache.transactions;
+                } else {
+                    const users = await safeSupabaseFetch('users', '*', { id: userId });
+                    if (users.length === 0) {
+                        sessionStorage.removeItem('currentUserId');
+                        window.location.href = 'index.html';
+                        return;
+                    }
                     
-                    showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
-                } catch (error) {
-                    console.error('Claim income error:', error);
-                    showCustomAlert('Failed to claim income. Please try again.');
+                    appState.user = users[0];
+                    
+                    appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
+                        user_id: userId 
+                    });
+                    
+                    appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
+                    
+                    dataCache = {
+                        user: appState.user,
+                        vipPurchases: appState.activeVipPackages,
+                        transactions: appState.transactions,
+                        lastUpdated: new Date()
+                    };
                 }
                 
-                setTimeout(() => {
-                    resetTradingProcess();
-                }, 3000);
+                await loadReferrals();
+                
+                await processExpiredVipPackages();
+                return true;
+            } catch (error) {
+                console.error('Data load error:', error);
+                showCustomAlert('Error loading data. Please refresh the page.');
+                return false;
             }
         }
-    }
 
-    function resetTradingProcess() {
-        const claimBtn = document.getElementById('claim-button');
-        const steps = [1, 2, 3];
-        
-        claimBtn.classList.remove('processing', 'completed');
-        claimBtn.innerHTML = '<i class="fas fa-bolt"></i> CLAIM INCOME';
-        
-        steps.forEach(step => {
-            const stepIcon = document.getElementById(`step-${step}`);
-            stepIcon.classList.remove('active');
-        });
-        
-        updateClaimButton();
-    }
-
-    function updateUI() {
-        if (!appState.user) return;
-        
-        document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-        
-        const referralIncome = appState.transactions
-            .filter(t => t.type === 'referral' && t.positive)
-            .reduce((sum, t) => sum + t.amount, 0);
-        const bonusIncome = appState.transactions
-            .filter(t => t.type === 'bonus' && t.positive)
-            .reduce((sum, t) => sum + t.amount, 0);
-        const quantIncome = appState.transactions
-            .filter(t => t.type === 'daily_income' && t.positive)
-            .reduce((sum, t) => sum + t.amount, 0);
-        
-        document.getElementById('referral-balance').textContent = `${formatCurrency(referralIncome)} USDT`;
-        document.getElementById('bonus-balance').textContent = `${formatCurrency(bonusIncome)} USDT`;
-        document.getElementById('quant-balance').textContent = `${formatCurrency(quantIncome)} USDT`;
-        document.getElementById('available-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-        
-        document.getElementById('profile-name').textContent = appState.user.name;
-        document.getElementById('profile-id').textContent = appState.user.id;
-        document.getElementById('email').value = appState.user.email;
-        
-        document.getElementById('vip-level-display').textContent = `VIP ${appState.user.vip_level}`;
-        
-        const referralLink = `${window.location.origin}/index.html?ref=${appState.user.referral_code}`;
-        document.getElementById('referral-link').textContent = referralLink;
-        document.getElementById('team-referral-link').textContent = referralLink;
-        
-        updateTeamScreen();
-        updateEarnScreen();
-        updateTransactionsHistory('all');
-    }
-
-    function updateTeamScreen() {
-        document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
-        document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
-        document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
-        
-        const gen1Income = calculateReferralIncome(1);
-        const gen2Income = calculateReferralIncome(2);
-        const gen3Income = calculateReferralIncome(3);
-        
-        document.getElementById('gen1-income').textContent = `${formatCurrency(gen1Income)} USDT`;
-        document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
-        document.getElementById('gen3-income').textContent = `${formatCurrency(gen3Income)} USDT`;
-        
-        const referralList = document.getElementById('referral-list');
-        referralList.innerHTML = '';
-        
-        if (appState.referrals.gen1.length === 0 && 
-            appState.referrals.gen2.length === 0 && 
-            appState.referrals.gen3.length === 0) {
-            referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 40px 20px;">No referrals yet. Share your referral link to invite friends!</div>';
-            return;
+        function showCustomAlert(message) {
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-alert-overlay';
+            
+            overlay.innerHTML = `
+                <div class="custom-alert">
+                    <div class="custom-alert-icon">
+                        <img src="assets/quant.png" alt="Uipath">
+                    </div>
+                    <div class="custom-alert-message">${message}</div>
+                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
         }
-        
-        // Function to display referrals by level
-        const displayLevel = (level, referrals, title) => {
-            if (referrals.length === 0) return;
+
+        function showCustomConfirm(message, confirmCallback) {
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-confirm-overlay';
             
-            const levelHeader = document.createElement('div');
-            levelHeader.innerHTML = `<div style="font-weight: 600; color: var(--primary); margin: 20px 0 10px; font-size: 16px; border-bottom: 1px solid var(--light); padding-bottom: 8px;">${title} (${referrals.length} users)</div>`;
-            referralList.appendChild(levelHeader);
+            overlay.innerHTML = `
+                <div class="custom-confirm">
+                    <div class="custom-alert-icon">
+                        <img src="assets/quant.png" alt="Uipath">
+                    </div>
+                    <div class="custom-alert-message">${message}</div>
+                    <div class="custom-confirm-buttons">
+                        <button class="custom-confirm-button cancel">Cancel</button>
+                        <button class="custom-confirm-button confirm">Confirm</button>
+                    </div>
+                </div>
+            `;
             
-            referrals.forEach(ref => {
-                const referralItem = document.createElement('div');
-                referralItem.className = 'referral-item';
-                referralItem.innerHTML = `
-                    <div class="referral-info">
-                        <div class="referral-avatar" style="background: var(--primary);">${ref.name ? ref.name.substring(0, 2).toUpperCase() : 'US'}</div>
-                        <div style="flex: 1;">
-                            <div style="font-weight:600; font-size: 14px;">${ref.name || 'Unknown User'}</div>
-                            <div style="font-size:11px; color:var(--gray);">
-                                ID: ${ref.id} • ${ref.created_at ? new Date(ref.created_at).toLocaleDateString() : 'Unknown date'}
-                            </div>
+            const confirmBtn = overlay.querySelector('.confirm');
+            const cancelBtn = overlay.querySelector('.cancel');
+            
+            confirmBtn.onclick = function() {
+                document.body.removeChild(overlay);
+                if (typeof confirmCallback === 'function') {
+                    confirmCallback();
+                }
+            };
+            
+            cancelBtn.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+            
+            document.body.appendChild(overlay);
+        }
+
+        async function initApp() {
+            showLoading();
+            const success = await loadAllData();
+            if (!success) return;
+            
+            renderVIPPackages();
+            updateUI();
+            updateClaimButton();
+            startTimer();
+            startCarousel();
+            updateVerificationStatus();
+            hideLoading();
+        }
+
+        function startCarousel() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-slide');
+            
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 5000);
+        }
+
+        function toggleVideo() {
+            const video = document.getElementById('promoVideo');
+            const playBtn = document.querySelector('.play-btn');
+            
+            if (video.paused) {
+                video.play();
+                playBtn.style.display = 'none';
+            } else {
+                video.pause();
+                playBtn.style.display = 'flex';
+            }
+        }
+
+        function showTransactionType(type) {
+            const tabs = document.querySelectorAll('.transaction-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            
+            updateTransactionsHistory(type);
+        }
+
+        function updateTransactionsHistory(type = 'all') {
+            const transactionHistory = document.getElementById('transaction-history');
+            const transactionHistoryAssets = document.getElementById('transaction-history-assets');
+            
+            if (transactionHistory) updateTransactionList(transactionHistory, type);
+            if (transactionHistoryAssets) updateTransactionList(transactionHistoryAssets, type);
+        }
+
+        function updateTransactionList(container, type = 'all') {
+            container.innerHTML = '';
+            
+            let filteredTransactions = appState.transactions;
+            
+            if (type !== 'all') {
+                filteredTransactions = appState.transactions.filter(transaction => {
+                    if (type === 'deposits') return transaction.type === 'deposit';
+                    if (type === 'withdrawals') return transaction.type === 'withdraw';
+                    if (type === 'referrals') return transaction.type === 'referral';
+                    if (type === 'quantification') return transaction.type === 'daily_income';
+                    return true;
+                });
+            }
+            
+            if (filteredTransactions.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No transactions found</div>';
+                return;
+            }
+            
+            filteredTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            filteredTransactions.forEach(transaction => {
+                const transactionItem = document.createElement('div');
+                transactionItem.className = 'transaction-item';
+                
+                let iconClass = '';
+                let icon = '';
+                
+                switch(transaction.type) {
+                    case 'deposit':
+                        iconClass = 'deposit';
+                        icon = 'fa-arrow-down';
+                        break;
+                    case 'withdraw':
+                        iconClass = 'withdraw';
+                        icon = 'fa-arrow-up';
+                        break;
+                    case 'bonus':
+                        iconClass = 'deposit';
+                        icon = 'fa-gift';
+                        break;
+                    case 'referral':
+                        iconClass = 'deposit';
+                        icon = 'fa-users';
+                        break;
+                    case 'vip_purchase':
+                        iconClass = 'withdraw';
+                        icon = 'fa-crown';
+                        break;
+                    case 'daily_income':
+                        iconClass = 'deposit';
+                        icon = 'fa-coins';
+                        break;
+                    case 'deposit_return':
+                        iconClass = 'deposit';
+                        icon = 'fa-undo';
+                        break;
+                    default:
+                        iconClass = 'deposit';
+                        icon = 'fa-coins';
+                }
+                
+                transactionItem.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: ${transaction.positive ? 'rgba(76,217,100,0.1)' : 'rgba(255,59,48,0.1)'}; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas ${icon}" style="color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:600;">${transaction.title}</div>
+                            <div style="font-size:12px; color:var(--gray);">${formatDate(new Date(transaction.created_at))}</div>
                         </div>
                     </div>
-                    <div class="level-badge level-${level}">Level ${level}</div>
+                    <div style="font-weight:600; color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};">
+                        ${transaction.positive ? '+' : '-'}${formatCurrency(transaction.amount)} USDT
+                    </div>
                 `;
-                referralList.appendChild(referralItem);
+                
+                container.appendChild(transactionItem);
             });
-        };
-        
-        // Display all three generations
-        displayLevel(1, appState.referrals.gen1, '1st Generation');
-        displayLevel(2, appState.referrals.gen2, '2nd Generation'); 
-        displayLevel(3, appState.referrals.gen3, '3rd Generation');
-    }
-
-    function updateEarnScreen() {
-        const dailyIncome = calculateDailyIncome();
-        
-        document.getElementById('available-income').textContent = `${formatCurrency(dailyIncome)} USDT`;
-        
-        let percentage = 0;
-        const totalInvested = appState.activeVipPackages
-            .filter(p => p.active && !p.deposit_returned)
-            .reduce((sum, purchase) => {
-                const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
-                return sum + (vipPackage ? vipPackage.price : 0);
-            }, 0);
-        
-        if (totalInvested > 0) {
-            percentage = (dailyIncome / totalInvested) * 100;
         }
-        document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
-    }
 
-    function updateVerificationStatus() {
-        const phoneStatus = document.getElementById('phone-status');
-        const phoneText = document.getElementById('phone-text');
-        const phoneButton = document.getElementById('phone-button');
-        
-        const idStatus = document.getElementById('id-status');
-        const idText = document.getElementById('id-text');
-        const idButton = document.getElementById('id-button');
-        
-        if (appState.user.phone_verified) {
-            phoneStatus.className = 'status-icon verified';
-            phoneStatus.innerHTML = '<i class="fas fa-check"></i>';
-            phoneText.textContent = 'Verified';
-            phoneButton.textContent = 'Verified';
-            phoneButton.disabled = true;
-            phoneButton.style.background = '#c7c7cc';
-        } else {
-            phoneStatus.className = 'status-icon';
-            phoneStatus.innerHTML = '<i class="fas fa-times"></i>';
-            phoneText.textContent = 'Not verified';
-            phoneButton.textContent = 'Verify';
-            phoneButton.disabled = false;
-            phoneButton.style.background = '';
-        }
-        
-        if (appState.user.id_verified) {
-            idStatus.className = 'status-icon verified';
-            idStatus.innerHTML = '<i class="fas fa-check"></i>';
-            idText.textContent = 'Verified';
-            idButton.textContent = 'Verified';
-            idButton.disabled = true;
-            idButton.style.background = '#c7c7cc';
-        } else {
-            idStatus.className = 'status-icon';
-            idStatus.innerHTML = '<i class="fas fa-times"></i>';
-            idText.textContent = 'Not verified';
-            idButton.textContent = 'Verify';
-            idButton.disabled = false;
-            idButton.style.background = '';
-        }
-    }
-
-    function showPage(pageId) {
-        showLoading();
-        
-        setTimeout(() => {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
+        function renderVIPPackages() {
+            const packagesList = document.getElementById('vip-packages-list');
+            packagesList.innerHTML = '';
+            
+            vipPackages.forEach(pkg => {
+                const isPurchased = appState.activeVipPackages.some(purchase => 
+                    purchase.vip_package_id === pkg.id && purchase.active === true
+                );
+                const packageElement = document.createElement('div');
+                let packageClass = 'vip-package';
+                if (isPurchased) packageClass += ' active';
+                
+                packageElement.className = packageClass;
+                packageElement.style.backgroundImage = `url('${pkg.bgImage}')`;
+                packageElement.onclick = () => purchaseVIPPackage(pkg);
+                
+                packageElement.innerHTML = `
+                    <div>
+                        <div style="font-weight:600; font-size:16px; color: white;">VIP ${pkg.level}</div>
+                        <div style="font-size:14px; color: white;">${formatCurrency(pkg.price)} USDT</div>
+                        <div style="font-size:12px; opacity:0.9; color: white;">+${formatCurrency(pkg.dailyIncome)} USDT/day</div>
+                        <div style="font-size:10px; opacity:0.8; color: white;">${pkg.percentage}% daily for 30 days</div>
+                    </div>
+                    <div class="vip-icon">
+                        <img src="${pkg.icon}" alt="VIP ${pkg.level}">
+                    </div>
+                    <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: white; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
+                        ${isPurchased ? 'ACTIVE' : 'BUY'}
+                    </div>
+                `;
+                
+                packagesList.appendChild(packageElement);
             });
-            
-            document.getElementById(pageId).classList.add('active');
-            
-            updateNavActiveState(pageId);
-            hideLoading();
-        }, 200);
-    }
-    
-    function updateNavActiveState(pageId) {
-        const navItems = document.querySelectorAll('.uni-tabbar-item');
-        navItems.forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        if (pageId === 'mainPage') {
-            navItems[0].classList.add('active');
-        } else if (pageId === 'vipPage') {
-            navItems[1].classList.add('active');
-        } else if (pageId === 'earnPage') {
-            navItems[2].classList.add('active');
-        } else if (pageId === 'assetsPage') {
-            navItems[3].classList.add('active');
-        } else if (pageId === 'profilePage') {
-            navItems[4].classList.add('active');
         }
-    }
 
-    function copyToClipboard(elementId) {
-        const element = document.getElementById(elementId);
-        let text = element.textContent || element.innerText;
-        
-        if (elementId === 'profile-id') {
-            text = appState.user.id;
+        async function purchaseVIPPackage(pkg) {
+            await purchaseVIPPackageDirect(pkg);
         }
-        
-        navigator.clipboard.writeText(text).then(() => {
-            const originalText = element.textContent;
-            element.textContent = 'Copied!';
-            setTimeout(() => {
-                element.textContent = originalText;
-            }, 2000);
-        }).catch(() => {
-            showCustomAlert('Failed to copy to clipboard');
-        });
-    }
 
-    function verifyPhone() {
-        const phoneNumber = prompt('Please enter your phone number for verification:');
-        if (phoneNumber) {
-            setTimeout(async () => {
-                await safeSupabaseUpdate('users', { phone_verified: true }, 'id', appState.currentUserId);
-                appState.user.phone_verified = true;
-                updateVerificationStatus();
-                showCustomAlert('Phone number verified successfully!');
-            }, 1500);
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
         }
-    }
 
-    function verifyID() {
-        const idNumber = prompt('Please enter your ID or Passport number:');
-        if (idNumber) {
-            setTimeout(async () => {
-                await safeSupabaseUpdate('users', { id_verified: true }, 'id', appState.currentUserId);
-                appState.user.id_verified = true;
-                updateVerificationStatus();
-                showCustomAlert('ID/Passport verified successfully!');
-            }, 1500);
+        function formatDate(date) {
+            return new Intl.DateTimeFormat('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
         }
-    }
 
-    async function updatePassword() {
-        const currentPassword = document.getElementById('currentPassword').value;
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            showCustomAlert('Please fill in all password fields');
-            return;
-        }
-        
-        if (newPassword.length < 6) {
-            showCustomAlert('New password must be at least 6 characters long');
-            return;
-        }
-        
-        if (newPassword !== confirmPassword) {
-            showCustomAlert('New password and confirmation do not match');
-            return;
-        }
-        
-        if (appState.user.password !== currentPassword) {
-            showCustomAlert('Current password is incorrect');
-            return;
-        }
-        
-        try {
-            await safeSupabaseUpdate('users', 
-                { password: newPassword }, 
-                'id', 
-                appState.currentUserId
-            );
+        function updateClaimButton() {
+            const claimButton = document.getElementById('claim-button');
+            const claimTimer = document.getElementById('claim-timer');
             
-            appState.user.password = newPassword;
+            const availableIncome = calculateDailyIncome();
+            const canClaim = canClaimDailyIncome();
             
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            
-            showCustomAlert('Password updated successfully!');
-        } catch (error) {
-            console.error('Password update error:', error);
-            showCustomAlert('Failed to update password. Please try again.');
-        }
-    }
-
-    function logout() {
-        showCustomConfirm(
-            'Are you sure you want to logout?',
-            function() {
-                sessionStorage.removeItem('currentUserId');
-                window.location.href = 'index.html';
+            if (availableIncome === 0) {
+                claimButton.disabled = true;
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ' + getTranslation('no_available_income');
+                claimTimer.textContent = getTranslation('buy_vip_earn');
+                return;
             }
-        );
-    }
-
-    window.onload = function() {
-        if (!sessionStorage.getItem('currentUserId')) {
-            window.location.href = 'index.html';
-            return;
+            
+            if (canClaim) {
+                claimButton.disabled = false;
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ' + getTranslation('claim_income');
+                
+                const nextClaim = getNextClaimTime();
+                const now = new Date();
+                const timeLeft = nextClaim - now;
+                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                
+                claimTimer.textContent = `Available for: ${hoursLeft}h ${minutesLeft}m`;
+            } else {
+                claimButton.disabled = true;
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ' + getTranslation('already_claimed');
+                
+                const nextClaim = getNextClaimTime();
+                const now = new Date();
+                const timeLeft = nextClaim - now;
+                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                
+                claimTimer.textContent = `Next claim: ${hoursLeft}h ${minutesLeft}m`;
+            }
         }
-        initApp();
-    };
-</script>
+
+        function startTimer() {
+            setInterval(updateClaimButton, 60000);
+        }
+
+        async function claimDailyIncome() {
+            const claimBtn = document.getElementById('claim-button');
+            
+            if (claimBtn.disabled) {
+                showCustomAlert(getTranslation('cannot_claim'));
+                return;
+            }
+            
+            const dailyIncome = calculateDailyIncome();
+            
+            if (dailyIncome === 0) {
+                showCustomAlert(getTranslation('no_income'));
+                return;
+            }
+            
+            if (!canClaimDailyIncome()) {
+                showCustomAlert(getTranslation('already_claimed'));
+                return;
+            }
+            
+            await startTradingProcess(dailyIncome);
+        }
+
+        async function startTradingProcess(dailyIncome) {
+            const claimBtn = document.getElementById('claim-button');
+            const steps = [1, 2, 3];
+            
+            claimBtn.disabled = true;
+            claimBtn.classList.add('processing');
+            claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
+            
+            for (let i = 0; i < steps.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                const step = steps[i];
+                const stepIcon = document.getElementById(`step-${step}`);
+                stepIcon.classList.add('active');
+                
+                if (step === 1) {
+                    claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
+                } else if (step === 2) {
+                    claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
+                } else if (step === 3) {
+                    claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
+                    claimBtn.classList.remove('processing');
+                    claimBtn.classList.add('completed');
+                    
+                    try {
+                        const newBalance = appState.user.balance + dailyIncome;
+                        await safeSupabaseUpdate('users', 
+                            { 
+                                balance: newBalance, 
+                                last_claim_date: new Date().toISOString() 
+                            }, 
+                            'id', 
+                            appState.currentUserId
+                        );
+
+                        const incomeTransaction = {
+                            user_id: appState.currentUserId,
+                            type: 'daily_income',
+                            title: 'Daily Quantification Income',
+                            amount: dailyIncome,
+                            positive: true,
+                            created_at: new Date().toISOString()
+                        };
+                        await safeSupabaseInsert('transactions', incomeTransaction);
+
+                        await loadAllData();
+                        updateUI();
+                        
+                        showCustomAlert(getTranslation('income_claimed', {amount: formatCurrency(dailyIncome)}));
+                    } catch (error) {
+                        console.error('Claim income error:', error);
+                        showCustomAlert('Failed to claim income. Please try again.');
+                    }
+                    
+                    setTimeout(() => {
+                        resetTradingProcess();
+                    }, 3000);
+                }
+            }
+        }
+
+        function resetTradingProcess() {
+            const claimBtn = document.getElementById('claim-button');
+            const steps = [1, 2, 3];
+            
+            claimBtn.classList.remove('processing', 'completed');
+            claimBtn.innerHTML = '<i class="fas fa-bolt"></i> ' + getTranslation('claim_income');
+            
+            steps.forEach(step => {
+                const stepIcon = document.getElementById(`step-${step}`);
+                stepIcon.classList.remove('active');
+            });
+            
+            updateClaimButton();
+        }
+
+        function updateUI() {
+            if (!appState.user) return;
+            
+            document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
+            
+            const referralIncome = appState.transactions
+                .filter(t => t.type === 'referral' && t.positive)
+                .reduce((sum, t) => sum + t.amount, 0);
+            const bonusIncome = appState.transactions
+                .filter(t => t.type === 'bonus' && t.positive)
+                .reduce((sum, t) => sum + t.amount, 0);
+            const quantIncome = appState.transactions
+                .filter(t => t.type === 'daily_income' && t.positive)
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('referral-balance').textContent = `${formatCurrency(referralIncome)} USDT`;
+            document.getElementById('bonus-balance').textContent = `${formatCurrency(bonusIncome)} USDT`;
+            document.getElementById('quant-balance').textContent = `${formatCurrency(quantIncome)} USDT`;
+            document.getElementById('available-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
+            
+            document.getElementById('profile-name').textContent = appState.user.name;
+            document.getElementById('profile-id').textContent = appState.user.id;
+            document.getElementById('email').value = appState.user.email;
+            
+            document.getElementById('vip-level-display').textContent = `VIP ${appState.user.vip_level}`;
+            
+            const referralLink = `${window.location.origin}/index.html?ref=${appState.user.referral_code}`;
+            document.getElementById('referral-link').textContent = referralLink;
+            document.getElementById('team-referral-link').textContent = referralLink;
+            
+            updateTeamScreen();
+            updateEarnScreen();
+            updateTransactionsHistory('all');
+        }
+
+        function updateTeamScreen() {
+            document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
+            document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
+            document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
+            
+            const gen1Income = calculateReferralIncome(1);
+            const gen2Income = calculateReferralIncome(2);
+            const gen3Income = calculateReferralIncome(3);
+            
+            document.getElementById('gen1-income').textContent = `${formatCurrency(gen1Income)} USDT`;
+            document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
+            document.getElementById('gen3-income').textContent = `${formatCurrency(gen3Income)} USDT`;
+            
+            const referralList = document.getElementById('referral-list');
+            referralList.innerHTML = '';
+            
+            if (appState.referrals.gen1.length === 0 && 
+                appState.referrals.gen2.length === 0 && 
+                appState.referrals.gen3.length === 0) {
+                referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 40px 20px;">No referrals yet. Share your referral link to invite friends!</div>';
+                return;
+            }
+            
+            // Function to display referrals by level
+            const displayLevel = (level, referrals, title) => {
+                if (referrals.length === 0) return;
+                
+                const levelHeader = document.createElement('div');
+                levelHeader.innerHTML = `<div style="font-weight: 600; color: var(--primary); margin: 20px 0 10px; font-size: 16px; border-bottom: 1px solid var(--light); padding-bottom: 8px;">${title} (${referrals.length} users)</div>`;
+                referralList.appendChild(levelHeader);
+                
+                referrals.forEach(ref => {
+                    const referralItem = document.createElement('div');
+                    referralItem.className = 'referral-item';
+                    referralItem.innerHTML = `
+                        <div class="referral-info">
+                            <div class="referral-avatar" style="background: var(--primary);">${ref.name ? ref.name.substring(0, 2).toUpperCase() : 'US'}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight:600; font-size: 14px;">${ref.name || 'Unknown User'}</div>
+                                <div style="font-size:11px; color:var(--gray);">
+                                    ID: ${ref.id} • ${ref.created_at ? new Date(ref.created_at).toLocaleDateString() : 'Unknown date'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="level-badge level-${level}">Level ${level}</div>
+                    `;
+                    referralList.appendChild(referralItem);
+                });
+            };
+            
+            // Display all three generations
+            displayLevel(1, appState.referrals.gen1, '1st Generation');
+            displayLevel(2, appState.referrals.gen2, '2nd Generation'); 
+            displayLevel(3, appState.referrals.gen3, '3rd Generation');
+        }
+
+        function updateEarnScreen() {
+            const dailyIncome = calculateDailyIncome();
+            
+            document.getElementById('available-income').textContent = `${formatCurrency(dailyIncome)} USDT`;
+            
+            let percentage = 0;
+            const totalInvested = appState.activeVipPackages
+                .filter(p => p.active && !p.deposit_returned)
+                .reduce((sum, purchase) => {
+                    const vipPackage = vipPackages.find(p => p.id === purchase.vip_package_id);
+                    return sum + (vipPackage ? vipPackage.price : 0);
+                }, 0);
+            
+            if (totalInvested > 0) {
+                percentage = (dailyIncome / totalInvested) * 100;
+            }
+            document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
+        }
+
+        function updateVerificationStatus() {
+            const phoneStatus = document.getElementById('phone-status');
+            const phoneText = document.getElementById('phone-text');
+            const phoneButton = document.getElementById('phone-button');
+            
+            const idStatus = document.getElementById('id-status');
+            const idText = document.getElementById('id-text');
+            const idButton = document.getElementById('id-button');
+            
+            if (appState.user.phone_verified) {
+                phoneStatus.className = 'status-icon verified';
+                phoneStatus.innerHTML = '<i class="fas fa-check"></i>';
+                phoneText.textContent = getTranslation('verified');
+                phoneButton.textContent = getTranslation('verified');
+                phoneButton.disabled = true;
+                phoneButton.style.background = '#c7c7cc';
+            } else {
+                phoneStatus.className = 'status-icon';
+                phoneStatus.innerHTML = '<i class="fas fa-times"></i>';
+                phoneText.textContent = getTranslation('not_verified');
+                phoneButton.textContent = getTranslation('verify');
+                phoneButton.disabled = false;
+                phoneButton.style.background = '';
+            }
+            
+            if (appState.user.id_verified) {
+                idStatus.className = 'status-icon verified';
+                idStatus.innerHTML = '<i class="fas fa-check"></i>';
+                idText.textContent = getTranslation('verified');
+                idButton.textContent = getTranslation('verified');
+                idButton.disabled = true;
+                idButton.style.background = '#c7c7cc';
+            } else {
+                idStatus.className = 'status-icon';
+                idStatus.innerHTML = '<i class="fas fa-times"></i>';
+                idText.textContent = getTranslation('not_verified');
+                idButton.textContent = getTranslation('verify');
+                idButton.disabled = false;
+                idButton.style.background = '';
+            }
+        }
+
+        function showPage(pageId) {
+            showLoading();
+            
+            setTimeout(() => {
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                document.getElementById(pageId).classList.add('active');
+                
+                updateNavActiveState(pageId);
+                hideLoading();
+            }, 200);
+        }
+        
+        function updateNavActiveState(pageId) {
+            const navItems = document.querySelectorAll('.uni-tabbar-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (pageId === 'mainPage') {
+                navItems[0].classList.add('active');
+            } else if (pageId === 'vipPage') {
+                navItems[1].classList.add('active');
+            } else if (pageId === 'earnPage') {
+                navItems[2].classList.add('active');
+            } else if (pageId === 'assetsPage') {
+                navItems[3].classList.add('active');
+            } else if (pageId === 'profilePage') {
+                navItems[4].classList.add('active');
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            let text = element.textContent || element.innerText;
+            
+            if (elementId === 'profile-id') {
+                text = appState.user.id;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = element.textContent;
+                element.textContent = getTranslation('copied');
+                setTimeout(() => {
+                    element.textContent = originalText;
+                }, 2000);
+            }).catch(() => {
+                showCustomAlert(getTranslation('copy_failed'));
+            });
+        }
+
+        function verifyPhone() {
+            const phoneNumber = prompt('Please enter your phone number for verification:');
+            if (phoneNumber) {
+                setTimeout(async () => {
+                    await safeSupabaseUpdate('users', { phone_verified: true }, 'id', appState.currentUserId);
+                    appState.user.phone_verified = true;
+                    updateVerificationStatus();
+                    showCustomAlert(getTranslation('phone_verified'));
+                }, 1500);
+            }
+        }
+
+        function verifyID() {
+            const idNumber = prompt('Please enter your ID or Passport number:');
+            if (idNumber) {
+                setTimeout(async () => {
+                    await safeSupabaseUpdate('users', { id_verified: true }, 'id', appState.currentUserId);
+                    appState.user.id_verified = true;
+                    updateVerificationStatus();
+                    showCustomAlert(getTranslation('id_verified'));
+                }, 1500);
+            }
+        }
+
+        async function updatePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showCustomAlert('Please fill in all password fields');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showCustomAlert('New password must be at least 6 characters long');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showCustomAlert('New password and confirmation do not match');
+                return;
+            }
+            
+            if (appState.user.password !== currentPassword) {
+                showCustomAlert('Current password is incorrect');
+                return;
+            }
+            
+            try {
+                await safeSupabaseUpdate('users', 
+                    { password: newPassword }, 
+                    'id', 
+                    appState.currentUserId
+                );
+                
+                appState.user.password = newPassword;
+                
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+                showCustomAlert(getTranslation('password_updated'));
+            } catch (error) {
+                console.error('Password update error:', error);
+                showCustomAlert('Failed to update password. Please try again.');
+            }
+        }
+
+        function logout() {
+            showCustomConfirm(
+                getTranslation('logout_confirm'),
+                function() {
+                    sessionStorage.removeItem('currentUserId');
+                    window.location.href = 'index.html';
+                }
+            );
+        }
+
+        // Prevent zoom and copy
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        window.onload = function() {
+            if (!sessionStorage.getItem('currentUserId')) {
+                window.location.href = 'index.html';
+                return;
+            }
+            initApp();
+        };
+    </script>
 </body>
 </html>
