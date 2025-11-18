@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uipath - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a505e">
     <style>
         * {
             margin: 0;
@@ -435,6 +437,7 @@
             border-radius: 10px;
             transition: all 0.3s ease;
             background: var(--white);
+            cursor: pointer;
         }
 
         .action-item:hover {
@@ -1033,6 +1036,25 @@
         .level-1 { background: var(--primary); }
         .level-2 { background: var(--accent); }
         .level-3 { background: var(--success); }
+
+        /* License Page Styles */
+        .license-slide {
+            display: none;
+        }
+        .license-slide.active {
+            display: flex;
+        }
+        .slide-nav {
+            background: #e0e0e0;
+            border: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .slide-nav.active {
+            background: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -1065,13 +1087,13 @@
 
             <div class="uni-card">
                 <div class="action-grid">
-                    <div class="action-item" onclick="showPage('assetsPage')">
+                    <div class="action-item" onclick="window.location.href='deposit.html'">
                         <div class="action-icon">
                             <img src="assets/deposit.png" alt="Deposit">
                         </div>
                         <div>Deposit</div>
                     </div>
-                    <div class="action-item" onclick="showPage('assetsPage')">
+                    <div class="action-item" onclick="window.location.href='withdraw.html'">
                         <div class="action-icon">
                             <img src="assets/withdraw.png" alt="Withdraw">
                         </div>
@@ -1107,7 +1129,7 @@
                         </div>
                         <div>Download</div>
                     </div>
-                    <div class="action-item">
+                    <div class="action-item" onclick="showPage('licensePage')">
                         <div class="action-icon">
                             <img src="assets/license.png" alt="License">
                         </div>
@@ -1181,13 +1203,13 @@
 
             <div class="uni-card">
                 <div class="assets-buttons">
-                    <div class="assets-button">
+                    <div class="assets-button" onclick="window.location.href='deposit.html'">
                         <div class="assets-button-icon">
                             <img src="assets/deposit.png" alt="Deposit">
                         </div>
                         <div>Deposit</div>
                     </div>
-                    <div class="assets-button">
+                    <div class="assets-button" onclick="window.location.href='withdraw.html'">
                         <div class="assets-button-icon">
                             <img src="assets/withdraw.png" alt="Withdraw">
                         </div>
@@ -1590,6 +1612,113 @@
             </div>
         </div>
 
+        <!-- License Page -->
+        <div id="licensePage" class="page">
+            <div class="simple-header">
+                <div class="back-btn" onclick="showPage('mainPage')">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">License & Documents</div>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="license-content" style="padding: 20px;">
+                <!-- Слайд 1: Главная лицензия -->
+                <div class="license-slide active" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 20px; min-height: 500px; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📜</div>
+                    <h2 style="font-size: 28px; margin-bottom: 15px; font-weight: 600;">OFFICIAL LICENSE</h2>
+                    <div style="font-size: 20px; margin-bottom: 10px; opacity: 0.9;">Uipath Financial Platform</div>
+                    <div style="font-size: 16px; opacity: 0.8; margin-bottom: 30px;">Digital Assets Management</div>
+                    
+                    <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px; margin: 20px 0;">
+                        <div style="font-size: 14px; margin-bottom: 8px;">License Number</div>
+                        <div style="font-size: 18px; font-weight: 600; letter-spacing: 2px;">UI-FIN-2020-78945</div>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px;">
+                        <div style="font-size: 14px; margin-bottom: 8px;">Registration Date</div>
+                        <div style="font-size: 16px; font-weight: 600;">March 15, 2020</div>
+                    </div>
+                </div>
+
+                <!-- Слайд 2: Регуляторная информация -->
+                <div class="license-slide" style="background: white; padding: 30px; border-radius: 20px; margin-bottom: 20px; min-height: 500px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                    <div style="font-size: 48px; margin-bottom: 20px; color: var(--primary);">🏛️</div>
+                    <h3 style="font-size: 24px; margin-bottom: 20px; color: var(--dark); text-align: center;">Regulatory Compliance</h3>
+                    
+                    <div style="text-align: left;">
+                        <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 24px; margin-right: 15px;">✅</div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--dark);">Financial Services License</div>
+                                <div style="font-size: 12px; color: var(--gray);">Issued by International Financial Commission</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 24px; margin-right: 15px;">✅</div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--dark);">AML/KYC Compliance</div>
+                                <div style="font-size: 12px; color: var(--gray);">Anti-Money Laundering Standards</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 24px; margin-right: 15px;">✅</div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--dark);">Data Protection</div>
+                                <div style="font-size: 12px; color: var(--gray);">GDPR & Privacy Standards</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 3: Технологии и безопасность -->
+                <div class="license-slide" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 20px; margin-bottom: 20px; min-height: 500px; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🔒</div>
+                    <h3 style="font-size: 24px; margin-bottom: 20px; text-align: center;">Security & Technology</h3>
+                    
+                    <div style="text-align: left;">
+                        <div style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                            <div style="font-weight: 600; margin-bottom: 5px;">Blockchain Technology</div>
+                            <div style="font-size: 12px; opacity: 0.9;">TRC20 & BEP20 Network Integration</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                            <div style="font-weight: 600; margin-bottom: 5px;">Bank-Level Encryption</div>
+                            <div style="font-size: 12px; opacity: 0.9;">256-bit SSL Security</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                            <div style="font-weight: 600; margin-bottom: 5px;">Cold Wallet Storage</div>
+                            <div style="font-size: 12px; opacity: 0.9;">95% of Assets in Secure Storage</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Навигация между слайдами -->
+                <div style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+                    <button class="slide-nav active" onclick="showLicenseSlide(0)" style="background: var(--primary); color: white; border: none; width: 12px; height: 12px; border-radius: 50%; cursor: pointer;"></button>
+                    <button class="slide-nav" onclick="showLicenseSlide(1)" style="background: #e0e0e0; border: none; width: 12px; height: 12px; border-radius: 50%; cursor: pointer;"></button>
+                    <button class="slide-nav" onclick="showLicenseSlide(2)" style="background: #e0e0e0; border: none; width: 12px; height: 12px; border-radius: 50%; cursor: pointer;"></button>
+                </div>
+
+                <!-- Лицензионная информация внизу -->
+                <div style="text-align: center; padding: 25px; background: var(--light); border-radius: 15px; margin-top: 20px;">
+                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 8px;">Uipath Financial Entertainment Platform</div>
+                    <div style="font-size: 12px; color: var(--gray); line-height: 1.5;">
+                        Company established: March 15, 2020<br>
+                        License valid until: December 31, 2037<br>
+                        Registration: UI20201501 • VAT: UI789456123<br>
+                        <div style="margin-top: 10px; font-style: italic;">Official Seal: <span style="color: var(--primary);">✓ VERIFIED</span></div>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 10px; color: var(--gray); opacity: 0.7;">
+                        © 2015-2025 Uipath. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="uni-tabbar">
             <div class="uni-tabbar-item active" onclick="showPage('mainPage')">
                 <div class="uni-tabbar-icon">
@@ -1650,6 +1779,35 @@
         transactions: null,
         lastUpdated: null
     };
+
+    // PWA Installation
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Для Android - сразу предлагаем установку
+        if (/Android/.test(navigator.userAgent)) {
+            setTimeout(() => {
+                showInstallPromotion();
+            }, 3000);
+        }
+    });
+
+    function showInstallPromotion() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+            });
+        }
+    }
 
     function showLoading() {
         document.getElementById('loadingOverlay').classList.add('active');
@@ -2755,6 +2913,23 @@
             }
         );
     }
+
+    // Функции для лицензионного экрана
+    function showLicenseSlide(index) {
+        const slides = document.querySelectorAll('.license-slide');
+        const navButtons = document.querySelectorAll('.slide-nav');
+        
+        slides.forEach(slide => slide.style.display = 'none');
+        navButtons.forEach(btn => btn.style.background = '#e0e0e0');
+        
+        slides[index].style.display = 'flex';
+        navButtons[index].style.background = 'var(--primary)';
+    }
+
+    // Инициализация при загрузке licensePage
+    document.addEventListener('DOMContentLoaded', function() {
+        showLicenseSlide(0);
+    });
 
     window.onload = function() {
         if (!sessionStorage.getItem('currentUserId')) {
