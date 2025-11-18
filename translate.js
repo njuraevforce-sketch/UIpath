@@ -1944,7 +1944,6 @@ const translations = {
         "confirm": "Confirmer",
         "active": "ACTIF",
         "buy": "ACHETER",
-            fr: {
         // Deposit & Withdraw
         "deposit_usdt": "Déposer USDT",
         "trc20": "TRC20",
