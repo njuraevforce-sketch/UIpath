@@ -40,23 +40,26 @@
             --white: #ffffff;
         }
 
-        body {
-            background-color: var(--light);
-            color: var(--dark);
-            height: 100vh;
-            touch-action: pan-y;
-            overscroll-behavior: none;
-        }
+     body {
+    background-color: var(--light);
+    color: var(--dark);
+    min-height: 100vh;
+    overflow-x: hidden; /* Запрещаем горизонтальный скроллинг */
+    overflow-y: auto; /* Разрешаем вертикальный скроллинг */
+    position: relative; /* Убираем fixed */
+    width: 100%;
+}
 
-        .login-container {
-            max-width: 100%;
-            margin: 0 auto;
-            background: var(--white);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
+.login-container, .withdraw-container, .deposit-container {
+    max-width: 100%;
+    margin: 0 auto;
+    background: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden; /* Запрещаем горизонтальный скроллинг внутри контейнеров */
+}
 
         .language-support-container {
             position: absolute;
