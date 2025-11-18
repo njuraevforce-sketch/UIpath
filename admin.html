@@ -805,6 +805,31 @@
             }
         }
 
+        // Новая функция для обработки вывода через RPC
+        async function processWithdrawalRPC(withdrawalId, status) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/process_withdrawal`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        p_withdrawal_id: withdrawalId,
+                        p_status: status,
+                        p_admin_notes: `Processed by admin at ${new Date().toLocaleString()}`
+                    })
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('RPC error:', error);
+                throw error;
+            }
+        }
+
         async function loadDashboard() {
             if (!checkAdminAuth()) return;
 
@@ -930,26 +955,42 @@
             if (!confirm(`Are you sure you want to ${status} this withdrawal?`)) return;
 
             try {
-                await safeSupabaseUpdate('withdrawal_requests', { status: status }, 'id', withdrawalId);
+                // Используем RPC функцию для обработки вывода
+                const result = await processWithdrawalRPC(withdrawalId, status);
                 
-                if (status === 'cancelled') {
-                    // Return funds to user
-                    const withdrawal = allWithdrawals.find(w => w.id === withdrawalId);
-                    if (withdrawal) {
-                        const user = allUsers.find(u => u.id === withdrawal.user_id);
-                        if (user) {
-                            const newBalance = parseFloat(user.balance) + parseFloat(withdrawal.amount) + parseFloat(withdrawal.fee);
-                            await safeSupabaseUpdate('users', { balance: newBalance }, 'id', withdrawal.user_id);
-                        }
-                    }
+                if (result.success) {
+                    showCustomAlert(`Withdrawal ${status} successfully!`);
+                    loadWithdrawals();
+                    loadDashboard();
+                } else {
+                    throw new Error(result.message);
                 }
-
-                showCustomAlert(`Withdrawal ${status} successfully!`);
-                loadWithdrawals();
-                loadDashboard();
             } catch (error) {
                 console.error('Process withdrawal error:', error);
-                showCustomAlert('Error processing withdrawal');
+                
+                // Fallback: старая логика если RPC недоступна
+                try {
+                    await safeSupabaseUpdate('withdrawal_requests', { status: status }, 'id', withdrawalId);
+                    
+                    if (status === 'cancelled') {
+                        // Return funds to user
+                        const withdrawal = allWithdrawals.find(w => w.id === withdrawalId);
+                        if (withdrawal) {
+                            const user = allUsers.find(u => u.id === withdrawal.user_id);
+                            if (user) {
+                                const newBalance = parseFloat(user.balance) + parseFloat(withdrawal.amount) + parseFloat(withdrawal.fee);
+                                await safeSupabaseUpdate('users', { balance: newBalance }, 'id', withdrawal.user_id);
+                            }
+                        }
+                    }
+
+                    showCustomAlert(`Withdrawal ${status} successfully!`);
+                    loadWithdrawals();
+                    loadDashboard();
+                } catch (fallbackError) {
+                    console.error('Fallback error:', fallbackError);
+                    showCustomAlert('Error processing withdrawal: ' + error.message);
+                }
             }
         }
 
@@ -1171,7 +1212,7 @@
 
         async function loadWithdrawExceptions() {
             try {
-                const exceptions = await safeSupabaseFetch('users', 'id,email,name,created_at,balance,vip_level', { withdraw_restricted: false });
+                const exceptions = await safeSupabaseFetch('users', 'id,email,name,created_at,balance,vip_level,withdraw_exception', { withdraw_exception: true });
                 const list = document.getElementById('exceptionList');
                 
                 if (exceptions.length === 0) {
@@ -1214,7 +1255,10 @@
             }
             
             try {
-                await safeSupabaseUpdate('users', { withdraw_restricted: false }, 'id', userId);
+                await safeSupabaseUpdate('users', { 
+                    withdraw_restricted: false,
+                    withdraw_exception: true 
+                }, 'id', userId);
                 showCustomAlert('User added to withdrawal exceptions');
                 document.getElementById('exceptionUserId').value = '';
                 loadWithdrawExceptions();
@@ -1231,7 +1275,10 @@
             }
             
             try {
-                await safeSupabaseUpdate('users', { withdraw_restricted: true }, 'id', userId);
+                await safeSupabaseUpdate('users', { 
+                    withdraw_restricted: true,
+                    withdraw_exception: false 
+                }, 'id', userId);
                 showCustomAlert('User removed from withdrawal exceptions');
                 document.getElementById('exceptionUserId').value = '';
                 loadWithdrawExceptions();
@@ -1244,7 +1291,10 @@
             if (!confirm('Remove this user from withdrawal exceptions?')) return;
             
             try {
-                await safeSupabaseUpdate('users', { withdraw_restricted: true }, 'id', userId);
+                await safeSupabaseUpdate('users', { 
+                    withdraw_restricted: true,
+                    withdraw_exception: false 
+                }, 'id', userId);
                 showCustomAlert('User removed from withdrawal exceptions');
                 loadWithdrawExceptions();
             } catch (error) {
@@ -1277,6 +1327,13 @@
                     <input type="number" class="form-input" value="${user.vip_level}" min="0" max="6" id="editUserVip">
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Withdraw Exception</label>
+                    <select class="form-input" id="editUserException">
+                        <option value="false" ${!user.withdraw_exception ? 'selected' : ''}>Require Deposit</option>
+                        <option value="true" ${user.withdraw_exception ? 'selected' : ''}>Allow Without Deposit</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label class="form-label">Password (leave blank to keep current)</label>
                     <input type="password" class="form-input" placeholder="New password" id="editUserPassword">
                 </div>
@@ -1299,7 +1356,8 @@
                     name: document.getElementById('editUserName').value,
                     email: document.getElementById('editUserEmail').value,
                     balance: parseFloat(document.getElementById('editUserBalance').value),
-                    vip_level: parseInt(document.getElementById('editUserVip').value)
+                    vip_level: parseInt(document.getElementById('editUserVip').value),
+                    withdraw_exception: document.getElementById('editUserException').value === 'true'
                 };
 
                 const newPassword = document.getElementById('editUserPassword').value;
