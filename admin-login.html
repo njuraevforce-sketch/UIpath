@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uipath - Admin Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #0a505e;
+            --primary-light: #0d6a7c;
+            --accent: #ff9d00;
+            --success: #4cd964;
+            --danger: #ff3b30;
+            --dark: #1c1c1e;
+            --light: #f8f9fa;
+            --white: #ffffff;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--light);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .admin-notice {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 157, 0, 0.1);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <img src="assets/logo.png" alt="Uipath Admin">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Admin Username</label>
+            <input type="text" class="form-input" id="adminUsername" placeholder="Enter admin username">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Admin Password</label>
+            <input type="password" class="form-input" id="adminPassword" placeholder="Enter admin password">
+        </div>
+
+        <button class="login-btn" onclick="adminLogin()">
+            <i class="fas fa-lock"></i> Admin Login
+        </button>
+
+        <div class="error-message" id="errorMessage">
+            Invalid admin credentials
+        </div>
+
+        <div class="admin-notice">
+            <i class="fas fa-shield-alt"></i> Restricted Access - Authorized Personnel Only
+        </div>
+    </div>
+
+    <script>
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Simple hardcoded admin credentials
+            // In production, use proper authentication
+            if (username === 'admin' && password === 'uipath2024') {
+                localStorage.setItem('adminToken', 'uipath_admin_2024');
+                window.location.href = 'admin.html';
+            } else {
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // Enter key support
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                adminLogin();
+            }
+        });
+
+        // Redirect if already logged in
+        window.onload = function() {
+            const adminToken = localStorage.getItem('adminToken');
+            if (adminToken === 'uipath_admin_2024') {
+                window.location.href = 'admin.html';
+            }
+        };
+    </script>
+</body>
+</html>
