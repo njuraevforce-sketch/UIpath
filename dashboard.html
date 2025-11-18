@@ -20,12 +20,15 @@
             -ms-user-select: none;
             user-select: none;
             -webkit-touch-callout: none;
+            -webkit-text-size-adjust: none;
+            -ms-text-size-adjust: none;
         }
 
         html, body {
-            touch-action: pan-y;
-            overflow-x: hidden;
-            max-width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
         }
 
         :root {
@@ -50,6 +53,8 @@
             line-height: 1.6;
             font-size: 16px;
             font-weight: 200;
+            touch-action: pan-y;
+            overscroll-behavior: none;
         }
 
         .app-container {
@@ -58,7 +63,6 @@
             background: var(--white);
             min-height: 100vh;
             position: relative;
-            overflow-x: hidden;
         }
 
         .page {
@@ -68,6 +72,8 @@
             padding-bottom: 70px;
             opacity: 0;
             transition: opacity 0.2s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .page.active {
@@ -75,61 +81,60 @@
             opacity: 1;
         }
 
-        /* Language and Support Controls */
-        .header-controls {
+        .language-support-container {
             position: absolute;
             top: 15px;
             right: 15px;
+            z-index: 1000;
             display: flex;
-            align-items: center;
             gap: 10px;
-            z-index: 100;
         }
 
-        .language-selector, .support-button {
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
+
+        .current-flag {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            color: white;
             font-size: 18px;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--primary);
         }
 
-        .language-selector:hover, .support-button:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.1);
-        }
-
-        .language-dropdown {
+        .language-menu {
+            display: none;
             position: absolute;
             top: 50px;
             right: 0;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            padding: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
             min-width: 150px;
-            display: none;
-            z-index: 1000;
-        }
-
-        .language-dropdown.active {
-            display: block;
+            z-index: 1001;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .language-option {
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
+            padding: 12px 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
             transition: background 0.3s ease;
+        }
+
+        .language-option:last-child {
+            border-bottom: none;
         }
 
         .language-option:hover {
@@ -137,9 +142,31 @@
         }
 
         .language-flag {
+            font-size: 16px;
             width: 20px;
-            height: 15px;
-            border-radius: 2px;
+            text-align: center;
+        }
+
+        .language-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        .support-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            text-decoration: none;
         }
 
         .loading-overlay {
@@ -289,7 +316,6 @@
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
             height: 80px;
-            position: relative;
         }
 
         .page-title {
@@ -1138,48 +1164,6 @@
         .license-content > div {
             animation: documentAppear 0.6s ease-out;
         }
-
-        /* Real Seal Style */
-        .official-seal {
-            width: 120px;
-            height: 120px;
-            border: 3px solid #8B0000;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            position: relative;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
-        }
-
-        .seal-content {
-            text-align: center;
-            padding: 10px;
-            color: #8B0000;
-            font-weight: bold;
-        }
-
-        .seal-outer-ring {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            right: 5px;
-            bottom: 5px;
-            border: 2px solid #8B0000;
-            border-radius: 50%;
-        }
-
-        .seal-inner-ring {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            border: 1px solid #8B0000;
-            border-radius: 50%;
-        }
     </style>
 </head>
 <body>
@@ -1188,71 +1172,69 @@
             <div class="loading-logo">
                 <img src="assets/quant.png" alt="Uipath">
             </div>
-            <div class="loading-text" data-translate="loading">Loading...</div>
+            <div class="loading-text">Loading...</div>
         </div>
 
         <div id="mainPage" class="page active">
+            <div class="language-support-container">
+                <div class="language-selector">
+                    <div class="current-flag" onclick="toggleLanguageMenu()">🌐</div>
+                    <div class="language-menu" id="languageMenu">
+                        <div class="language-option" onclick="setLanguage('en')">
+                            <span class="language-flag">🇺🇸</span>
+                            <span class="language-name">English</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('es')">
+                            <span class="language-flag">🇪🇸</span>
+                            <span class="language-name">Español</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('de')">
+                            <span class="language-flag">🇩🇪</span>
+                            <span class="language-name">Deutsch</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('pl')">
+                            <span class="language-flag">🇵🇱</span>
+                            <span class="language-name">Polski</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('ru')">
+                            <span class="language-flag">🇷🇺</span>
+                            <span class="language-name">Русский</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('tr')">
+                            <span class="language-flag">🇹🇷</span>
+                            <span class="language-name">Türkçe</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('ar')">
+                            <span class="language-flag">🇸🇦</span>
+                            <span class="language-name">العربية</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('ro')">
+                            <span class="language-flag">🇷🇴</span>
+                            <span class="language-name">Română</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('uk')">
+                            <span class="language-flag">🇺🇦</span>
+                            <span class="language-name">Українська</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('fr')">
+                            <span class="language-flag">🇫🇷</span>
+                            <span class="language-name">Français</span>
+                        </div>
+                        <div class="language-option" onclick="setLanguage('it')">
+                            <span class="language-flag">🇮🇹</span>
+                            <span class="language-name">Italiano</span>
+                        </div>
+                    </div>
+                </div>
+                <a href="https://t.me/Ui_seo" class="support-button" target="_blank">
+                    <i class="fas fa-headset"></i>
+                </a>
+            </div>
+
             <div class="uni-header">
                 <div class="logo">
                     <img src="assets/logo.png" alt="Uipath">
                 </div>
-                
-                <!-- Language and Support Controls -->
-                <div class="header-controls">
-                    <div class="support-button" onclick="window.open('https://t.me/Ui_seo', '_blank')">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <div class="language-selector" onclick="toggleLanguageDropdown()">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <div class="language-dropdown" id="languageDropdown">
-                        <div class="language-option" onclick="setLanguage('en')">
-                            <span class="language-flag" style="background: #1a237e; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            English
-                        </div>
-                        <div class="language-option" onclick="setLanguage('es')">
-                            <span class="language-flag" style="background: #aa151b; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Español
-                        </div>
-                        <div class="language-option" onclick="setLanguage('de')">
-                            <span class="language-flag" style="background: #ff0000; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Deutsch
-                        </div>
-                        <div class="language-option" onclick="setLanguage('pl')">
-                            <span class="language-flag" style="background: #dc143c; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Polski
-                        </div>
-                        <div class="language-option" onclick="setLanguage('ru')">
-                            <span class="language-flag" style="background: #d52b1e; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Русский
-                        </div>
-                        <div class="language-option" onclick="setLanguage('tr')">
-                            <span class="language-flag" style="background: #e30a17; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Türkçe
-                        </div>
-                        <div class="language-option" onclick="setLanguage('ar')">
-                            <span class="language-flag" style="background: #ce1126; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            العربية
-                        </div>
-                        <div class="language-option" onclick="setLanguage('ro')">
-                            <span class="language-flag" style="background: #ffcc00; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Română
-                        </div>
-                        <div class="language-option" onclick="setLanguage('uk')">
-                            <span class="language-flag" style="background: #0057b7; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Українська
-                        </div>
-                        <div class="language-option" onclick="setLanguage('fr')">
-                            <span class="language-flag" style="background: #0055a4; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Français
-                        </div>
-                        <div class="language-option" onclick="setLanguage('it')">
-                            <span class="language-flag" style="background: #009246; display: inline-block; width: 20px; height: 15px; border-radius: 2px;"></span>
-                            Italiano
-                        </div>
-                    </div>
-                </div>
-
                 <div class="video-background"></div>
                 <div class="video-container">
                     <div class="video-player">
@@ -1412,7 +1394,7 @@
                     </div>
                     
                     <div id="transaction-history-assets">
-                        <div style="text-align: center; color: var(--gray); padding: 20px 0;">
+                        <div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="loading_transactions">
                             Loading transactions...
                         </div>
                     </div>
@@ -1474,7 +1456,7 @@
 
             <div class="uni-card">
                 <div class="referral-list" id="referral-list">
-                    <div style="text-align: center; color: var(--gray); padding: 20px 0;">
+                    <div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="loading_referrals">
                         Loading referrals...
                     </div>
                 </div>
@@ -1498,16 +1480,16 @@
 
             <div class="uni-card">
                 <div style="padding: 15px; background: var(--light); border-radius: 10px;">
-                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">VIP Package Rules:</div>
+                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="vip_package_rules">VIP Package Rules:</div>
                     <div style="font-size: 14px; color: var(--gray); text-align: left;">
-                        • VIP packages are active for exactly 30 days<br>
-                        • Daily income: VIP1: 2.6% (0.52 USDT) | VIP2: 3.1% (3.10 USDT) | VIP3: 3.6% (10.80 USDT) | VIP4: 4.1% (41.00 USDT) | VIP5: 4.6% (138.00 USDT) | VIP6: 5.1% (255.00 USDT)<br>
-                        • Package price is returned to your balance after 30 days automatically<br>
-                        • Package expires after 30 days - to continue earning, purchase again<br>
-                        • You can claim daily income once per day at 22:00 UTC<br>
-                        • If you don't claim income today, you can claim it until 22:00 UTC tomorrow<br>
-                        • Income doesn't accumulate - use it or lose it!<br>
-                        • Higher packages give +0.5% daily income compared to previous level
+                        • <span data-translate="vip_rules_1">VIP packages are active for exactly 30 days</span><br>
+                        • <span data-translate="vip_rules_2">Daily income: VIP1: 2.6% (0.52 USDT) | VIP2: 3.1% (3.10 USDT) | VIP3: 3.6% (10.80 USDT) | VIP4: 4.1% (41.00 USDT) | VIP5: 4.6% (138.00 USDT) | VIP6: 5.1% (255.00 USDT)</span><br>
+                        • <span data-translate="vip_rules_3">Package price is returned to your balance after 30 days automatically</span><br>
+                        • <span data-translate="vip_rules_4">Package expires after 30 days - to continue earning, purchase again</span><br>
+                        • <span data-translate="vip_rules_5">You can claim daily income once per day at 22:00 UTC</span><br>
+                        • <span data-translate="vip_rules_6">If you don't claim income today, you can claim it until 22:00 UTC tomorrow</span><br>
+                        • <span data-translate="vip_rules_7">Income doesn't accumulate - use it or lose it!</span><br>
+                        • <span data-translate="vip_rules_8">Higher packages give +0.5% daily income compared to previous level</span>
                     </div>
                 </div>
             </div>
@@ -1533,7 +1515,7 @@
             <div class="income-display">
                 <div style="font-size:14px;" data-translate="available_for_withdrawal">Available for withdrawal</div>
                 <div style="font-size:32px; font-weight:600; margin: 10px 0;" id="available-income">0.00 USDT</div>
-                <div style="font-size:14px;" id="today-percent">+0.0% today</div>
+                <div style="font-size:14px;" id="today-percent">+0.0% <span data-translate="today">today</span></div>
                 <button class="uni-button uni-button-success" id="claim-button" onclick="claimDailyIncome()" style="margin-top: 15px; background: var(--accent);">
                     <i class="fas fa-bolt"></i> <span data-translate="claim_income">CLAIM INCOME</span>
                 </button>
@@ -1583,7 +1565,7 @@
                 </div>
                 
                 <div id="transaction-history">
-                    <div style="text-align: center; color: var(--gray); padding: 20px 0;">
+                    <div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="loading_transactions">
                         Loading transactions...
                     </div>
                 </div>
@@ -1671,15 +1653,15 @@
                 <div class="uni-card">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="invite_friends">Invite Friends</div>
-                        <div style="color: var(--gray);">Invite friends and earn income from 3 referral generations</div>
+                        <div style="color: var(--gray);" data-translate="invite_description">Invite friends and earn income from 3 referral generations</div>
                     </div>
                     
                     <div class="referral-link-container">
                         <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--dark);" id="referral-link">
                             Loading...
                         </div>
-                        <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')">
-                            <span data-translate="copy">Copy</span>
+                        <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')" data-translate="copy">
+                            Copy
                         </button>
                     </div>
                     
@@ -1702,12 +1684,12 @@
                     </div>
 
                     <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
-                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;">How it works:</div>
+                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="how_it_works">How it works:</div>
                         <div style="font-size: 14px; color: var(--gray); text-align: left;">
-                            • 8% from 1st generation deposits<br>
-                            • 3% from 2nd generation deposits<br>
-                            • 1% from 3rd generation deposits<br>
-                            • Income credited instantly when referrals purchase VIP packages
+                            • <span data-translate="referral_works_1">8% from 1st generation deposits</span><br>
+                            • <span data-translate="referral_works_2">3% from 2nd generation deposits</span><br>
+                            • <span data-translate="referral_works_3">1% from 3rd generation deposits</span><br>
+                            • <span data-translate="referral_works_4">Income credited instantly when referrals purchase VIP packages</span>
                         </div>
                     </div>
                 </div>
@@ -1741,42 +1723,42 @@
                         <tr>
                             <td data-translate="registration_bonus_task">Registration Bonus</td>
                             <td class="bonus-amount">3.00 USDT</td>
-                            <td>Completed</td>
+                            <td data-translate="completed">Completed</td>
                         </tr>
                         <tr>
-                            <td>Purchase VIP 2 Package</td>
+                            <td data-translate="purchase_vip2">Purchase VIP 2 Package</td>
                             <td class="bonus-amount">5.00 USDT</td>
-                            <td>Available</td>
+                            <td data-translate="available_task">Available</td>
                         </tr>
                         <tr>
-                            <td>Purchase VIP 3 Package</td>
+                            <td data-translate="purchase_vip3">Purchase VIP 3 Package</td>
                             <td class="bonus-amount">10.00 USDT</td>
-                            <td>Available</td>
+                            <td data-translate="available_task">Available</td>
                         </tr>
                         <tr>
-                            <td>Purchase VIP 4 Package</td>
+                            <td data-translate="purchase_vip4">Purchase VIP 4 Package</td>
                             <td class="bonus-amount">15.00 USDT</td>
-                            <td>Available</td>
+                            <td data-translate="available_task">Available</td>
                         </tr>
                         <tr>
-                            <td>1st Generation Deposit 50 USDT</td>
+                            <td data-translate="1st_gen_deposit_50">1st Generation Deposit 50 USDT</td>
                             <td class="bonus-amount">2.00 USDT</td>
-                            <td>Available</td>
+                            <td data-translate="available_task">Available</td>
                         </tr>
                         <tr>
-                            <td>1st Generation Deposit 100 USDT</td>
+                            <td data-translate="1st_gen_deposit_100">1st Generation Deposit 100 USDT</td>
                             <td class="bonus-amount">5.00 USDT</td>
-                            <td>Available</td>
+                            <td data-translate="available_task">Available</td>
                         </tr>
                         <tr>
-                            <td>1st Generation Deposit 300 USDT</td>
+                            <td data-translate="1st_gen_deposit_300">1st Generation Deposit 300 USDT</td>
                             <td class="bonus-amount">10.00 USDT</td>
-                            <td>Available</td>
+                            <td data-translate="available_task">Available</td>
                         </tr>
                         <tr>
-                            <td>1st Generation Deposit 1000 USDT</td>
+                            <td data-translate="1st_gen_deposit_1000">1st Generation Deposit 1000 USDT</td>
                             <td class="bonus-amount">20.00 USDT</td>
-                            <td>Available</td>
+                            <td data-translate="available_task">Available</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1784,11 +1766,11 @@
                 <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
                     <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="terms_conditions">Terms & Conditions:</div>
                     <div style="font-size: 14px; color: var(--gray); text-align: left;">
-                        • All bonuses are credited manually by administration<br>
-                        • VIP purchase bonuses are awarded after successful package activation<br>
-                        • Referral deposit bonuses require minimum deposit amounts from 1st generation users<br>
-                        • Bonuses are paid in USDT equivalent<br>
-                        • Administration reserves the right to modify bonus terms
+                        • <span data-translate="terms_1">All bonuses are credited manually by administration</span><br>
+                        • <span data-translate="terms_2">VIP purchase bonuses are awarded after successful package activation</span><br>
+                        • <span data-translate="terms_3">Referral deposit bonuses require minimum deposit amounts from 1st generation users</span><br>
+                        • <span data-translate="terms_4">Bonuses are paid in USDT equivalent</span><br>
+                        • <span data-translate="terms_5">Administration reserves the right to modify bonus terms</span>
                     </div>
                 </div>
             </div>
@@ -1869,17 +1851,15 @@
                                 <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; font-size: 12px; color: #666;" data-translate="authorized_signature">Authorized Signature</div>
                             </div>
                             <div style="font-size: 12px; color: #666;">James Wilson</div>
-                            <div style="font-size: 11px; color: #999;">Director of Licensing</div>
+                            <div style="font-size: 11px; color: #999;" data-translate="director_licensing">Director of Licensing</div>
                         </div>
                         
                         <div style="text-align: center;">
-                            <!-- Real Official Seal -->
-                            <div class="official-seal">
-                                <div class="seal-outer-ring"></div>
-                                <div class="seal-inner-ring"></div>
-                                <div class="seal-content">
-                                    <div style="font-size: 14px; margin-bottom: 5px;">OFFICIAL SEAL</div>
-                                    <div style="font-size: 10px; line-height: 1.2;">IFSC<br>VERIFIED<br>2020</div>
+                            <!-- Настоящая синяя печать -->
+                            <div style="width: 120px; height: 120px; border: 3px solid #1e3a8a; border-radius: 50%; margin: 0 auto 15px; position: relative; background: radial-gradient(circle, #3b82f6, #1e40af); display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(30, 64, 175, 0.3);">
+                                <div style="text-align: center; padding: 10px; color: white;">
+                                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">OFFICIAL SEAL</div>
+                                    <div style="font-size: 10px; line-height: 1.2; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">IFSC<br>VERIFIED<br>2020</div>
                                 </div>
                             </div>
                             <div style="font-size: 11px; color: #999;" data-translate="official_seal">Official Regulatory Seal</div>
@@ -1929,13 +1909,13 @@
                 <div class="uni-tabbar-icon">
                     <img src="assets/home.png" alt="Home">
                 </div>
-                <div>Home</div>
+                <div data-translate="home">Home</div>
             </div>
             <div class="uni-tabbar-item" onclick="showPage('vipPage')">
                 <div class="uni-tabbar-icon">
                     <img src="assets/VIP.png" alt="VIP">
                 </div>
-                <div>VIP</div>
+                <div data-translate="vip">VIP</div>
             </div>
             <div class="uni-tabbar-item" onclick="showPage('earnPage')">
                 <div class="uni-tabbar-center">
@@ -1959,37 +1939,6 @@
 
     <script src="translate.js"></script>
     <script>
-        // Language dropdown toggle function
-        function toggleLanguageDropdown() {
-            const dropdown = document.getElementById('languageDropdown');
-            dropdown.classList.toggle('active');
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('languageDropdown');
-            const selector = document.querySelector('.language-selector');
-            if (!selector.contains(event.target) && !dropdown.contains(event.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
-
-        // Override setLanguage to close dropdown
-        const originalSetLanguage = setLanguage;
-        setLanguage = function(lang) {
-            originalSetLanguage(lang);
-            document.getElementById('languageDropdown').classList.remove('active');
-            
-            // Update all dynamic content that uses getTranslation
-            updateDynamicContent();
-        };
-
-        function updateDynamicContent() {
-            // Update any dynamic content that uses getTranslation here
-            // For example, update alert messages, button states, etc.
-        }
-
-        // Rest of the existing JavaScript code remains the same
         const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
 
@@ -2175,12 +2124,12 @@
             );
             
             if (existingPurchase) {
-                showCustomAlert(getTranslation('package_already_active', {level: pkg.level}));
+                showCustomAlert(`VIP ${pkg.level} package is already active!`);
                 return;
             }
 
             if (appState.user.balance < pkg.price) {
-                showCustomAlert(getTranslation('insufficient_balance'));
+                showCustomAlert('Insufficient balance to purchase this VIP package');
                 return;
             }
 
@@ -2225,7 +2174,7 @@
                 updateUI();
                 renderVIPPackages();
                 
-                showCustomAlert(getTranslation('vip_purchased', {level: pkg.level}));
+                showCustomAlert(`VIP ${pkg.level} package purchased successfully!`);
                 
             } catch (error) {
                 console.error('VIP purchase error:', error);
@@ -2538,11 +2487,12 @@
                         <img src="assets/quant.png" alt="Uipath">
                     </div>
                     <div class="custom-alert-message">${message}</div>
-                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()" data-translate="confirm">OK</button>
                 </div>
             `;
             
             document.body.appendChild(overlay);
+            applyTranslations();
         }
 
         function showCustomConfirm(message, confirmCallback) {
@@ -2556,8 +2506,8 @@
                     </div>
                     <div class="custom-alert-message">${message}</div>
                     <div class="custom-confirm-buttons">
-                        <button class="custom-confirm-button cancel">Cancel</button>
-                        <button class="custom-confirm-button confirm">Confirm</button>
+                        <button class="custom-confirm-button cancel" data-translate="cancel">Cancel</button>
+                        <button class="custom-confirm-button confirm" data-translate="confirm">Confirm</button>
                     </div>
                 </div>
             `;
@@ -2577,6 +2527,7 @@
             };
             
             document.body.appendChild(overlay);
+            applyTranslations();
         }
 
         async function initApp() {
@@ -2591,6 +2542,9 @@
             startCarousel();
             updateVerificationStatus();
             hideLoading();
+            
+            // Применяем переводы после загрузки
+            applyTranslations();
         }
 
         function startCarousel() {
@@ -2650,7 +2604,8 @@
             }
             
             if (filteredTransactions.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No transactions found</div>';
+                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="no_transactions">No transactions found</div>';
+                applyTranslations();
                 return;
             }
             
@@ -2742,13 +2697,14 @@
                     <div class="vip-icon">
                         <img src="${pkg.icon}" alt="VIP ${pkg.level}">
                     </div>
-                    <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: white; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;">
+                    <div style="background: ${isPurchased ? 'rgba(255,255,255,0.2)' : 'var(--primary)'}; color: white; padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight:600;" data-translate="${isPurchased ? 'active' : 'buy'}">
                         ${isPurchased ? 'ACTIVE' : 'BUY'}
                     </div>
                 `;
                 
                 packagesList.appendChild(packageElement);
             });
+            applyTranslations();
         }
 
         async function purchaseVIPPackage(pkg) {
@@ -2780,14 +2736,15 @@
             
             if (availableIncome === 0) {
                 claimButton.disabled = true;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ' + getTranslation('no_available_income');
-                claimTimer.textContent = getTranslation('buy_vip_earn');
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> <span data-translate="no_available_income">NO AVAILABLE INCOME</span>';
+                claimTimer.textContent = translations[currentLanguage]['buy_vip_package'] || 'Buy a VIP package to earn income';
+                applyTranslations();
                 return;
             }
             
             if (canClaim) {
                 claimButton.disabled = false;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ' + getTranslation('claim_income');
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> <span data-translate="claim_income">CLAIM INCOME</span>';
                 
                 const nextClaim = getNextClaimTime();
                 const now = new Date();
@@ -2795,10 +2752,10 @@
                 const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
                 const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                 
-                claimTimer.textContent = `Available for: ${hoursLeft}h ${minutesLeft}m`;
+                claimTimer.textContent = `${translations[currentLanguage]['available_for'] || 'Available for'}: ${hoursLeft}h ${minutesLeft}m`;
             } else {
                 claimButton.disabled = true;
-                claimButton.innerHTML = '<i class="fas fa-bolt"></i> ' + getTranslation('already_claimed');
+                claimButton.innerHTML = '<i class="fas fa-bolt"></i> <span data-translate="already_claimed">ALREADY CLAIMED</span>';
                 
                 const nextClaim = getNextClaimTime();
                 const now = new Date();
@@ -2806,8 +2763,9 @@
                 const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
                 const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                 
-                claimTimer.textContent = `Next claim: ${hoursLeft}h ${minutesLeft}m`;
+                claimTimer.textContent = `${translations[currentLanguage]['next_claim'] || 'Next claim'}: ${hoursLeft}h ${minutesLeft}m`;
             }
+            applyTranslations();
         }
 
         function startTimer() {
@@ -2818,19 +2776,19 @@
             const claimBtn = document.getElementById('claim-button');
             
             if (claimBtn.disabled) {
-                showCustomAlert(getTranslation('cannot_claim'));
+                showCustomAlert('You cannot claim income at this time. Please check the timer.');
                 return;
             }
             
             const dailyIncome = calculateDailyIncome();
             
             if (dailyIncome === 0) {
-                showCustomAlert(getTranslation('no_income'));
+                showCustomAlert('No available income to claim. Purchase a VIP package to start earning.');
                 return;
             }
             
             if (!canClaimDailyIncome()) {
-                showCustomAlert(getTranslation('already_claimed'));
+                showCustomAlert('You have already claimed your daily income. Come back tomorrow at 22:00 UTC.');
                 return;
             }
             
@@ -2885,7 +2843,7 @@
                         await loadAllData();
                         updateUI();
                         
-                        showCustomAlert(getTranslation('income_claimed', {amount: formatCurrency(dailyIncome)}));
+                        showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
                     } catch (error) {
                         console.error('Claim income error:', error);
                         showCustomAlert('Failed to claim income. Please try again.');
@@ -2903,7 +2861,7 @@
             const steps = [1, 2, 3];
             
             claimBtn.classList.remove('processing', 'completed');
-            claimBtn.innerHTML = '<i class="fas fa-bolt"></i> ' + getTranslation('claim_income');
+            claimBtn.innerHTML = '<i class="fas fa-bolt"></i> <span data-translate="claim_income">CLAIM INCOME</span>';
             
             steps.forEach(step => {
                 const stepIcon = document.getElementById(`step-${step}`);
@@ -2967,7 +2925,8 @@
             if (appState.referrals.gen1.length === 0 && 
                 appState.referrals.gen2.length === 0 && 
                 appState.referrals.gen3.length === 0) {
-                referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 40px 20px;">No referrals yet. Share your referral link to invite friends!</div>';
+                referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 40px 20px;" data-translate="no_referrals">No referrals yet. Share your referral link to invite friends!</div>';
+                applyTranslations();
                 return;
             }
             
@@ -2999,9 +2958,9 @@
             };
             
             // Display all three generations
-            displayLevel(1, appState.referrals.gen1, '1st Generation');
-            displayLevel(2, appState.referrals.gen2, '2nd Generation'); 
-            displayLevel(3, appState.referrals.gen3, '3rd Generation');
+            displayLevel(1, appState.referrals.gen1, translations[currentLanguage]['1st_generation'] || '1st Generation');
+            displayLevel(2, appState.referrals.gen2, translations[currentLanguage]['2nd_generation'] || '2nd Generation'); 
+            displayLevel(3, appState.referrals.gen3, translations[currentLanguage]['3rd_generation'] || '3rd Generation');
         }
 
         function updateEarnScreen() {
@@ -3020,7 +2979,7 @@
             if (totalInvested > 0) {
                 percentage = (dailyIncome / totalInvested) * 100;
             }
-            document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% today`;
+            document.getElementById('today-percent').textContent = `+${percentage.toFixed(1)}% ${translations[currentLanguage]['today'] || 'today'}`;
         }
 
         function updateVerificationStatus() {
@@ -3035,15 +2994,15 @@
             if (appState.user.phone_verified) {
                 phoneStatus.className = 'status-icon verified';
                 phoneStatus.innerHTML = '<i class="fas fa-check"></i>';
-                phoneText.textContent = getTranslation('verified');
-                phoneButton.textContent = getTranslation('verified');
+                phoneText.textContent = translations[currentLanguage]['verified'] || 'Verified';
+                phoneButton.textContent = translations[currentLanguage]['verified'] || 'Verified';
                 phoneButton.disabled = true;
                 phoneButton.style.background = '#c7c7cc';
             } else {
                 phoneStatus.className = 'status-icon';
                 phoneStatus.innerHTML = '<i class="fas fa-times"></i>';
-                phoneText.textContent = getTranslation('not_verified');
-                phoneButton.textContent = getTranslation('verify');
+                phoneText.textContent = translations[currentLanguage]['not_verified'] || 'Not verified';
+                phoneButton.textContent = translations[currentLanguage]['verify'] || 'Verify';
                 phoneButton.disabled = false;
                 phoneButton.style.background = '';
             }
@@ -3051,15 +3010,15 @@
             if (appState.user.id_verified) {
                 idStatus.className = 'status-icon verified';
                 idStatus.innerHTML = '<i class="fas fa-check"></i>';
-                idText.textContent = getTranslation('verified');
-                idButton.textContent = getTranslation('verified');
+                idText.textContent = translations[currentLanguage]['verified'] || 'Verified';
+                idButton.textContent = translations[currentLanguage]['verified'] || 'Verified';
                 idButton.disabled = true;
                 idButton.style.background = '#c7c7cc';
             } else {
                 idStatus.className = 'status-icon';
                 idStatus.innerHTML = '<i class="fas fa-times"></i>';
-                idText.textContent = getTranslation('not_verified');
-                idButton.textContent = getTranslation('verify');
+                idText.textContent = translations[currentLanguage]['not_verified'] || 'Not verified';
+                idButton.textContent = translations[currentLanguage]['verify'] || 'Verify';
                 idButton.disabled = false;
                 idButton.style.background = '';
             }
@@ -3077,6 +3036,9 @@
                 
                 updateNavActiveState(pageId);
                 hideLoading();
+                
+                // Применяем переводы при смене страницы
+                applyTranslations();
             }, 200);
         }
         
@@ -3109,12 +3071,12 @@
             
             navigator.clipboard.writeText(text).then(() => {
                 const originalText = element.textContent;
-                element.textContent = getTranslation('copied');
+                element.textContent = translations[currentLanguage]['copied'] || 'Copied!';
                 setTimeout(() => {
                     element.textContent = originalText;
                 }, 2000);
             }).catch(() => {
-                showCustomAlert(getTranslation('copy_failed'));
+                showCustomAlert('Failed to copy to clipboard');
             });
         }
 
@@ -3125,7 +3087,7 @@
                     await safeSupabaseUpdate('users', { phone_verified: true }, 'id', appState.currentUserId);
                     appState.user.phone_verified = true;
                     updateVerificationStatus();
-                    showCustomAlert(getTranslation('phone_verified'));
+                    showCustomAlert('Phone number verified successfully!');
                 }, 1500);
             }
         }
@@ -3137,7 +3099,7 @@
                     await safeSupabaseUpdate('users', { id_verified: true }, 'id', appState.currentUserId);
                     appState.user.id_verified = true;
                     updateVerificationStatus();
-                    showCustomAlert(getTranslation('id_verified'));
+                    showCustomAlert('ID/Passport verified successfully!');
                 }, 1500);
             }
         }
@@ -3180,7 +3142,7 @@
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
                 
-                showCustomAlert(getTranslation('password_updated'));
+                showCustomAlert('Password updated successfully!');
             } catch (error) {
                 console.error('Password update error:', error);
                 showCustomAlert('Failed to update password. Please try again.');
@@ -3189,30 +3151,13 @@
 
         function logout() {
             showCustomConfirm(
-                getTranslation('logout_confirm'),
+                translations[currentLanguage]['logout_confirm'] || 'Are you sure you want to logout?',
                 function() {
                     sessionStorage.removeItem('currentUserId');
                     window.location.href = 'index.html';
                 }
             );
         }
-
-        // Prevent zoom and copy
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        });
-
-        document.addEventListener('touchmove', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        });
-
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
 
         window.onload = function() {
             if (!sessionStorage.getItem('currentUserId')) {
@@ -3224,4 +3169,3 @@
     </script>
 </body>
 </html>
-
