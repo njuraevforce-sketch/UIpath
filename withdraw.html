@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uipath - Withdraw</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="translate.js"></script>
     <style>
         * {
             margin: 0;
@@ -97,7 +98,7 @@
         }
 
         .balance-display {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, var(--primary), #0d6a7c);
             color: white;
             padding: 20px;
             border-radius: 10px;
@@ -202,23 +203,50 @@
             margin-top: 8px;
         }
 
-        .withdraw-info {
-            background: rgba(255, 157, 0, 0.1);
-            border-left: 4px solid var(--accent);
-            padding: 15px;
-            border-radius: 5px;
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
             margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 1;
+        }
+
+        .info-box > * {
+            position: relative;
+            z-index: 2;
         }
 
         .info-title {
             font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-title i {
+            font-size: 18px;
         }
 
         .info-text {
             font-size: 14px;
-            color: var(--gray);
+            line-height: 1.5;
+            opacity: 0.9;
         }
 
         .uni-button {
@@ -409,15 +437,15 @@
         <div class="withdraw-content">
             <div class="withdraw-card">
                 <div class="balance-display">
-                    <div class="balance-label">Available Balance</div>
+                    <div class="balance-label" data-translate="available_balance">Available Balance</div>
                     <div class="balance-amount" id="availableBalance">0.00 USDT</div>
-                    <div class="balance-label" id="depositStatus">Checking deposit status...</div>
+                    <div class="balance-label" id="depositStatus" data-translate="checking_deposit_status">Checking deposit status...</div>
                 </div>
 
                 <div class="withdraw-form">
                     <div class="form-group">
-                        <label class="form-label">Withdrawal Amount (USDT)</label>
-                        <input type="number" id="withdrawAmount" class="uni-input" placeholder="Enter amount" min="5" step="0.01" oninput="calculateFee()">
+                        <label class="form-label" data-translate="withdrawal_amount">Withdrawal Amount (USDT)</label>
+                        <input type="number" id="withdrawAmount" class="uni-input" data-translate="enter_amount" placeholder="Enter amount" min="5" step="0.01" oninput="calculateFee()">
                     </div>
 
                     <div class="amount-buttons">
@@ -428,61 +456,69 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Withdrawal Network</label>
+                        <label class="form-label" data-translate="withdrawal_network">Withdrawal Network</label>
                         <div class="network-selector">
                             <div class="network-option active" data-network="trc20" onclick="selectNetwork('trc20')">
-                                <div>TRC20</div>
-                                <div style="font-size: 12px; color: var(--gray);">Tron Network</div>
+                                <div data-translate="trc20">TRC20</div>
+                                <div style="font-size: 12px; color: var(--gray);" data-translate="tron_network">Tron Network</div>
                             </div>
                             <div class="network-option" data-network="bep20" onclick="selectNetwork('bep20')">
-                                <div>BEP20</div>
-                                <div style="font-size: 12px; color: var(--gray);">BSC Network</div>
+                                <div data-translate="bep20">BEP20</div>
+                                <div style="font-size: 12px; color: var(--gray);" data-translate="bsc_network">BSC Network</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Your Wallet Address</label>
-                        <input type="text" id="walletAddress" class="uni-input" placeholder="Enter your USDT wallet address">
+                        <label class="form-label" data-translate="your_wallet_address">Your Wallet Address</label>
+                        <input type="text" id="walletAddress" class="uni-input" data-translate="enter_wallet_address" placeholder="Enter your USDT wallet address">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-translate="payment_password">Payment Password</label>
+                        <input type="password" id="paymentPassword" class="uni-input" data-translate="enter_payment_password" placeholder="Enter payment password">
                     </div>
 
                     <div class="fee-calculator">
                         <div class="fee-row">
-                            <span>Withdrawal Amount:</span>
+                            <span data-translate="withdrawal_amount">Withdrawal Amount:</span>
                             <span id="displayAmount">0.00 USDT</span>
                         </div>
                         <div class="fee-row">
-                            <span>Processing Fee (2%):</span>
+                            <span data-translate="processing_fee">Processing Fee (2%):</span>
                             <span id="feeAmount">0.00 USDT</span>
                         </div>
                         <div class="fee-row fee-total">
-                            <span>You Will Receive:</span>
+                            <span data-translate="you_will_receive">You Will Receive:</span>
                             <span id="receiveAmount">0.00 USDT</span>
                         </div>
                     </div>
 
-                    <div class="withdraw-info">
-                        <div class="info-title">Withdrawal Rules</div>
+                    <div class="info-box">
+                        <div class="info-title">
+                            <i class="fas fa-info-circle"></i>
+                            <span data-translate="withdrawal_rules">Withdrawal Rules</span>
+                        </div>
                         <div class="info-text">
-                            • Minimum withdrawal: <strong>5 USDT</strong><br>
-                            • Processing fee: <strong>2%</strong><br>
-                            • Withdrawal time: 1-24 hours<br>
-                            • Available only after first deposit<br>
-                            • Admin approval required
+                            • <span data-translate="min_withdrawal">Minimum withdrawal: 5 USDT</span><br>
+                            • <span data-translate="processing_fee">Processing fee: 2%</span><br>
+                            • <span data-translate="withdrawal_time">Withdrawal time: 1-60 minutes</span><br>
+                            • <span data-translate="available_after_deposit">Available only after first deposit</span><br>
+                            • <span data-translate="admin_approval">Admin approval required</span>
                         </div>
                     </div>
 
                     <button class="uni-button" id="withdrawButton" onclick="submitWithdrawal()" disabled>
-                        Submit Withdrawal Request
+                        <span data-translate="submit_withdrawal_request">Submit Withdrawal Request</span>
                     </button>
                 </div>
             </div>
 
             <div class="withdraw-card">
-                <div class="card-title">Recent Withdrawals</div>
+                <div class="card-title" data-translate="recent_withdrawals">Recent Withdrawals</div>
                 <div id="withdrawalHistory">
                     <div style="text-align: center; color: var(--gray); padding: 20px 0;">
-                        Loading withdrawal history...
+                        <span data-translate="loading_withdrawal_history">Loading withdrawal history...</span>
                     </div>
                 </div>
             </div>
@@ -493,7 +529,7 @@
         <div class="loading-logo">
             <img src="assets/quant.png" alt="Uipath">
         </div>
-        <div class="loading-text">Processing...</div>
+        <div class="loading-text" data-translate="processing">Processing...</div>
     </div>
 
     <script>
@@ -523,11 +559,12 @@
                         <img src="assets/quant.png" alt="Uipath">
                     </div>
                     <div class="custom-alert-message">${message}</div>
-                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+                    <button class="custom-alert-button" onclick="this.closest('.custom-alert-overlay').remove()" data-translate="ok">OK</button>
                 </div>
             `;
             
             document.body.appendChild(overlay);
+            applyTranslations();
         }
 
         function showCustomConfirm(message, confirmCallback) {
@@ -541,8 +578,8 @@
                     </div>
                     <div class="custom-alert-message">${message}</div>
                     <div class="custom-confirm-buttons">
-                        <button class="custom-confirm-button cancel">Cancel</button>
-                        <button class="custom-confirm-button confirm">Confirm</button>
+                        <button class="custom-confirm-button cancel" data-translate="cancel">Cancel</button>
+                        <button class="custom-confirm-button confirm" data-translate="confirm">Confirm</button>
                     </div>
                 </div>
             `;
@@ -562,6 +599,7 @@
             };
             
             document.body.appendChild(overlay);
+            applyTranslations();
         }
 
         function goBack() {
@@ -601,17 +639,29 @@
             updateWithdrawButton();
         }
 
+        async function verifyPaymentPassword(password) {
+            try {
+                const userId = sessionStorage.getItem('currentUserId');
+                const users = await safeSupabaseFetch('users', 'payment_password', { id: userId });
+                return users.length > 0 && users[0].payment_password === password;
+            } catch (error) {
+                return false;
+            }
+        }
+
         function updateWithdrawButton() {
             const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
             const walletAddress = document.getElementById('walletAddress').value.trim();
+            const paymentPassword = document.getElementById('paymentPassword').value;
             const button = document.getElementById('withdrawButton');
             
             const minAmount = 5;
             const hasSufficientBalance = amount <= userBalance;
             const hasValidAmount = amount >= minAmount;
             const hasValidAddress = walletAddress.length > 0;
+            const hasPaymentPassword = paymentPassword.length >= 4;
             
-            if (hasSufficientBalance && hasValidAmount && hasValidAddress && hasDeposited) {
+            if (hasSufficientBalance && hasValidAmount && hasValidAddress && hasDeposited && hasPaymentPassword) {
                 button.disabled = false;
             } else {
                 button.disabled = true;
@@ -621,8 +671,16 @@
         async function submitWithdrawal() {
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const walletAddress = document.getElementById('walletAddress').value.trim();
+            const paymentPassword = document.getElementById('paymentPassword').value;
             const fee = amount * 0.02;
             const receive = amount - fee;
+            
+            // Verify payment password
+            const paymentPassValid = await verifyPaymentPassword(paymentPassword);
+            if (!paymentPassValid) {
+                showCustomAlert('Invalid payment password');
+                return;
+            }
             
             if (amount < 5) {
                 showCustomAlert('Minimum withdrawal amount is 5 USDT');
@@ -662,6 +720,14 @@
                     return;
                 }
                 
+                // Сразу списываем средства
+                const newBalance = userBalance - amount - fee;
+                await safeSupabaseUpdate('users', 
+                    { balance: newBalance }, 
+                    'id', 
+                    userId
+                );
+                
                 const response = await fetch('https://api.uipath.finance/withdraw/submit', {
                     method: 'POST',
                     headers: {
@@ -680,14 +746,6 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    const newBalance = userBalance - amount - fee;
-                    
-                    await safeSupabaseUpdate('users', 
-                        { balance: newBalance }, 
-                        'id', 
-                        userId
-                    );
-                    
                     const withdrawalTransaction = {
                         user_id: userId,
                         type: 'withdrawal',
@@ -710,20 +768,37 @@
                         created_at: new Date().toISOString()
                     });
                     
-                    showCustomAlert('Withdrawal request submitted successfully! It will be processed within 24 hours.');
+                    showCustomAlert('Withdrawal request submitted successfully! It will be processed within 1-60 minutes.');
                     
                     loadUserData();
                     loadWithdrawalHistory();
                     
                     document.getElementById('withdrawAmount').value = '';
                     document.getElementById('walletAddress').value = '';
+                    document.getElementById('paymentPassword').value = '';
                     calculateFee();
                     
                 } else {
+                    // Если API не сработал, возвращаем средства
+                    await safeSupabaseUpdate('users', 
+                        { balance: userBalance }, 
+                        'id', 
+                        userId
+                    );
                     showCustomAlert('Withdrawal request failed. Please try again.');
                 }
             } catch (error) {
                 console.error('Withdrawal error:', error);
+                // В случае ошибки возвращаем средства
+                try {
+                    await safeSupabaseUpdate('users', 
+                        { balance: userBalance }, 
+                        'id', 
+                        currentUserId
+                    );
+                } catch (e) {
+                    console.error('Error returning funds:', e);
+                }
                 showCustomAlert('Network error during withdrawal request.');
             } finally {
                 hideLoading();
@@ -849,7 +924,8 @@
                 const withdrawals = await safeSupabaseFetch('withdrawal_requests', '*', { user_id: userId });
                 
                 if (withdrawals.length === 0) {
-                    historyContainer.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">No withdrawal history</div>';
+                    historyContainer.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="no_withdrawal_history">No withdrawal history</div>';
+                    applyTranslations();
                     return;
                 }
                 
@@ -879,12 +955,14 @@
                 
             } catch (error) {
                 console.error('Withdrawal history error:', error);
-                document.getElementById('withdrawalHistory').innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;">Error loading history</div>';
+                document.getElementById('withdrawalHistory').innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="error_loading_history">Error loading history</div>';
+                applyTranslations();
             }
         }
 
         document.getElementById('withdrawAmount').addEventListener('input', calculateFee);
         document.getElementById('walletAddress').addEventListener('input', updateWithdrawButton);
+        document.getElementById('paymentPassword').addEventListener('input', updateWithdrawButton);
 
         window.onload = function() {
             if (!sessionStorage.getItem('currentUserId')) {
@@ -892,6 +970,7 @@
                 return;
             }
             
+            applyTranslations();
             loadUserData();
             loadWithdrawalHistory();
         };
