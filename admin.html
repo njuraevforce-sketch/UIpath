@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uipath - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #0a505e;
+            --primary-light: #0d6a7c;
+            --accent: #ff9d00;
+            --success: #4cd964;
+            --danger: #ff3b30;
+            --warning: #ffcc00;
+            --info: #5ac8fa;
+            --dark: #1c1c1e;
+            --light: #f8f9fa;
+            --gray: #8e8e93;
+            --white: #ffffff;
+        }
+
+        body {
+            background: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 100%;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 12px 15px;
+            background: var(--white);
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 60px;
+            z-index: 99;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            border: none;
+            background: var(--light);
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(10, 80, 94, 0.3);
+        }
+
+        .admin-content {
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .data-table {
+            width: 100%;
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background: rgba(10, 80, 94, 0.02);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 2px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-approve {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-reject {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-edit {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-view {
+            background: var(--primary);
+            color: white;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--white);
+        }
+
+        .withdrawal-item {
+            background: var(--white);
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            border-left: 4px solid var(--warning);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .withdrawal-item.approved {
+            border-left-color: var(--success);
+        }
+
+        .withdrawal-item.rejected {
+            border-left-color: var(--danger);
+        }
+
+        .user-details {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--light);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d1edff; color: #004085; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-action-btn {
+            padding: 15px;
+            background: var(--white);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            background: rgba(10, 80, 94, 0.02);
+        }
+
+        .action-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .admin-nav {
+                justify-content: center;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1 style="font-size: 20px;">Uipath Admin Panel</h1>
+            <div>
+                <button onclick="logout()" style="background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="admin-nav">
+            <button class="nav-btn active" onclick="showTab('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button class="nav-btn" onclick="showTab('withdrawals')">
+                <i class="fas fa-money-bill-wave"></i> Withdrawals
+            </button>
+            <button class="nav-btn" onclick="showTab('deposits')">
+                <i class="fas fa-download"></i> Deposits
+            </button>
+            <button class="nav-btn" onclick="showTab('users')">
+                <i class="fas fa-users"></i> Users
+            </button>
+            <button class="nav-btn" onclick="showTab('referrals')">
+                <i class="fas fa-sitemap"></i> Referral Tree
+            </button>
+            <button class="nav-btn" onclick="showTab('wallets')">
+                <i class="fas fa-wallet"></i> Wallets
+            </button>
+            <button class="nav-btn" onclick="showTab('settings')">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+        </div>
+
+        <div class="admin-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content active">
+                <div class="quick-actions">
+                    <div class="quick-action-btn" onclick="showTab('withdrawals')">
+                        <div class="action-icon"><i class="fas fa-money-bill-wave"></i></div>
+                        <div>Pending Withdrawals</div>
+                        <div class="stat-value" id="quick-withdrawals">0</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="showTab('users')">
+                        <div class="action-icon"><i class="fas fa-user-plus"></i></div>
+                        <div>New Users Today</div>
+                        <div class="stat-value" id="quick-new-users">0</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="showTab('deposits')">
+                        <div class="action-icon"><i class="fas fa-chart-line"></i></div>
+                        <div>Total Deposits</div>
+                        <div class="stat-value" id="quick-deposits">0</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="showTab('wallets')">
+                        <div class="action-icon"><i class="fas fa-wallet"></i></div>
+                        <div>Active Wallets</div>
+                        <div class="stat-value" id="quick-wallets">0</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="activeUsers">0</div>
+                        <div class="stat-label">Active Users (30d)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalDeposits">0</div>
+                        <div class="stat-label">Total Deposits (USDT)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalWithdrawals">0</div>
+                        <div class="stat-label">Total Withdrawals (USDT)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingWithdrawals">0</div>
+                        <div class="stat-label">Pending Withdrawals</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayRegistrations">0</div>
+                        <div class="stat-label">Today Registrations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalBalance">0</div>
+                        <div class="stat-label">Platform Balance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="vipUsers">0</div>
+                        <div class="stat-label">VIP Users</div>
+                    </div>
+                </div>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivity">
+                            <tr>
+                                <td colspan="5" class="loading">Loading recent activity...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Withdrawals Tab -->
+            <div id="withdrawalsTab" class="tab-content">
+                <input type="text" class="search-box" placeholder="Search withdrawals by user ID, address, or amount..." onkeyup="searchWithdrawals(this.value)">
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User ID</th>
+                                <th>Amount</th>
+                                <th>Network</th>
+                                <th>Wallet Address</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdrawalsTable">
+                            <tr>
+                                <td colspan="7" class="loading">Loading withdrawals...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Deposits Tab -->
+            <div id="depositsTab" class="tab-content">
+                <input type="text" class="search-box" placeholder="Search deposits by user ID or amount..." onkeyup="searchDeposits(this.value)">
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User ID</th>
+                                <th>Amount</th>
+                                <th>Network</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="depositsTable">
+                            <tr>
+                                <td colspan="6" class="loading">Loading deposits...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <input type="text" class="search-box" placeholder="Search users by ID, name, or email..." onkeyup="searchUsers(this.value)">
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Balance</th>
+                                <th>VIP Level</th>
+                                <th>Registration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr>
+                                <td colspan="7" class="loading">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Referral Tree Tab -->
+            <div id="referralsTab" class="tab-content">
+                <div class="user-details">
+                    <div class="form-group">
+                        <label class="form-label">Search User Referral Tree</label>
+                        <input type="text" class="form-input" id="referralSearch" placeholder="Enter User ID" onkeyup="searchReferralTree(this.value)">
+                    </div>
+                </div>
+                
+                <div id="referralTree">
+                    <div class="loading">Enter a User ID to view referral tree</div>
+                </div>
+            </div>
+
+            <!-- Wallets Tab -->
+            <div id="walletsTab" class="tab-content">
+                <input type="text" class="search-box" placeholder="Search wallets by user ID or address..." onkeyup="searchWallets(this.value)">
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Network</th>
+                                <th>Wallet Address</th>
+                                <th>Balance</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="walletsTable">
+                            <tr>
+                                <td colspan="6" class="loading">Loading wallets...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <div class="user-details">
+                    <h3 style="margin-bottom: 20px;">Admin Settings</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Platform Name</label>
+                        <input type="text" class="form-input" value="Uipath Financial">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Withdrawal Fee (%)</label>
+                        <input type="number" class="form-input" value="2" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Minimum Withdrawal</label>
+                        <input type="number" class="form-input" value="5" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Minimum Deposit</label>
+                        <input type="number" class="form-input" value="17" step="0.01">
+                    </div>
+                    
+                    <button class="action-btn btn-approve" style="padding: 10px 20px;">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Edit User</div>
+                <button class="close-btn" onclick="closeModal('editUserModal')">&times;</button>
+            </div>
+            <div id="editUserForm">
+                <!-- User edit form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://pjyuagmvrhpepomqfxxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXVhZ212cmhwZXBvbXFmeHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTI0MTMsImV4cCI6MjA3ODcyODQxM30.yJzBls_cn_x5CUVyQyqZjYhrMf_WlN23W48QUHHPc6Y';
+
+        let allUsers = [];
+        let allWithdrawals = [];
+        let allDeposits = [];
+
+        // Admin authentication
+        function checkAdminAuth() {
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken || adminToken !== 'uipath_admin_2024') {
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            return true;
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'admin-login.html';
+        }
+
+        async function safeSupabaseFetch(table, query = '*', filters = null) {
+            try {
+                let url = `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(query)}`;
+                
+                if (filters) {
+                    Object.keys(filters).forEach(key => {
+                        url += `&${key}=eq.${encodeURIComponent(filters[key])}`;
+                    });
+                }
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('DB fetch error:', error);
+                throw error;
+            }
+        }
+
+        async function safeSupabaseUpdate(table, data, column, value) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('DB update error:', error);
+                throw error;
+            }
+        }
+
+        async function loadDashboard() {
+            if (!checkAdminAuth()) return;
+
+            try {
+                // Load all data
+                allUsers = await safeSupabaseFetch('users', '*');
+                allWithdrawals = await safeSupabaseFetch('withdrawal_requests', '*');
+                const transactions = await safeSupabaseFetch('transactions', '*');
+
+                // Calculate statistics
+                const today = new Date().toDateString();
+                const todayUsers = allUsers.filter(u => new Date(u.created_at).toDateString() === today);
+                const pendingWithdrawals = allWithdrawals.filter(w => w.status === 'pending');
+                const totalDeposits = transactions.filter(t => t.type === 'deposit').reduce((sum, t) => sum + t.amount, 0);
+                const totalWithdrawals = transactions.filter(t => t.type === 'withdrawal').reduce((sum, t) => sum + t.amount, 0);
+                const vipUsers = allUsers.filter(u => u.vip_level > 0).length;
+                const totalBalance = allUsers.reduce((sum, u) => sum + u.balance, 0);
+
+                // Update quick actions
+                document.getElementById('quick-withdrawals').textContent = pendingWithdrawals.length;
+                document.getElementById('quick-new-users').textContent = todayUsers.length;
+                document.getElementById('quick-deposits').textContent = totalDeposits.toFixed(0);
+                document.getElementById('quick-wallets').textContent = allUsers.length;
+
+                // Update statistics
+                document.getElementById('totalUsers').textContent = allUsers.length;
+                document.getElementById('activeUsers').textContent = allUsers.length; // Simplified
+                document.getElementById('totalDeposits').textContent = totalDeposits.toFixed(2);
+                document.getElementById('totalWithdrawals').textContent = totalWithdrawals.toFixed(2);
+                document.getElementById('pendingWithdrawals').textContent = pendingWithdrawals.length;
+                document.getElementById('todayRegistrations').textContent = todayUsers.length;
+                document.getElementById('totalBalance').textContent = totalBalance.toFixed(2);
+                document.getElementById('vipUsers').textContent = vipUsers;
+
+                // Load recent activity
+                loadRecentActivity(transactions);
+
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+            }
+        }
+
+        function loadRecentActivity(transactions) {
+            const recentActivity = document.getElementById('recentActivity');
+            const recentTransactions = transactions
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 10);
+
+            if (recentTransactions.length === 0) {
+                recentActivity.innerHTML = '<tr><td colspan="5" class="loading">No recent activity</td></tr>';
+                return;
+            }
+
+            recentActivity.innerHTML = recentTransactions.map(transaction => {
+                const date = new Date(transaction.created_at);
+                const user = allUsers.find(u => u.id === transaction.user_id);
+                const userName = user ? user.name : 'Unknown User';
+                
+                return `
+                    <tr>
+                        <td>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</td>
+                        <td>${userName} (${transaction.user_id})</td>
+                        <td>${transaction.type}</td>
+                        <td>${transaction.amount} USDT</td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadWithdrawals() {
+            if (!checkAdminAuth()) return;
+
+            try {
+                const withdrawalsTable = document.getElementById('withdrawalsTable');
+                const withdrawals = await safeSupabaseFetch('withdrawal_requests', '*');
+                allWithdrawals = withdrawals;
+
+                if (withdrawals.length === 0) {
+                    withdrawalsTable.innerHTML = '<tr><td colspan="7" class="loading">No withdrawal requests found</td></tr>';
+                    return;
+                }
+
+                withdrawalsTable.innerHTML = withdrawals.map(withdrawal => {
+                    const date = new Date(withdrawal.created_at);
+                    return `
+                        <tr>
+                            <td>${date.toLocaleDateString()}<br>${date.toLocaleTimeString()}</td>
+                            <td>${withdrawal.user_id}</td>
+                            <td>${withdrawal.amount} USDT</td>
+                            <td>${withdrawal.network.toUpperCase()}</td>
+                            <td>
+                                ${withdrawal.address}
+                                <button class="copy-btn" onclick="copyToClipboard('${withdrawal.address}')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </td>
+                            <td><span class="status-badge status-${withdrawal.status}">${withdrawal.status}</span></td>
+                            <td>
+                                ${withdrawal.status === 'pending' ? `
+                                    <button class="action-btn btn-approve" onclick="processWithdrawal('${withdrawal.id}', 'completed')">
+                                        <i class="fas fa-check"></i> Pay
+                                    </button>
+                                    <button class="action-btn btn-reject" onclick="processWithdrawal('${withdrawal.id}', 'cancelled')">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                ` : `
+                                    <button class="action-btn btn-view" onclick="viewWithdrawal('${withdrawal.id}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                `}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Withdrawals load error:', error);
+            }
+        }
+
+        async function processWithdrawal(withdrawalId, status) {
+            if (!confirm(`Are you sure you want to ${status} this withdrawal?`)) return;
+
+            try {
+                await safeSupabaseUpdate('withdrawal_requests', { status: status }, 'id', withdrawalId);
+                
+                if (status === 'cancelled') {
+                    // Return funds to user
+                    const withdrawal = allWithdrawals.find(w => w.id === withdrawalId);
+                    if (withdrawal) {
+                        const user = allUsers.find(u => u.id === withdrawal.user_id);
+                        if (user) {
+                            const newBalance = user.balance + withdrawal.amount + withdrawal.fee;
+                            await safeSupabaseUpdate('users', { balance: newBalance }, 'id', withdrawal.user_id);
+                        }
+                    }
+                }
+
+                showCustomAlert(`Withdrawal ${status} successfully!`);
+                loadWithdrawals();
+                loadDashboard();
+            } catch (error) {
+                console.error('Process withdrawal error:', error);
+                showCustomAlert('Error processing withdrawal');
+            }
+        }
+
+        async function loadUsers() {
+            if (!checkAdminAuth()) return;
+
+            try {
+                const usersTable = document.getElementById('usersTable');
+                const users = await safeSupabaseFetch('users', '*');
+                allUsers = users;
+
+                if (users.length === 0) {
+                    usersTable.innerHTML = '<tr><td colspan="7" class="loading">No users found</td></tr>';
+                    return;
+                }
+
+                usersTable.innerHTML = users.map(user => {
+                    const regDate = new Date(user.created_at);
+                    return `
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="user-avatar">${user.name ? user.name.substring(0, 2).toUpperCase() : 'U'}</div>
+                                    <div>
+                                        <div style="font-weight: 600;">${user.name || 'Unknown'}</div>
+                                        <div style="font-size: 12px; color: var(--gray);">${user.id}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${user.id}</td>
+                            <td>${user.email}</td>
+                            <td>${user.balance} USDT</td>
+                            <td>VIP ${user.vip_level}</td>
+                            <td>${regDate.toLocaleDateString()}</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="editUser('${user.id}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn btn-view" onclick="viewUser('${user.id}')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Users load error:', error);
+            }
+        }
+
+        async function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            const modal = document.getElementById('editUserModal');
+            const form = document.getElementById('editUserForm');
+
+            form.innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" value="${user.name}" id="editUserName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" value="${user.email}" id="editUserEmail">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Balance (USDT)</label>
+                    <input type="number" class="form-input" value="${user.balance}" step="0.01" id="editUserBalance">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">VIP Level</label>
+                    <input type="number" class="form-input" value="${user.vip_level}" min="0" max="6" id="editUserVip">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password (leave blank to keep current)</label>
+                    <input type="password" class="form-input" placeholder="New password" id="editUserPassword">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="action-btn btn-approve" onclick="saveUser('${user.id}')" style="flex: 1;">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button class="action-btn btn-reject" onclick="closeModal('editUserModal')" style="flex: 1;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        async function saveUser(userId) {
+            try {
+                const updateData = {
+                    name: document.getElementById('editUserName').value,
+                    email: document.getElementById('editUserEmail').value,
+                    balance: parseFloat(document.getElementById('editUserBalance').value),
+                    vip_level: parseInt(document.getElementById('editUserVip').value)
+                };
+
+                const newPassword = document.getElementById('editUserPassword').value;
+                if (newPassword) {
+                    updateData.password = newPassword;
+                }
+
+                await safeSupabaseUpdate('users', updateData, 'id', userId);
+                showCustomAlert('User updated successfully!');
+                closeModal('editUserModal');
+                loadUsers();
+                loadDashboard();
+            } catch (error) {
+                console.error('Save user error:', error);
+                showCustomAlert('Error updating user');
+            }
+        }
+
+        function searchWithdrawals(query) {
+            const filtered = allWithdrawals.filter(w => 
+                w.user_id.toLowerCase().includes(query.toLowerCase()) ||
+                w.address.toLowerCase().includes(query.toLowerCase()) ||
+                w.amount.toString().includes(query)
+            );
+            renderWithdrawalsTable(filtered);
+        }
+
+        function searchUsers(query) {
+            const filtered = allUsers.filter(u => 
+                u.id.toLowerCase().includes(query.toLowerCase()) ||
+                u.name.toLowerCase().includes(query.toLowerCase()) ||
+                u.email.toLowerCase().includes(query.toLowerCase())
+            );
+            renderUsersTable(filtered);
+        }
+
+        function renderWithdrawalsTable(withdrawals) {
+            const table = document.getElementById('withdrawalsTable');
+            if (withdrawals.length === 0) {
+                table.innerHTML = '<tr><td colspan="7" class="loading">No withdrawals found</td></tr>';
+                return;
+            }
+
+            table.innerHTML = withdrawals.map(withdrawal => {
+                const date = new Date(withdrawal.created_at);
+                return `
+                    <tr>
+                        <td>${date.toLocaleDateString()}<br>${date.toLocaleTimeString()}</td>
+                        <td>${withdrawal.user_id}</td>
+                        <td>${withdrawal.amount} USDT</td>
+                        <td>${withdrawal.network.toUpperCase()}</td>
+                        <td>
+                            ${withdrawal.address}
+                            <button class="copy-btn" onclick="copyToClipboard('${withdrawal.address}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </td>
+                        <td><span class="status-badge status-${withdrawal.status}">${withdrawal.status}</span></td>
+                        <td>
+                            ${withdrawal.status === 'pending' ? `
+                                <button class="action-btn btn-approve" onclick="processWithdrawal('${withdrawal.id}', 'completed')">
+                                    <i class="fas fa-check"></i> Pay
+                                </button>
+                                <button class="action-btn btn-reject" onclick="processWithdrawal('${withdrawal.id}', 'cancelled')">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            ` : `
+                                <button class="action-btn btn-view" onclick="viewWithdrawal('${withdrawal.id}')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderUsersTable(users) {
+            const table = document.getElementById('usersTable');
+            if (users.length === 0) {
+                table.innerHTML = '<tr><td colspan="7" class="loading">No users found</td></tr>';
+                return;
+            }
+
+            table.innerHTML = users.map(user => {
+                const regDate = new Date(user.created_at);
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="user-avatar">${user.name ? user.name.substring(0, 2).toUpperCase() : 'U'}</div>
+                                <div>
+                                    <div style="font-weight: 600;">${user.name || 'Unknown'}</div>
+                                    <div style="font-size: 12px; color: var(--gray);">${user.id}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${user.id}</td>
+                        <td>${user.email}</td>
+                        <td>${user.balance} USDT</td>
+                        <td>VIP ${user.vip_level}</td>
+                        <td>${regDate.toLocaleDateString()}</td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="editUser('${user.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="action-btn btn-view" onclick="viewUser('${user.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab and activate button
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // Load tab data
+            switch(tabName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'withdrawals':
+                    loadWithdrawals();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'deposits':
+                    loadDeposits();
+                    break;
+                case 'wallets':
+                    loadWallets();
+                    break;
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCustomAlert('Copied to clipboard!');
+            });
+        }
+
+        function showCustomAlert(message) {
+            alert(message); // Simplified for now
+        }
+
+        // Additional functions for other tabs
+        async function loadDeposits() {
+            // Implementation for deposits tab
+            const depositsTable = document.getElementById('depositsTable');
+            depositsTable.innerHTML = '<tr><td colspan="6" class="loading">Deposits feature coming soon...</td></tr>';
+        }
+
+        async function loadWallets() {
+            // Implementation for wallets tab
+            const walletsTable = document.getElementById('walletsTable');
+            walletsTable.innerHTML = '<tr><td colspan="6" class="loading">Wallets feature coming soon...</td></tr>';
+        }
+
+        function searchReferralTree(query) {
+            // Implementation for referral tree search
+            const treeContainer = document.getElementById('referralTree');
+            if (query.trim()) {
+                treeContainer.innerHTML = `<div class="loading">Loading referral tree for user: ${query}</div>`;
+            } else {
+                treeContainer.innerHTML = '<div class="loading">Enter a User ID to view referral tree</div>';
+            }
+        }
+
+        // Initialize admin panel
+        window.onload = function() {
+            if (!checkAdminAuth()) return;
+            loadDashboard();
+        };
+    </script>
+</body>
+</html>
