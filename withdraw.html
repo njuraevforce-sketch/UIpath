@@ -30,7 +30,9 @@
         body {
             background-color: var(--light);
             color: var(--dark);
-            height: 100vh;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .withdraw-container {
@@ -540,6 +542,7 @@
         let currentUserId = null;
         let userBalance = 0;
         let hasDeposited = false;
+        let userWithdrawRestricted = true; // Default to restricted
 
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('active');
@@ -661,7 +664,10 @@
             const hasValidAddress = walletAddress.length > 0;
             const hasPaymentPassword = paymentPassword.length >= 4;
             
-            if (hasSufficientBalance && hasValidAmount && hasValidAddress && hasDeposited && hasPaymentPassword) {
+            // Check if user can withdraw (either has deposited OR has withdraw exception)
+            const canWithdraw = !userWithdrawRestricted || hasDeposited;
+            
+            if (hasSufficientBalance && hasValidAmount && hasValidAddress && canWithdraw && hasPaymentPassword) {
                 button.disabled = false;
             } else {
                 button.disabled = true;
@@ -692,7 +698,8 @@
                 return;
             }
             
-            if (!hasDeposited) {
+            // Check withdrawal restrictions
+            if (userWithdrawRestricted && !hasDeposited) {
                 showCustomAlert('Withdrawal available only after first deposit');
                 return;
             }
@@ -889,23 +896,28 @@
                 }
                 
                 const user = users[0];
-                userBalance = user.balance;
+                userBalance = parseFloat(user.balance);
+                userWithdrawRestricted = user.withdraw_restricted !== false; // Default to true if null/undefined
                 
                 document.getElementById('availableBalance').textContent = userBalance.toFixed(2) + ' USDT';
                 
-                const deposits = await safeSupabaseFetch('transactions', '*', { 
-                    user_id: userId,
-                    type: 'deposit'
+                const deposits = await safeSupabaseFetch('deposit_transactions', '*', { 
+                    user_id: userId
                 });
                 
                 hasDeposited = deposits.length > 0;
                 
-                if (hasDeposited) {
-                    document.getElementById('depositStatus').textContent = 'Withdrawal available';
-                    document.getElementById('depositStatus').style.color = '#4cd964';
+                // Update deposit status message
+                const depositStatus = document.getElementById('depositStatus');
+                if (!userWithdrawRestricted) {
+                    depositStatus.textContent = 'Withdrawal available (Admin Exception)';
+                    depositStatus.style.color = '#4cd964';
+                } else if (hasDeposited) {
+                    depositStatus.textContent = 'Withdrawal available';
+                    depositStatus.style.color = '#4cd964';
                 } else {
-                    document.getElementById('depositStatus').textContent = 'Make first deposit to enable withdrawals';
-                    document.getElementById('depositStatus').style.color = '#ff3b30';
+                    depositStatus.textContent = 'Make first deposit to enable withdrawals';
+                    depositStatus.style.color = '#ff3b30';
                 }
                 
                 updateWithdrawButton();
