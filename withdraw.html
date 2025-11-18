@@ -417,6 +417,82 @@
             font-weight: 600;
         }
 
+        /* Новые стили для истории выводов */
+        .withdrawal-history-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .withdrawal-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .withdrawal-left {
+            flex: 1;
+        }
+
+        .withdrawal-amount {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .withdrawal-details {
+            font-size: 12px;
+            color: var(--gray);
+            display: flex;
+            gap: 8px;
+        }
+
+        .withdrawal-details span {
+            padding-right: 8px;
+            border-right: 1px solid #d0d0d0;
+        }
+
+        .withdrawal-details span:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .withdrawal-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .withdrawal-history-container {
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 23px,
+                #f0f0f0 23px,
+                #f0f0f0 24px
+            );
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #d0d0d0;
+            background-color: #fafafa;
+        }
+
         @keyframes pulse {
             0% { transform: scale(0.9); opacity: 0.7; }
             50% { transform: scale(1); opacity: 1; }
@@ -518,7 +594,7 @@
 
             <div class="withdraw-card">
                 <div class="card-title" data-translate="recent_withdrawals">Recent Withdrawals</div>
-                <div id="withdrawalHistory">
+                <div class="withdrawal-history-container" id="withdrawalHistory">
                     <div style="text-align: center; color: var(--gray); padding: 20px 0;">
                         <span data-translate="loading_withdrawal_history">Loading withdrawal history...</span>
                     </div>
@@ -921,17 +997,20 @@
                 let historyHTML = '';
                 withdrawals.forEach(withdrawal => {
                     const date = new Date(withdrawal.created_at).toLocaleDateString();
-                    let statusColor = '#ff9d00';
-                    if (withdrawal.status === 'completed') statusColor = '#4cd964';
-                    if (withdrawal.status === 'cancelled') statusColor = '#ff3b30';
+                    let statusClass = 'status-pending';
+                    if (withdrawal.status === 'completed') statusClass = 'status-completed';
+                    if (withdrawal.status === 'cancelled') statusClass = 'status-cancelled';
                     
                     historyHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
-                            <div>
-                                <div style="font-weight:600;">${withdrawal.amount} USDT</div>
-                                <div style="font-size:12px; color:var(--gray);">${date} • ${withdrawal.network.toUpperCase()}</div>
+                        <div class="withdrawal-history-item">
+                            <div class="withdrawal-left">
+                                <div class="withdrawal-amount">${withdrawal.amount} USDT</div>
+                                <div class="withdrawal-details">
+                                    <span>${date}</span>
+                                    <span>${withdrawal.network.toUpperCase()}</span>
+                                </div>
                             </div>
-                            <div style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight:600;">
+                            <div class="withdrawal-status ${statusClass}">
                                 ${withdrawal.status.toUpperCase()}
                             </div>
                         </div>
