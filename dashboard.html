@@ -8,426 +8,426 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a505e">
     <style>
-      * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 200;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
-    -webkit-text-size-adjust: none;
-    -ms-text-size-adjust: none;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 200;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: none;
+            -ms-text-size-adjust: none;
+        }
 
-html, body {
-    height: 100%;
-    width: 100%;
-    overflow-x: hidden; /* Запрещаем только горизонтальный скролл */
-}
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
 
-:root {
-    --primary: #0a505e;
-    --primary-light: #0d6a7c;
-    --primary-dark: #083840;
-    --accent: #ff9d00;
-    --accent-light: #ffb74d;
-    --success: #4cd964;
-    --danger: #ff3b30;
-    --warning: #ffcc00;
-    --info: #5ac8fa;
-    --dark: #1c1c1e;
-    --light: #f8f9fa;
-    --gray: #8e8e93;
-    --white: #ffffff;
-}
+        :root {
+            --primary: #0a505e;
+            --primary-light: #0d6a7c;
+            --primary-dark: #083840;
+            --accent: #ff9d00;
+            --accent-light: #ffb74d;
+            --success: #4cd964;
+            --danger: #ff3b30;
+            --warning: #ffcc00;
+            --info: #5ac8fa;
+            --dark: #1c1c1e;
+            --light: #f8f9fa;
+            --gray: #8e8e93;
+            --white: #ffffff;
+        }
 
-body {
-    background-color: var(--light);
-    color: var(--dark);
-    line-height: 1.6;
-    font-size: 16px;
-    font-weight: 200;
-    touch-action: pan-y; /* Разрешаем вертикальные свайпы */
-    overscroll-behavior-y: contain; /* Только для вертикали */
-    position: relative;
-    overflow-y: auto; /* Разрешаем вертикальный скролл */
-    -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
-}
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            font-size: 16px;
+            font-weight: 200;
+            touch-action: pan-y;
+            overscroll-behavior-y: contain;
+            position: relative;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-.app-container {
-    max-width: 100%;
-    margin: 0 auto;
-    background: var(--white);
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden; /* Запрещаем горизонтальный скролл */
-}
+        .app-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: var(--white);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-.page {
-    display: none;
-    background: var(--white);
-    min-height: 100vh;
-    padding-bottom: 70px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    overflow-y: auto; /* Вертикальный скролл для контента */
-    -webkit-overflow-scrolling: touch;
-    position: relative;
-}
+        .page {
+            display: none;
+            background: var(--white);
+            min-height: 100vh;
+            padding-bottom: 70px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
 
-.page.active {
-    display: block;
-    opacity: 1;
-}
+        .page.active {
+            display: block;
+            opacity: 1;
+        }
 
-/* Остальные стили без изменений */
-.language-support-container {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 1000;
-    display: flex;
-    gap: 10px;
-}
+        .language-support-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
 
-.language-selector {
-    position: relative;
-    display: inline-block;
-}
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
 
-.current-flag {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border: 2px solid var(--primary);
-}
+        .current-flag {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--primary);
+        }
 
-.language-menu {
-    display: none;
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-    min-width: 150px;
-    z-index: 1001;
-    max-height: 300px;
-    overflow-y: auto;
-}
+        .language-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            min-width: 150px;
+            z-index: 1001;
+            max-height: 300px;
+            overflow-y: auto;
+        }
 
-.language-option {
-    padding: 12px 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.3s ease;
-}
+        .language-option {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s ease;
+        }
 
-.language-option:last-child {
-    border-bottom: none;
-}
+        .language-option:last-child {
+            border-bottom: none;
+        }
 
-.language-option:hover {
-    background: var(--light);
-}
+        .language-option:hover {
+            background: var(--light);
+        }
 
-.language-flag {
-    font-size: 16px;
-    width: 20px;
-    text-align: center;
-}
+        .language-flag {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
 
-.language-name {
-    flex: 1;
-    font-size: 14px;
-    color: var(--dark);
-}
+        .language-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--dark);
+        }
 
-.support-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border: 2px solid var(--accent);
-    color: var(--accent);
-    text-decoration: none;
-}
+        .support-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            text-decoration: none;
+        }
 
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255,255,255,0.95);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
 
-.loading-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
 
-.loading-logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 20px;
-    animation: pulse 1.5s ease-in-out infinite;
-}
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
 
-.loading-logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
+        .loading-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
 
-.loading-text {
-    font-size: 16px;
-    color: var(--primary);
-    font-weight: 600;
-}
+        .loading-text {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 600;
+        }
 
-@keyframes pulse {
-    0% { transform: scale(0.9); opacity: 0.7; }
-    50% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(0.9); opacity: 0.7; }
-}
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
 
-.uni-header {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-    padding: 15px;
-    display: flex;
-    align-items: flex-start;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    position: relative;
-    height: 250px;
-    overflow: hidden;
-}
+        .uni-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: flex-start;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
 
-.logo {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    width: 200px;
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    z-index: 20;
-}
+        .logo {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 200px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            z-index: 20;
+        }
 
-.logo img {
-    max-width: 100%;
-    max-height: 100%;
-}
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+        }
 
-.video-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 30px;
-    left: 0;
-    border-radius: 0 0 20px 20px;
-    overflow: hidden;
-    z-index: 10;
-}
+        .video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 30px;
+            left: 0;
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+            z-index: 10;
+        }
 
-.video-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 120%;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    z-index: 5;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            z-index: 5;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
 
-.video-player {
-    width: 90%;
-    height: 75%;
-    background: rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    z-index: 15;
-}
+        .video-player {
+            width: 90%;
+            height: 75%;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 15;
+        }
 
-.video-player video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        .video-player video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-.play-btn {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 5;
-}
+        .play-btn {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
 
-.simple-header {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    height: 80px;
-}
+        .simple-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            height: 80px;
+        }
 
-.page-title {
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-    flex: 1;
-}
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            flex: 1;
+        }
 
-.back-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
 
-.header-logo {
-    width: 120px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-left: 10px;
-}
+        .header-logo {
+            width: 120px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-left: 10px;
+        }
 
-.header-logo img {
-    max-width: 100%;
-    max-height: 100%;
-}
+        .header-logo img {
+            max-width: 100%;
+            max-height: 100%;
+        }
 
-.mission-section {
-    padding: 15px;
-    margin-top: 10px;
-}
+        .mission-section {
+            padding: 15px;
+            margin-top: 10px;
+        }
 
-.marquee-container {
-    overflow: hidden;
-    white-space: nowrap;
-    position: relative;
-    background: var(--light);
-    padding: 10px 0;
-    border-radius: 8px;
-}
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            background: var(--light);
+            padding: 10px 0;
+            border-radius: 8px;
+        }
 
-.marquee-content {
-    display: inline-block;
-    padding-left: 100%;
-    animation: marquee 25s linear infinite;
-    font-size: 14px;
-    color: var(--primary);
-}
+        .marquee-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 25s linear infinite;
+            font-size: 14px;
+            color: var(--primary);
+        }
 
-@keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-}
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
 
-.carousel {
-    position: relative;
-    height: 180px;
-    overflow: hidden;
-    border-radius: 10px;
-    margin: 15px;
-}
+        .carousel {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+            border-radius: 10px;
+            margin: 15px;
+        }
 
-.carousel-slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 1s ease;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.carousel-slide.active {
-    opacity: 1;
-}
+        .carousel-slide.active {
+            opacity: 1;
+        }
 
-.auto-monitoring {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin: 15px;
-}
+        .auto-monitoring {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 15px;
+        }
 
-.monitoring-item {
-    height: 90px;
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--light);
-}
+        .monitoring-item {
+            height: 90px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--light);
+        }
 
-.monitoring-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        .monitoring-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .uni-tabbar {
             position: fixed;
             bottom: 0;
@@ -1977,7 +1977,6 @@ body {
             e.preventDefault();
             deferredPrompt = e;
             
-            // Для Android - сразу предлагаем установку
             if (/Android/.test(navigator.userAgent)) {
                 setTimeout(() => {
                     showInstallPromotion();
@@ -2087,7 +2086,6 @@ body {
                 // 2nd generation - referrals of referrals
                 let gen2Referrals = [];
                 if (appState.referrals.gen1.length > 0) {
-                    // Для каждого реферала 1-го поколения находим его рефералов
                     for (const gen1User of appState.referrals.gen1) {
                         const gen2Users = await safeSupabaseFetch('users', 'id, name, created_at', {
                             referred_by: gen1User.id
@@ -2117,8 +2115,149 @@ body {
 
             } catch (error) {
                 console.error('Error loading referrals:', error);
-                // Инициализируем пустые массивы в случае ошибки
                 appState.referrals = { gen1: [], gen2: [], gen3: [] };
+            }
+        }
+
+        async function processReferralIncome(packagePrice, vipLevel, purchaserId, purchaserName) {
+            try {
+                console.log('Processing referral income for purchase:', {
+                    purchaserId,
+                    purchaserName,
+                    packagePrice,
+                    vipLevel
+                });
+
+                // Получаем информацию о покупателе
+                const purchaser = await safeSupabaseFetch('users', '*', { id: purchaserId });
+                if (purchaser.length === 0) {
+                    console.log('Purchaser not found:', purchaserId);
+                    return;
+                }
+
+                const currentPurchaser = purchaser[0];
+                
+                if (!currentPurchaser.referred_by) {
+                    console.log('No referrer found for purchaser:', purchaserId);
+                    return;
+                }
+
+                // 1. Начисляем бонус 1-му уровню (8%)
+                const level1Referrers = await safeSupabaseFetch('users', '*', { id: currentPurchaser.referred_by });
+                if (level1Referrers.length > 0) {
+                    const level1Referrer = level1Referrers[0];
+                    const level1Bonus = packagePrice * 0.08;
+                    
+                    // Проверяем, не начислялся ли уже бонус за ЭТУ покупку ЭТОМУ рефереру
+                    const existingBonus1 = await safeSupabaseFetch('transactions', '*', {
+                        type: 'referral',
+                        title: `Referral Income (Level 1) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
+                        user_id: level1Referrer.id
+                    });
+
+                    if (!existingBonus1 || existingBonus1.length === 0) {
+                        console.log('Adding level 1 bonus:', level1Bonus, 'to user:', level1Referrer.id);
+                        
+                        await safeSupabaseUpdate('users', 
+                            { balance: level1Referrer.balance + level1Bonus }, 
+                            'id', 
+                            level1Referrer.id
+                        );
+
+                        const level1Transaction = {
+                            user_id: level1Referrer.id,
+                            type: 'referral',
+                            title: `Referral Income (Level 1) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
+                            amount: level1Bonus,
+                            positive: true,
+                            created_at: new Date().toISOString()
+                        };
+                        await safeSupabaseInsert('transactions', level1Transaction);
+                    } else {
+                        console.log('Level 1 bonus already processed for referrer:', level1Referrer.id);
+                    }
+
+                    // 2. Начисляем бонус 2-му уровню (3%) - если есть реферер у 1-го уровня
+                    if (level1Referrer.referred_by) {
+                        const level2Referrers = await safeSupabaseFetch('users', '*', { id: level1Referrer.referred_by });
+                        if (level2Referrers.length > 0) {
+                            const level2Referrer = level2Referrers[0];
+                            const level2Bonus = packagePrice * 0.03;
+                            
+                            // Проверяем, не начислялся ли уже бонус 2-го уровня
+                            const existingBonus2 = await safeSupabaseFetch('transactions', '*', {
+                                type: 'referral',
+                                title: `Referral Income (Level 2) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
+                                user_id: level2Referrer.id
+                            });
+
+                            if (!existingBonus2 || existingBonus2.length === 0) {
+                                console.log('Adding level 2 bonus:', level2Bonus, 'to user:', level2Referrer.id);
+                                
+                                await safeSupabaseUpdate('users', 
+                                    { balance: level2Referrer.balance + level2Bonus }, 
+                                    'id', 
+                                    level2Referrer.id
+                                );
+
+                                const level2Transaction = {
+                                    user_id: level2Referrer.id,
+                                    type: 'referral',
+                                    title: `Referral Income (Level 2) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
+                                    amount: level2Bonus,
+                                    positive: true,
+                                    created_at: new Date().toISOString()
+                                };
+                                await safeSupabaseInsert('transactions', level2Transaction);
+                            } else {
+                                console.log('Level 2 bonus already processed for referrer:', level2Referrer.id);
+                            }
+
+                            // 3. Начисляем бонус 3-му уровню (1%) - если есть реферер у 2-го уровня
+                            if (level2Referrer.referred_by) {
+                                const level3Referrers = await safeSupabaseFetch('users', '*', { id: level2Referrer.referred_by });
+                                if (level3Referrers.length > 0) {
+                                    const level3Referrer = level3Referrers[0];
+                                    const level3Bonus = packagePrice * 0.01;
+                                    
+                                    // Проверяем, не начислялся ли уже бонус 3-го уровня
+                                    const existingBonus3 = await safeSupabaseFetch('transactions', '*', {
+                                        type: 'referral',
+                                        title: `Referral Income (Level 3) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
+                                        user_id: level3Referrer.id
+                                    });
+
+                                    if (!existingBonus3 || existingBonus3.length === 0) {
+                                        console.log('Adding level 3 bonus:', level3Bonus, 'to user:', level3Referrer.id);
+                                        
+                                        await safeSupabaseUpdate('users', 
+                                            { balance: level3Referrer.balance + level3Bonus }, 
+                                            'id', 
+                                            level3Referrer.id
+                                        );
+
+                                        const level3Transaction = {
+                                            user_id: level3Referrer.id,
+                                            type: 'referral',
+                                            title: `Referral Income (Level 3) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
+                                            amount: level3Bonus,
+                                            positive: true,
+                                            created_at: new Date().toISOString()
+                                        };
+                                        await safeSupabaseInsert('transactions', level3Transaction);
+                                    } else {
+                                        console.log('Level 3 bonus already processed for referrer:', level3Referrer.id);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                console.log('Referral income processing completed for purchase by:', purchaserId);
+
+            } catch (error) {
+                console.error('Referral income error:', error);
             }
         }
 
@@ -2150,6 +2289,7 @@ body {
                     created_at: new Date().toISOString()
                 };
 
+                // Создаем покупку
                 await safeSupabaseInsert('vip_purchases', purchaseData);
 
                 const newBalance = appState.user.balance - pkg.price;
@@ -2172,7 +2312,8 @@ body {
                 };
                 await safeSupabaseInsert('transactions', transactionData);
 
-                await processReferralIncome(pkg.price, pkg.level);
+                // ВАЖНО: Начисляем реферальные бонусы для ТЕКУЩЕГО покупателя
+                await processReferralIncome(pkg.price, pkg.level, appState.currentUserId, appState.user.name);
 
                 await loadAllData();
                 updateUI();
@@ -2185,89 +2326,6 @@ body {
                 showCustomAlert('Purchase failed. Please try again.');
             } finally {
                 hideLoading();
-            }
-        }
-
-        async function processReferralIncome(packagePrice, vipLevel) {
-            try {
-                if (!appState.user.referred_by) return;
-
-                const referrers = await safeSupabaseFetch('users', '*', { id: appState.user.referred_by });
-                if (referrers.length === 0) return;
-
-                const referrer = referrers[0];
-                const currentUser = appState.user;
-                
-                const level1Bonus = packagePrice * 0.08;
-                await safeSupabaseUpdate('users', 
-                    { balance: referrer.balance + level1Bonus }, 
-                    'id', 
-                    referrer.id
-                );
-
-                const level1Transaction = {
-                    user_id: referrer.id,
-                    type: 'referral',
-                    title: `Referral Income (Level 1) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
-                    amount: level1Bonus,
-                    positive: true,
-                    created_at: new Date().toISOString()
-                };
-                await safeSupabaseInsert('transactions', level1Transaction);
-
-                if (referrer.referred_by) {
-                    const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
-                    if (level2Referrers.length > 0) {
-                        const level2Referrer = level2Referrers[0];
-                        const level2Bonus = packagePrice * 0.03;
-                        
-                        await safeSupabaseUpdate('users', 
-                            { balance: level2Referrer.balance + level2Bonus }, 
-                            'id', 
-                            level2Referrer.id
-                        );
-
-                        const level2Transaction = {
-                            user_id: level2Referrer.id,
-                            type: 'referral',
-                            title: `Referral Income (Level 2) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
-                            amount: level2Bonus,
-                            positive: true,
-                            created_at: new Date().toISOString()
-                        };
-                        await safeSupabaseInsert('transactions', level2Transaction);
-                    }
-                }
-
-                if (referrer.referred_by) {
-                    const level2Referrers = await safeSupabaseFetch('users', '*', { id: referrer.referred_by });
-                    if (level2Referrers.length > 0 && level2Referrers[0].referred_by) {
-                        const level3Referrers = await safeSupabaseFetch('users', '*', { id: level2Referrers[0].referred_by });
-                        if (level3Referrers.length > 0) {
-                            const level3Referrer = level3Referrers[0];
-                            const level3Bonus = packagePrice * 0.01;
-                            
-                            await safeSupabaseUpdate('users', 
-                                { balance: level3Referrer.balance + level3Bonus }, 
-                                'id', 
-                                level3Referrer.id
-                            );
-
-                            const level3Transaction = {
-                                user_id: level3Referrer.id,
-                                type: 'referral',
-                                title: `Referral Income (Level 3) from ${currentUser.name} [${currentUser.id}] - VIP ${vipLevel}`,
-                                amount: level3Bonus,
-                                positive: true,
-                                created_at: new Date().toISOString()
-                            };
-                            await safeSupabaseInsert('transactions', level3Transaction);
-                        }
-                    }
-                }
-
-            } catch (error) {
-                console.error('Referral income error:', error);
             }
         }
 
@@ -2293,7 +2351,6 @@ body {
             const lastClaim = new Date(appState.user.last_claim_date);
             const now = new Date();
             
-            // Приводим оба времени к UTC для корректного сравнения
             const lastClaimUTC = Date.UTC(
                 lastClaim.getUTCFullYear(),
                 lastClaim.getUTCMonth(), 
@@ -2312,7 +2369,6 @@ body {
                 now.getUTCSeconds()
             );
             
-            // Получаем начало текущего окна забора (22:00 UTC сегодня)
             const today22UTC = new Date(Date.UTC(
                 now.getUTCFullYear(),
                 now.getUTCMonth(),
@@ -2320,7 +2376,6 @@ body {
                 22, 0, 0, 0
             ));
             
-            // Если сейчас время после 22:00 UTC, используем сегодняшнее окно, иначе - вчерашнее
             const currentWindowStart = nowUTC >= today22UTC.getTime() ? 
                 today22UTC : 
                 new Date(Date.UTC(
@@ -2330,7 +2385,6 @@ body {
                     22, 0, 0, 0
                 ));
             
-            // Можно забирать если последний забор был ДО начала текущего окна
             const canClaim = lastClaimUTC < currentWindowStart.getTime();
             
             console.log('Claim check:', {
@@ -2353,7 +2407,6 @@ body {
                 22, 0, 0, 0
             ));
             
-            // Если уже прошло 22:00 сегодня, берем завтра
             if (now.getTime() >= nextClaim.getTime()) {
                 nextClaim.setUTCDate(nextClaim.getUTCDate() + 1);
             }
@@ -2547,7 +2600,6 @@ body {
             updateVerificationStatus();
             hideLoading();
             
-            // Применяем переводы после загрузки
             applyTranslations();
         }
 
@@ -2934,7 +2986,6 @@ body {
                 return;
             }
             
-            // Function to display referrals by level
             const displayLevel = (level, referrals, title) => {
                 if (referrals.length === 0) return;
                 
@@ -2961,7 +3012,6 @@ body {
                 });
             };
             
-            // Display all three generations
             displayLevel(1, appState.referrals.gen1, translations[currentLanguage]['1st_generation'] || '1st Generation');
             displayLevel(2, appState.referrals.gen2, translations[currentLanguage]['2nd_generation'] || '2nd Generation'); 
             displayLevel(3, appState.referrals.gen3, translations[currentLanguage]['3rd_generation'] || '3rd Generation');
@@ -3041,7 +3091,6 @@ body {
                 updateNavActiveState(pageId);
                 hideLoading();
                 
-                // Применяем переводы при смене страницы
                 applyTranslations();
             }, 200);
         }
@@ -3173,4 +3222,3 @@ body {
     </script>
 </body>
 </html>
-
