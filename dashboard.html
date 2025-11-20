@@ -1963,6 +1963,8 @@
             transactions: []
         };
 
+        // Кэш для оптимизации
+        const queryCache = new Map();
         let dataCache = {
             user: null,
             vipPurchases: null,
@@ -2004,6 +2006,22 @@
 
         function hideLoading() {
             document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        // Оптимизированная функция с кэшированием
+        async function cachedSupabaseFetch(table, query = '*', filters = null, ttl = 10000) {
+            const cacheKey = JSON.stringify({ table, query, filters });
+            
+            if (queryCache.has(cacheKey)) {
+                const cached = queryCache.get(cacheKey);
+                if (Date.now() - cached.timestamp < ttl) {
+                    return cached.data;
+                }
+            }
+            
+            const data = await safeSupabaseFetch(table, query, filters);
+            queryCache.set(cacheKey, { data, timestamp: Date.now() });
+            return data;
         }
 
         async function safeSupabaseFetch(table, query = '*', filters = null) {
@@ -2073,35 +2091,61 @@
             }
         }
 
+        // Функция для создания транзакций с статусом
+        async function createTransaction(transactionData) {
+            const fullTransactionData = {
+                ...transactionData,
+                status: 'completed',
+                created_at: new Date().toISOString()
+            };
+            
+            return await safeSupabaseInsert('transactions', fullTransactionData);
+        }
+
         async function loadReferrals() {
             try {
                 console.log('Loading referrals for user:', appState.currentUserId);
                 
-                // 1st generation - direct referrals
-                const gen1Referrals = await safeSupabaseFetch('users', 'id, name, created_at', { 
+                // Пробуем использовать таблицу referrals если она существует
+                try {
+                    const allReferrals = await cachedSupabaseFetch('referrals', '*', { 
+                        referrer_id: appState.currentUserId 
+                    }, 30000);
+                    
+                    if (allReferrals && allReferrals.length > 0) {
+                        appState.referrals.gen1 = allReferrals.filter(ref => ref.level === 1) || [];
+                        appState.referrals.gen2 = allReferrals.filter(ref => ref.level === 2) || [];
+                        appState.referrals.gen3 = allReferrals.filter(ref => ref.level === 3) || [];
+                        console.log('Referrals loaded from referrals table');
+                        return;
+                    }
+                } catch (error) {
+                    console.log('Using fallback referral loading method');
+                }
+                
+                // Fallback метод - рекурсивный поиск через referred_by
+                const gen1Referrals = await cachedSupabaseFetch('users', 'id, name, created_at', { 
                     referred_by: appState.currentUserId 
-                });
+                }, 30000);
                 appState.referrals.gen1 = gen1Referrals || [];
 
-                // 2nd generation - referrals of referrals
                 let gen2Referrals = [];
                 if (appState.referrals.gen1.length > 0) {
                     for (const gen1User of appState.referrals.gen1) {
-                        const gen2Users = await safeSupabaseFetch('users', 'id, name, created_at', {
+                        const gen2Users = await cachedSupabaseFetch('users', 'id, name, created_at', {
                             referred_by: gen1User.id
-                        });
+                        }, 30000);
                         gen2Referrals = gen2Referrals.concat(gen2Users || []);
                     }
                 }
                 appState.referrals.gen2 = gen2Referrals;
 
-                // 3rd generation - referrals of referrals of referrals
                 let gen3Referrals = [];
                 if (appState.referrals.gen2.length > 0) {
                     for (const gen2User of appState.referrals.gen2) {
-                        const gen3Users = await safeSupabaseFetch('users', 'id, name, created_at', {
+                        const gen3Users = await cachedSupabaseFetch('users', 'id, name, created_at', {
                             referred_by: gen2User.id
-                        });
+                        }, 30000);
                         gen3Referrals = gen3Referrals.concat(gen3Users || []);
                     }
                 }
@@ -2119,6 +2163,7 @@
             }
         }
 
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ - начисляет реферальные бонусы только один раз при покупке
         async function processReferralIncome(packagePrice, vipLevel, purchaserId, purchaserName) {
             try {
                 console.log('Processing referral income for purchase:', {
@@ -2129,7 +2174,7 @@
                 });
 
                 // Получаем информацию о покупателе
-                const purchaser = await safeSupabaseFetch('users', '*', { id: purchaserId });
+                const purchaser = await cachedSupabaseFetch('users', '*', { id: purchaserId }, 60000);
                 if (purchaser.length === 0) {
                     console.log('Purchaser not found:', purchaserId);
                     return;
@@ -2143,12 +2188,12 @@
                 }
 
                 // 1. Начисляем бонус 1-му уровню (8%)
-                const level1Referrers = await safeSupabaseFetch('users', '*', { id: currentPurchaser.referred_by });
+                const level1Referrers = await cachedSupabaseFetch('users', '*', { id: currentPurchaser.referred_by }, 60000);
                 if (level1Referrers.length > 0) {
                     const level1Referrer = level1Referrers[0];
                     const level1Bonus = packagePrice * 0.08;
                     
-                    // Проверяем, не начислялся ли уже бонус за ЭТУ покупку ЭТОМУ рефереру
+                    // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Проверяем, не начислялся ли уже бонус за ЭТУ покупку ЭТОМУ рефереру
                     const existingBonus1 = await safeSupabaseFetch('transactions', '*', {
                         type: 'referral',
                         title: `Referral Income (Level 1) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
@@ -2164,22 +2209,32 @@
                             level1Referrer.id
                         );
 
-                        const level1Transaction = {
+                        await createTransaction({
                             user_id: level1Referrer.id,
                             type: 'referral',
                             title: `Referral Income (Level 1) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
                             amount: level1Bonus,
-                            positive: true,
-                            created_at: new Date().toISOString()
-                        };
-                        await safeSupabaseInsert('transactions', level1Transaction);
+                            positive: true
+                        });
+
+                        // Записываем в таблицу referrals если нужно
+                        try {
+                            await safeSupabaseInsert('referrals', {
+                                referrer_id: level1Referrer.id,
+                                referred_id: purchaserId,
+                                level: 1,
+                                created_at: new Date().toISOString()
+                            });
+                        } catch (error) {
+                            console.log('Could not write to referrals table, continuing...');
+                        }
                     } else {
                         console.log('Level 1 bonus already processed for referrer:', level1Referrer.id);
                     }
 
                     // 2. Начисляем бонус 2-му уровню (3%) - если есть реферер у 1-го уровня
                     if (level1Referrer.referred_by) {
-                        const level2Referrers = await safeSupabaseFetch('users', '*', { id: level1Referrer.referred_by });
+                        const level2Referrers = await cachedSupabaseFetch('users', '*', { id: level1Referrer.referred_by }, 60000);
                         if (level2Referrers.length > 0) {
                             const level2Referrer = level2Referrers[0];
                             const level2Bonus = packagePrice * 0.03;
@@ -2200,22 +2255,31 @@
                                     level2Referrer.id
                                 );
 
-                                const level2Transaction = {
+                                await createTransaction({
                                     user_id: level2Referrer.id,
                                     type: 'referral',
                                     title: `Referral Income (Level 2) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
                                     amount: level2Bonus,
-                                    positive: true,
-                                    created_at: new Date().toISOString()
-                                };
-                                await safeSupabaseInsert('transactions', level2Transaction);
+                                    positive: true
+                                });
+
+                                try {
+                                    await safeSupabaseInsert('referrals', {
+                                        referrer_id: level2Referrer.id,
+                                        referred_id: purchaserId,
+                                        level: 2,
+                                        created_at: new Date().toISOString()
+                                    });
+                                } catch (error) {
+                                    console.log('Could not write to referrals table for level 2, continuing...');
+                                }
                             } else {
                                 console.log('Level 2 bonus already processed for referrer:', level2Referrer.id);
                             }
 
                             // 3. Начисляем бонус 3-му уровню (1%) - если есть реферер у 2-го уровня
                             if (level2Referrer.referred_by) {
-                                const level3Referrers = await safeSupabaseFetch('users', '*', { id: level2Referrer.referred_by });
+                                const level3Referrers = await cachedSupabaseFetch('users', '*', { id: level2Referrer.referred_by }, 60000);
                                 if (level3Referrers.length > 0) {
                                     const level3Referrer = level3Referrers[0];
                                     const level3Bonus = packagePrice * 0.01;
@@ -2236,15 +2300,24 @@
                                             level3Referrer.id
                                         );
 
-                                        const level3Transaction = {
+                                        await createTransaction({
                                             user_id: level3Referrer.id,
                                             type: 'referral',
                                             title: `Referral Income (Level 3) from ${purchaserName} [${purchaserId}] - VIP ${vipLevel}`,
                                             amount: level3Bonus,
-                                            positive: true,
-                                            created_at: new Date().toISOString()
-                                        };
-                                        await safeSupabaseInsert('transactions', level3Transaction);
+                                            positive: true
+                                        });
+
+                                        try {
+                                            await safeSupabaseInsert('referrals', {
+                                                referrer_id: level3Referrer.id,
+                                                referred_id: purchaserId,
+                                                level: 3,
+                                                created_at: new Date().toISOString()
+                                            });
+                                        } catch (error) {
+                                            console.log('Could not write to referrals table for level 3, continuing...');
+                                        }
                                     } else {
                                         console.log('Level 3 bonus already processed for referrer:', level3Referrer.id);
                                     }
@@ -2289,7 +2362,6 @@
                     created_at: new Date().toISOString()
                 };
 
-                // Создаем покупку
                 await safeSupabaseInsert('vip_purchases', purchaseData);
 
                 const newBalance = appState.user.balance - pkg.price;
@@ -2302,15 +2374,13 @@
                     appState.currentUserId
                 );
 
-                const transactionData = {
+                await createTransaction({
                     user_id: appState.currentUserId,
                     type: 'vip_purchase',
                     title: `VIP ${pkg.level} Purchase`,
                     amount: pkg.price,
-                    positive: false,
-                    created_at: new Date().toISOString()
-                };
-                await safeSupabaseInsert('transactions', transactionData);
+                    positive: false
+                });
 
                 // ВАЖНО: Начисляем реферальные бонусы для ТЕКУЩЕГО покупателя
                 await processReferralIncome(pkg.price, pkg.level, appState.currentUserId, appState.user.name);
@@ -2463,15 +2533,13 @@
                             purchase.id
                         );
 
-                        const returnTransaction = {
+                        await createTransaction({
                             user_id: appState.currentUserId,
                             type: 'deposit_return',
                             title: `VIP ${vipPackage.level} Deposit Return`,
                             amount: vipPackage.price,
-                            positive: true,
-                            created_at: new Date().toISOString()
-                        };
-                        await safeSupabaseInsert('transactions', returnTransaction);
+                            positive: true
+                        });
                     }
                 }
 
@@ -2482,6 +2550,21 @@
             } catch (error) {
                 console.error('Expiry check error:', error);
             }
+        }
+
+        // Оптимизированная загрузка данных
+        async function loadUserDataOptimized(userId) {
+            const [user, purchases, transactions] = await Promise.all([
+                cachedSupabaseFetch('users', '*', { id: userId }, 30000),
+                cachedSupabaseFetch('vip_purchases', '*', { user_id: userId }, 30000),
+                cachedSupabaseFetch('transactions', '*', { user_id: userId }, 10000)
+            ]);
+            
+            return { 
+                user: user && user.length > 0 ? user[0] : null, 
+                purchases: purchases || [], 
+                transactions: transactions || [] 
+            };
         }
 
         async function loadAllData() {
@@ -2500,20 +2583,17 @@
                     appState.activeVipPackages = dataCache.vipPurchases;
                     appState.transactions = dataCache.transactions;
                 } else {
-                    const users = await safeSupabaseFetch('users', '*', { id: userId });
-                    if (users.length === 0) {
+                    const userData = await loadUserDataOptimized(userId);
+                    
+                    if (!userData.user) {
                         sessionStorage.removeItem('currentUserId');
                         window.location.href = 'index.html';
                         return;
                     }
                     
-                    appState.user = users[0];
-                    
-                    appState.activeVipPackages = await safeSupabaseFetch('vip_purchases', '*', { 
-                        user_id: userId 
-                    });
-                    
-                    appState.transactions = await safeSupabaseFetch('transactions', '*', { user_id: userId });
+                    appState.user = userData.user;
+                    appState.activeVipPackages = userData.purchases;
+                    appState.transactions = userData.transactions;
                     
                     dataCache = {
                         user: appState.user,
@@ -2524,7 +2604,6 @@
                 }
                 
                 await loadReferrals();
-                
                 await processExpiredVipPackages();
                 return true;
             } catch (error) {
@@ -2886,15 +2965,13 @@
                             appState.currentUserId
                         );
 
-                        const incomeTransaction = {
+                        await createTransaction({
                             user_id: appState.currentUserId,
                             type: 'daily_income',
                             title: 'Daily Quantification Income',
                             amount: dailyIncome,
-                            positive: true,
-                            created_at: new Date().toISOString()
-                        };
-                        await safeSupabaseInsert('transactions', incomeTransaction);
+                            positive: true
+                        });
 
                         await loadAllData();
                         updateUI();
