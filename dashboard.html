@@ -73,7 +73,7 @@
             display: none;
             background: transparent;
             min-height: 100vh;
-            padding-bottom: 70px;
+            padding-bottom: calc(70px + env(safe-area-inset-bottom));
             opacity: 0;
             transition: opacity 0.2s ease;
             overflow-y: auto;
@@ -84,6 +84,10 @@
         .page.active {
             display: block;
             opacity: 1;
+        }
+
+        #mainPage {
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
         }
 
         .language-support-container {
@@ -433,13 +437,14 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             display: flex;
             justify-content: space-around;
             padding: 8px 0;
             border-top: 1px solid #e5e5e5;
             z-index: 999;
-            height: 50px;
+            height: calc(60px + env(safe-area-inset-bottom));
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
         }
 
         .uni-tabbar-item {
@@ -2011,6 +2016,12 @@
             lastUpdated: null
         };
 
+        // Защита от множественных нажатий
+        let isClaiming = false;
+        let lastClaimClick = 0;
+        let isDataLoading = false;
+        let currentPageTransition = false;
+
         // PWA Installation
         let deferredPrompt;
 
@@ -2607,48 +2618,99 @@
         }
 
         async function loadAllData() {
+            // Защита от множественных одновременных вызовов
+            if (isDataLoading) {
+                console.log('Data loading already in progress, skipping...');
+                return false;
+            }
+            
             try {
+                isDataLoading = true;
                 const userId = sessionStorage.getItem('currentUserId');
                 if (!userId) {
                     window.location.href = 'index.html';
-                    return;
+                    return false;
                 }
                 
                 appState.currentUserId = userId;
                 
+                // Используем более агрессивное кэширование для быстрого отклика
                 const now = new Date();
-                if (dataCache.lastUpdated && (now - dataCache.lastUpdated) < 10000) {
+                const cacheTTL = 15000; // 15 секунд для баланса
+                
+                if (dataCache.lastUpdated && (now - dataCache.lastUpdated) < cacheTTL) {
+                    console.log('Using cached data');
                     appState.user = dataCache.user;
                     appState.activeVipPackages = dataCache.vipPurchases;
                     appState.transactions = dataCache.transactions;
-                } else {
-                    const userData = await loadUserDataOptimized(userId);
-                    
-                    if (!userData.user) {
-                        sessionStorage.removeItem('currentUserId');
-                        window.location.href = 'index.html';
-                        return;
-                    }
-                    
-                    appState.user = userData.user;
-                    appState.activeVipPackages = userData.purchases;
-                    appState.transactions = userData.transactions;
-                    
+                    return true;
+                }
+                
+                console.log('Loading fresh data from database...');
+                
+                // Параллельная загрузка критически важных данных
+                const [userData, basicTransactions] = await Promise.allSettled([
+                    loadUserDataOptimized(userId),
+                    cachedSupabaseFetch('transactions', '*', { user_id: userId }, 5000) // 5 сек кэш для транзакций
+                ]);
+                
+                if (userData.status === 'rejected') {
+                    throw new Error('Failed to load user data');
+                }
+                
+                const userResult = userData.value;
+                
+                if (!userResult.user) {
+                    sessionStorage.removeItem('currentUserId');
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                
+                appState.user = userResult.user;
+                appState.activeVipPackages = userResult.purchases;
+                appState.transactions = basicTransactions.status === 'fulfilled' ? basicTransactions.value : [];
+                
+                // Обновляем UI сразу с основными данными
+                updateUI();
+                
+                // Параллельно загружаем менее критичные данные
+                Promise.allSettled([
+                    loadReferrals(),
+                    processExpiredVipPackages(),
+                    // Загружаем полную историю транзакций в фоне
+                    cachedSupabaseFetch('transactions', '*', { user_id: userId }, 30000).then(fullTransactions => {
+                        if (fullTransactions && fullTransactions.length > appState.transactions.length) {
+                            appState.transactions = fullTransactions;
+                            updateTransactionsHistory('all');
+                        }
+                    })
+                ]).then(() => {
+                    console.log('Background data loading completed');
+                    // Обновляем кэш
                     dataCache = {
                         user: appState.user,
                         vipPurchases: appState.activeVipPackages,
                         transactions: appState.transactions,
                         lastUpdated: new Date()
                     };
-                }
+                });
                 
-                await loadReferrals();
-                await processExpiredVipPackages();
                 return true;
             } catch (error) {
                 console.error('Data load error:', error);
+                // Показываем cached данные если есть
+                if (dataCache.user) {
+                    appState.user = dataCache.user;
+                    appState.activeVipPackages = dataCache.vipPurchases;
+                    appState.transactions = dataCache.transactions;
+                    updateUI();
+                    showCustomAlert('Using cached data. Some features may be limited.');
+                    return true;
+                }
                 showCustomAlert('Error loading data. Please refresh the page.');
                 return false;
+            } finally {
+                isDataLoading = false;
             }
         }
 
@@ -2947,6 +3009,20 @@
         }
 
         async function claimDailyIncome() {
+            // Защита от быстрых повторных нажатий
+            const now = Date.now();
+            if (now - lastClaimClick < 2000) { // 2 секунды между нажатиями
+                console.log('Click too fast, ignoring...');
+                return;
+            }
+            lastClaimClick = now;
+            
+            // Защита от параллельного выполнения
+            if (isClaiming) {
+                showCustomAlert('Income claim is already in progress...');
+                return;
+            }
+            
             const claimBtn = document.getElementById('claim-button');
             
             if (claimBtn.disabled) {
@@ -2966,34 +3042,49 @@
                 return;
             }
             
-            await startTradingProcess(dailyIncome);
+            isClaiming = true;
+            claimBtn.disabled = true;
+            
+            try {
+                await startTradingProcess(dailyIncome);
+            } catch (error) {
+                console.error('Claim income error:', error);
+                showCustomAlert('Failed to claim income. Please try again.');
+            } finally {
+                // Всегда сбрасываем флаг, даже при ошибке
+                setTimeout(() => {
+                    isClaiming = false;
+                    updateClaimButton(); // Перепроверяем состояние кнопки
+                }, 1000);
+            }
         }
 
         async function startTradingProcess(dailyIncome) {
             const claimBtn = document.getElementById('claim-button');
             const steps = [1, 2, 3];
             
-            claimBtn.disabled = true;
-            claimBtn.classList.add('processing');
-            claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
-            
-            for (let i = 0; i < steps.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 1500));
+            try {
+                claimBtn.disabled = true;
+                claimBtn.classList.add('processing');
+                claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> ANALYZING MARKET...';
                 
-                const step = steps[i];
-                const stepIcon = document.getElementById(`step-${step}`);
-                stepIcon.classList.add('active');
-                
-                if (step === 1) {
-                    claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
-                } else if (step === 2) {
-                    claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
-                } else if (step === 3) {
-                    claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
-                    claimBtn.classList.remove('processing');
-                    claimBtn.classList.add('completed');
+                for (let i = 0; i < steps.length; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     
-                    try {
+                    const step = steps[i];
+                    const stepIcon = document.getElementById(`step-${step}`);
+                    stepIcon.classList.add('active');
+                    
+                    if (step === 1) {
+                        claimBtn.innerHTML = '<i class="fas fa-chart-line"></i> PROCESSING DATA...';
+                    } else if (step === 2) {
+                        claimBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> EXECUTING TRADES...';
+                    } else if (step === 3) {
+                        claimBtn.innerHTML = '<i class="fas fa-check"></i> INCOME CLAIMED!';
+                        claimBtn.classList.remove('processing');
+                        claimBtn.classList.add('completed');
+                        
+                        // Выполняем фактическое начисление
                         const newBalance = appState.user.balance + dailyIncome;
                         await safeSupabaseUpdate('users', 
                             { 
@@ -3012,19 +3103,22 @@
                             positive: true
                         });
 
+                        // Обновляем данные
                         await loadAllData();
                         updateUI();
                         
                         showCustomAlert(`Successfully claimed ${formatCurrency(dailyIncome)} USDT daily income!`);
-                    } catch (error) {
-                        console.error('Claim income error:', error);
-                        showCustomAlert('Failed to claim income. Please try again.');
+                        
+                        setTimeout(() => {
+                            resetTradingProcess();
+                        }, 3000);
                     }
-                    
-                    setTimeout(() => {
-                        resetTradingProcess();
-                    }, 3000);
                 }
+            } catch (error) {
+                console.error('Trading process error:', error);
+                // В случае ошибки сбрасываем процесс
+                resetTradingProcess();
+                throw error; // Пробрасываем ошибку выше
             }
         }
 
@@ -3034,6 +3128,7 @@
             
             claimBtn.classList.remove('processing', 'completed');
             claimBtn.innerHTML = '<i class="fas fa-bolt"></i> <span data-translate="claim_income">CLAIM INCOME</span>';
+            claimBtn.disabled = false;
             
             steps.forEach(step => {
                 const stepIcon = document.getElementById(`step-${step}`);
@@ -3046,91 +3141,57 @@
         function updateUI() {
             if (!appState.user) return;
             
+            // Сначала обновляем самые важные элементы
             document.getElementById('total-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
+            document.getElementById('available-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
+            document.getElementById('profile-name').textContent = appState.user.name;
+            document.getElementById('profile-id').textContent = appState.user.id;
+            document.getElementById('vip-level-display').textContent = `VIP ${appState.user.vip_level}`;
             
-            const referralIncome = appState.transactions
-                .filter(t => t.type === 'referral' && t.positive)
-                .reduce((sum, t) => sum + t.amount, 0);
-            const bonusIncome = appState.transactions
-                .filter(t => t.type === 'bonus' && t.positive)
-                .reduce((sum, t) => sum + t.amount, 0);
-            const quantIncome = appState.transactions
-                .filter(t => t.type === 'daily_income' && t.positive)
-                .reduce((sum, t) => sum + t.amount, 0);
+            // Быстрый расчет доходов
+            updateQuickBalances();
+            
+            // Затем обновляем остальные элементы
+            setTimeout(() => {
+                updateReferralLink();
+                updateEarnScreen();
+                updateClaimButton();
+                updateVerificationStatus();
+            }, 100);
+        }
+
+        // Быстрый расчет балансов без сложных фильтраций
+        function updateQuickBalances() {
+            let referralIncome = 0, bonusIncome = 0, quantIncome = 0;
+            
+            // Быстрая выборка только последних 50 транзакций для расчета
+            const recentTransactions = appState.transactions.slice(-50);
+            
+            recentTransactions.forEach(transaction => {
+                if (!transaction.positive) return;
+                
+                switch(transaction.type) {
+                    case 'referral':
+                        referralIncome += transaction.amount;
+                        break;
+                    case 'bonus':
+                        bonusIncome += transaction.amount;
+                        break;
+                    case 'daily_income':
+                        quantIncome += transaction.amount;
+                        break;
+                }
+            });
             
             document.getElementById('referral-balance').textContent = `${formatCurrency(referralIncome)} USDT`;
             document.getElementById('bonus-balance').textContent = `${formatCurrency(bonusIncome)} USDT`;
             document.getElementById('quant-balance').textContent = `${formatCurrency(quantIncome)} USDT`;
-            document.getElementById('available-balance').textContent = `${formatCurrency(appState.user.balance)} USDT`;
-            
-            document.getElementById('profile-name').textContent = appState.user.name;
-            document.getElementById('profile-id').textContent = appState.user.id;
-            document.getElementById('email').value = appState.user.email;
-            
-            document.getElementById('vip-level-display').textContent = `VIP ${appState.user.vip_level}`;
-            
+        }
+
+        function updateReferralLink() {
             const referralLink = `${window.location.origin}/index.html?ref=${appState.user.referral_code}`;
             document.getElementById('referral-link').textContent = referralLink;
             document.getElementById('team-referral-link').textContent = referralLink;
-            
-            updateTeamScreen();
-            updateEarnScreen();
-            updateTransactionsHistory('all');
-        }
-
-        function updateTeamScreen() {
-            document.getElementById('gen1-count').textContent = appState.referrals.gen1.length;
-            document.getElementById('gen2-count').textContent = appState.referrals.gen2.length;
-            document.getElementById('gen3-count').textContent = appState.referrals.gen3.length;
-            
-            const gen1Income = calculateReferralIncome(1);
-            const gen2Income = calculateReferralIncome(2);
-            const gen3Income = calculateReferralIncome(3);
-            
-            document.getElementById('gen1-income').textContent = `${formatCurrency(gen1Income)} USDT`;
-            document.getElementById('gen2-income').textContent = `${formatCurrency(gen2Income)} USDT`;
-            document.getElementById('gen3-income').textContent = `${formatCurrency(gen3Income)} USDT`;
-            
-            const referralList = document.getElementById('referral-list');
-            referralList.innerHTML = '';
-            
-            if (appState.referrals.gen1.length === 0 && 
-                appState.referrals.gen2.length === 0 && 
-                appState.referrals.gen3.length === 0) {
-                referralList.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.7); padding: 40px 20px;" data-translate="no_referrals">No referrals yet. Share your referral link to invite friends!</div>';
-                applyTranslations();
-                return;
-            }
-            
-            const displayLevel = (level, referrals, title) => {
-                if (referrals.length === 0) return;
-                
-                const levelHeader = document.createElement('div');
-                levelHeader.innerHTML = `<div style="font-weight: 600; color: var(--primary); margin: 20px 0 10px; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px;">${title} (${referrals.length} users)</div>`;
-                referralList.appendChild(levelHeader);
-                
-                referrals.forEach(ref => {
-                    const referralItem = document.createElement('div');
-                    referralItem.className = 'referral-item';
-                    referralItem.innerHTML = `
-                        <div class="referral-info">
-                            <div class="referral-avatar" style="background: var(--primary);">${ref.name ? ref.name.substring(0, 2).toUpperCase() : 'US'}</div>
-                            <div style="flex: 1;">
-                                <div style="font-weight:600; font-size: 14px;">${ref.name || 'Unknown User'}</div>
-                                <div style="font-size:11px; color:rgba(255,255,255,0.7);">
-                                    ID: ${ref.id} • ${ref.created_at ? new Date(ref.created_at).toLocaleDateString() : 'Unknown date'}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="level-badge level-${level}">Level ${level}</div>
-                    `;
-                    referralList.appendChild(referralItem);
-                });
-            };
-            
-            displayLevel(1, appState.referrals.gen1, translations[currentLanguage]['1st_generation'] || '1st Generation');
-            displayLevel(2, appState.referrals.gen2, translations[currentLanguage]['2nd_generation'] || '2nd Generation'); 
-            displayLevel(3, appState.referrals.gen3, translations[currentLanguage]['3rd_generation'] || '3rd Generation');
         }
 
         function updateEarnScreen() {
@@ -3195,6 +3256,10 @@
         }
 
         function showPage(pageId) {
+            // Предотвращаем множественные быстрые переключения
+            if (currentPageTransition) return;
+            currentPageTransition = true;
+            
             showLoading();
             
             setTimeout(() => {
@@ -3205,9 +3270,18 @@
                 document.getElementById(pageId).classList.add('active');
                 
                 updateNavActiveState(pageId);
-                hideLoading();
                 
+                // Загружаем данные для конкретной страницы если нужно
+                if (pageId === 'teamPage' && appState.referrals.gen1.length === 0) {
+                    loadReferrals().then(() => updateTeamScreen());
+                }
+                
+                hideLoading();
                 applyTranslations();
+                
+                setTimeout(() => {
+                    currentPageTransition = false;
+                }, 300);
             }, 200);
         }
         
