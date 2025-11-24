@@ -6,15 +6,15 @@
     <title>Uipath - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0a505e">
+    <meta name="theme-color" content="#4e7771">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-weight: 200;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: normal;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -31,27 +31,28 @@
         }
 
         :root {
-            --primary: #0a505e;
-            --primary-light: #0d6a7c;
-            --primary-dark: #083840;
-            --accent: #ff9d00;
-            --accent-light: #ffb74d;
-            --success: #4cd964;
-            --danger: #ff3b30;
+            --primary: #4e7771;
+            --primary-light: #5a8a7f;
+            --primary-dark: #43645c;
+            --accent: #17cdaf;
+            --accent-light: #1de0c0;
+            --success: #17cdaf;
+            --danger: #f85963;
             --warning: #ffcc00;
             --info: #5ac8fa;
             --dark: #1c1c1e;
             --light: #f8f9fa;
             --gray: #8e8e93;
             --white: #ffffff;
+            --card-bg: rgba(0, 0, 0, 0.25);
         }
 
         body {
-            background-color: var(--light);
-            color: var(--dark);
+            background: linear-gradient(180deg, #4e7771, #4e7771, rgba(185, 215, 168, 0.75));
+            color: var(--white);
             line-height: 1.6;
             font-size: 16px;
-            font-weight: 200;
+            font-weight: normal;
             touch-action: pan-y;
             overscroll-behavior-y: contain;
             position: relative;
@@ -62,7 +63,7 @@
         .app-container {
             max-width: 100%;
             margin: 0 auto;
-            background: var(--white);
+            background: transparent;
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
@@ -70,7 +71,7 @@
 
         .page {
             display: none;
-            background: var(--white);
+            background: transparent;
             min-height: 100vh;
             padding-bottom: 70px;
             opacity: 0;
@@ -118,7 +119,7 @@
             position: absolute;
             top: 50px;
             right: 0;
-            background: white;
+            background: rgba(0,0,0,0.9);
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.15);
             min-width: 150px;
@@ -133,8 +134,9 @@
             align-items: center;
             gap: 10px;
             cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             transition: background 0.3s ease;
+            color: white;
         }
 
         .language-option:last-child {
@@ -142,7 +144,7 @@
         }
 
         .language-option:hover {
-            background: var(--light);
+            background: rgba(255,255,255,0.1);
         }
 
         .language-flag {
@@ -154,7 +156,7 @@
         .language-name {
             flex: 1;
             font-size: 14px;
-            color: var(--dark);
+            color: var(--white);
         }
 
         .support-button {
@@ -179,7 +181,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.95);
+            background: rgba(0,0,0,0.8);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -210,7 +212,7 @@
 
         .loading-text {
             font-size: 16px;
-            color: var(--primary);
+            color: var(--white);
             font-weight: 600;
         }
 
@@ -221,16 +223,15 @@
         }
 
         .uni-header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--primary);
             color: white;
             padding: 15px;
             display: flex;
             align-items: flex-start;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
             position: relative;
-            height: 250px;
+            height: 200px;
             overflow: hidden;
+            border-radius: 0;
         }
 
         .logo {
@@ -259,7 +260,7 @@
             position: absolute;
             top: 30px;
             left: 0;
-            border-radius: 0 0 20px 20px;
+            border-radius: 0;
             overflow: hidden;
             z-index: 10;
         }
@@ -270,10 +271,9 @@
             left: 0;
             width: 100%;
             height: 120%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--primary);
             z-index: 5;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
+            border-radius: 0;
         }
 
         .video-player {
@@ -311,15 +311,14 @@
         }
 
         .simple-header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--primary);
             color: white;
             padding: 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            height: 80px;
+            height: 60px;
+            border-radius: 0;
         }
 
         .page-title {
@@ -327,6 +326,7 @@
             font-weight: 600;
             text-align: center;
             flex: 1;
+            color: white;
         }
 
         .back-btn {
@@ -363,7 +363,7 @@
             overflow: hidden;
             white-space: nowrap;
             position: relative;
-            background: var(--light);
+            background: rgba(255,255,255,0.1);
             padding: 10px 0;
             border-radius: 8px;
         }
@@ -373,7 +373,7 @@
             padding-left: 100%;
             animation: marquee 25s linear infinite;
             font-size: 14px;
-            color: var(--primary);
+            color: white;
         }
 
         @keyframes marquee {
@@ -419,7 +419,7 @@
             height: 90px;
             border-radius: 8px;
             overflow: hidden;
-            background: var(--light);
+            background: rgba(255,255,255,0.1);
         }
 
         .monitoring-item img {
@@ -433,12 +433,13 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--white);
+            background: rgba(255, 255, 255, 0.9);
             display: flex;
             justify-content: space-around;
             padding: 8px 0;
             border-top: 1px solid #e5e5e5;
             z-index: 999;
+            height: 50px;
         }
 
         .uni-tabbar-item {
@@ -446,7 +447,7 @@
             flex-direction: column;
             align-items: center;
             font-size: 10px;
-            color: var(--gray);
+            color: #999;
             padding: 5px;
             flex: 1;
             transition: all 0.3s ease;
@@ -457,8 +458,8 @@
         }
 
         .uni-tabbar-icon {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             margin-bottom: 2px;
             display: flex;
             align-items: center;
@@ -493,13 +494,14 @@
         }
 
         .uni-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 10px;
             padding: 15px;
             margin: 10px;
             position: relative;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            color: white;
+            border: none;
+            box-shadow: none;
         }
 
         .uni-button {
@@ -507,13 +509,13 @@
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
             width: 100%;
             margin: 10px 0;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 400;
+            font-weight: 600;
         }
 
         .uni-button:hover {
@@ -546,12 +548,13 @@
             padding: 8px 5px;
             border-radius: 10px;
             transition: all 0.3s ease;
-            background: var(--white);
+            background: rgba(255,255,255,0.1);
             cursor: pointer;
+            color: white;
         }
 
         .action-item:hover {
-            background: var(--light);
+            background: rgba(255,255,255,0.2);
             transform: translateY(-2px);
         }
 
@@ -572,15 +575,13 @@
         }
 
         .balance-card {
-            background-image: url('assets/balance.png');
-            background-size: cover;
-            background-position: center;
+            background: var(--card-bg);
             color: white;
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 10px;
             margin: 15px;
-            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.2);
             position: relative;
+            border: none;
         }
 
         .balance-card::before {
@@ -590,8 +591,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(10, 80, 94, 0.7);
-            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
             z-index: 1;
         }
 
@@ -643,21 +644,20 @@
         }
 
         .vip-package {
-            background-image: url('assets/vip1.png');
-            background-size: cover;
-            background-position: center;
+            background: rgba(0,0,0,0.3);
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
             transition: all 0.3s ease;
             cursor: pointer;
             height: 110px;
             position: relative;
             overflow: hidden;
+            margin: 10px 0;
+            color: white;
+            border: none;
         }
 
         .vip-package::before {
@@ -667,7 +667,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(10, 80, 94, 0.7);
+            background: rgba(0, 0, 0, 0.3);
             z-index: 1;
         }
 
@@ -678,11 +678,10 @@
 
         .vip-package:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .vip-package.active {
-            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .vip-icon {
@@ -712,21 +711,21 @@
         }
 
         .referral-stat {
-            background: var(--white);
+            background: rgba(255,255,255,0.1);
             padding: 12px;
             border-radius: 8px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            color: white;
+            border: none;
         }
 
         .referral-stat .stats-value {
-            color: var(--dark) !important;
+            color: var(--white) !important;
             font-weight: 600;
         }
 
         .referral-stat .stats-label {
-            color: var(--gray) !important;
+            color: rgba(255,255,255,0.9) !important;
         }
 
         .referral-screen {
@@ -735,7 +734,7 @@
         }
 
         .referral-link-container {
-            background: var(--light);
+            background: rgba(255,255,255,0.1);
             padding: 15px;
             border-radius: 10px;
             margin: 20px 0;
@@ -746,7 +745,7 @@
 
         .transaction-tabs {
             display: flex;
-            background: var(--light);
+            background: rgba(255,255,255,0.1);
             border-radius: 8px;
             padding: 4px;
             margin-bottom: 15px;
@@ -760,6 +759,7 @@
             cursor: pointer;
             font-weight: 400;
             transition: all 0.3s ease;
+            color: white;
         }
 
         .transaction-tab.active {
@@ -772,17 +772,18 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: white;
         }
 
         .income-display {
             text-align: center;
             padding: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--card-bg);
             color: white;
             margin: 15px;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(10, 80, 94, 0.2);
+            border: none;
         }
 
         .process-steps {
@@ -799,7 +800,7 @@
             left: 10%;
             right: 10%;
             height: 2px;
-            background: var(--light);
+            background: rgba(255,255,255,0.3);
         }
 
         .process-step {
@@ -813,13 +814,13 @@
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background: var(--light);
+            background: rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 5px;
             font-size: 14px;
-            color: var(--gray);
+            color: rgba(255,255,255,0.7);
         }
 
         .step-icon.active {
@@ -829,7 +830,7 @@
 
         .step-label {
             font-size: 11px;
-            color: var(--gray);
+            color: rgba(255,255,255,0.9);
         }
 
         .user-avatar {
@@ -841,6 +842,7 @@
             justify-content: center;
             margin: 0 auto 10px;
             overflow: hidden;
+            background: rgba(255,255,255,0.2);
         }
 
         .user-avatar img {
@@ -854,13 +856,13 @@
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
             width: 100%;
             margin: 20px 0 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 400;
+            font-weight: 600;
         }
 
         .referral-list {
@@ -872,7 +874,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
 
         .referral-info {
@@ -901,7 +903,7 @@
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 15px;
-            color: var(--dark);
+            color: white;
         }
         
         .assets-buttons {
@@ -917,14 +919,15 @@
             align-items: center;
             padding: 12px;
             border-radius: 8px;
-            background: var(--white);
-            border: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255,255,255,0.1);
+            border: none;
             cursor: pointer;
             transition: all 0.3s ease;
+            color: white;
         }
         
         .assets-button:hover {
-            background: var(--light);
+            background: rgba(255,255,255,0.2);
         }
         
         .assets-button-icon {
@@ -942,24 +945,29 @@
         .uni-input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             font-size: 16px;
             margin-bottom: 15px;
-            background: var(--light);
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .uni-input::placeholder {
+            color: rgba(255,255,255,0.6);
         }
         
         .verification-section {
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid #f0f0f0;
+            border-top: 1px solid rgba(255,255,255,0.2);
         }
         
         .verification-title {
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 15px;
-            color: var(--dark);
+            color: white;
         }
         
         .verification-status {
@@ -968,8 +976,9 @@
             gap: 10px;
             margin-bottom: 15px;
             padding: 10px;
-            background: var(--light);
+            background: rgba(255,255,255,0.1);
             border-radius: 8px;
+            color: white;
         }
         
         .status-icon {
@@ -1003,13 +1012,14 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            color: white;
         }
         
         .task-center-table th,
         .task-center-table td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
         
         .task-center-table th {
@@ -1019,11 +1029,11 @@
         }
         
         .task-center-table tr:nth-child(even) {
-            background-color: var(--light);
+            background-color: rgba(255,255,255,0.1);
         }
         
         .task-center-table tr:hover {
-            background-color: rgba(10, 80, 94, 0.05);
+            background-color: rgba(255,255,255,0.2);
         }
         
         .bonus-amount {
@@ -1037,7 +1047,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1045,13 +1055,13 @@
         }
 
         .custom-alert {
-            background: white;
+            background: rgba(0,0,0,0.9);
             border-radius: 15px;
             padding: 25px;
             text-align: center;
             max-width: 300px;
             width: 90%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: white;
         }
 
         .custom-alert-icon {
@@ -1072,7 +1082,7 @@
         .custom-alert-message {
             margin-bottom: 20px;
             font-size: 16px;
-            color: var(--dark);
+            color: var(--white);
         }
 
         .custom-alert-button {
@@ -1092,7 +1102,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1100,13 +1110,13 @@
         }
 
         .custom-confirm {
-            background: white;
+            background: rgba(0,0,0,0.9);
             border-radius: 15px;
             padding: 25px;
             text-align: center;
             max-width: 300px;
             width: 90%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: white;
         }
 
         .custom-confirm-buttons {
@@ -1130,8 +1140,8 @@
         }
 
         .custom-confirm-button.cancel {
-            background: var(--light);
-            color: var(--dark);
+            background: rgba(255,255,255,0.2);
+            color: var(--white);
         }
 
         .level-badge {
@@ -1149,7 +1159,7 @@
 
         /* License Page Styles */
         .license-content {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: rgba(0,0,0,0.3);
             min-height: calc(100vh - 140px);
         }
         
@@ -1167,6 +1177,35 @@
 
         .license-content > div {
             animation: documentAppear 0.6s ease-out;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .action-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .referral-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .balance-details {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .action-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .referral-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .balance-details {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -1398,7 +1437,7 @@
                     </div>
                     
                     <div id="transaction-history-assets">
-                        <div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="loading_transactions">
+                        <div style="text-align: center; color: rgba(255,255,255,0.7); padding: 20px 0;" data-translate="loading_transactions">
                             Loading transactions...
                         </div>
                     </div>
@@ -1419,15 +1458,15 @@
                 <div class="referral-stats">
                     <div class="referral-stat">
                         <div class="stats-value" id="gen1-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);" data-translate="1st_generation">1st Generation</div>
+                        <div class="stats-label" style="color: var(--white);" data-translate="1st_generation">1st Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen2-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);" data-translate="2nd_generation">2nd Generation</div>
+                        <div class="stats-label" style="color: var(--white);" data-translate="2nd_generation">2nd Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen3-count">0</div>
-                        <div class="stats-label" style="color: var(--dark);" data-translate="3rd_generation">3rd Generation</div>
+                        <div class="stats-label" style="color: var(--white);" data-translate="3rd_generation">3rd Generation</div>
                     </div>
                 </div>
             </div>
@@ -1436,20 +1475,20 @@
                 <div class="referral-stats">
                     <div class="referral-stat">
                         <div class="stats-value" id="gen1-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);" data-translate="from_1st_generation">8% from 1st Generation</div>
+                        <div class="stats-label" style="color: var(--white);" data-translate="from_1st_generation">8% from 1st Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen2-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);" data-translate="from_2nd_generation">3% from 2nd Generation</div>
+                        <div class="stats-label" style="color: var(--white);" data-translate="from_2nd_generation">3% from 2nd Generation</div>
                     </div>
                     <div class="referral-stat">
                         <div class="stats-value" id="gen3-income">0 USDT</div>
-                        <div class="stats-label" style="color: var(--dark);" data-translate="from_3rd_generation">1% from 3rd Generation</div>
+                        <div class="stats-label" style="color: var(--white);" data-translate="from_3rd_generation">1% from 3rd Generation</div>
                     </div>
                 </div>
                 
                 <div class="referral-link-container" style="margin-top: 15px;">
-                    <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--dark);" id="team-referral-link">
+                    <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--white);" id="team-referral-link">
                         Loading...
                     </div>
                     <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('team-referral-link')">
@@ -1460,7 +1499,7 @@
 
             <div class="uni-card">
                 <div class="referral-list" id="referral-list">
-                    <div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="loading_referrals">
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); padding: 20px 0;" data-translate="loading_referrals">
                         Loading referrals...
                     </div>
                 </div>
@@ -1483,9 +1522,9 @@
             </div>
 
             <div class="uni-card">
-                <div style="padding: 15px; background: var(--light); border-radius: 10px;">
-                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="vip_package_rules">VIP Package Rules:</div>
-                    <div style="font-size: 14px; color: var(--gray); text-align: left;">
+                <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <div style="font-weight: 600; color: var(--white); margin-bottom: 10px;" data-translate="vip_package_rules">VIP Package Rules:</div>
+                    <div style="font-size: 14px; color: rgba(255,255,255,0.9); text-align: left;">
                         • <span data-translate="vip_rules_1">VIP packages are active for exactly 30 days</span><br>
                         • <span data-translate="vip_rules_2">Daily income: VIP1: 2.6% (0.52 USDT) | VIP2: 3.1% (3.10 USDT) | VIP3: 3.6% (10.80 USDT) | VIP4: 4.1% (41.00 USDT) | VIP5: 4.6% (138.00 USDT) | VIP6: 5.1% (255.00 USDT)</span><br>
                         • <span data-translate="vip_rules_3">Package price is returned to your balance after 30 days automatically</span><br>
@@ -1569,7 +1608,7 @@
                 </div>
                 
                 <div id="transaction-history">
-                    <div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="loading_transactions">
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); padding: 20px 0;" data-translate="loading_transactions">
                         Loading transactions...
                     </div>
                 </div>
@@ -1591,7 +1630,7 @@
                         <img src="assets/pro.png" alt="Profile">
                     </div>
                     <div style="font-weight:600; font-size:18px;" id="profile-name">Loading...</div>
-                    <div style="background: var(--light); padding: 6px 12px; border-radius: 15px; font-size: 12px; color: var(--gray); display: inline-flex; align-items: center; gap: 6px; margin-top: 5px;">
+                    <div style="background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 15px; font-size: 12px; color: rgba(255,255,255,0.7); display: inline-flex; align-items: center; gap: 6px; margin-top: 5px;">
                         ID: <span id="profile-id">Loading...</span>
                         <i class="fas fa-copy" style="cursor: pointer;" onclick="copyToClipboard('profile-id')"></i>
                     </div>
@@ -1621,7 +1660,7 @@
                         </div>
                         <div style="flex: 1;">
                             <div style="font-weight:600;" data-translate="phone_number">Phone Number</div>
-                            <div style="font-size:12px; color:var(--gray);" id="phone-text" data-translate="not_verified">Not verified</div>
+                            <div style="font-size:12px; color:rgba(255,255,255,0.7);" id="phone-text" data-translate="not_verified">Not verified</div>
                         </div>
                         <button class="verification-button" onclick="verifyPhone()" id="phone-button" data-translate="verify">Verify</button>
                     </div>
@@ -1632,7 +1671,7 @@
                         </div>
                         <div style="flex: 1;">
                             <div style="font-weight:600;" data-translate="id_passport">ID/Passport</div>
-                            <div style="font-size:12px; color:var(--gray);" id="id-text" data-translate="not_verified">Not verified</div>
+                            <div style="font-size:12px; color:rgba(255,255,255,0.7);" id="id-text" data-translate="not_verified">Not verified</div>
                         </div>
                         <button class="verification-button" onclick="verifyID()" id="id-button" data-translate="verify">Verify</button>
                     </div>
@@ -1656,12 +1695,12 @@
             <div class="referral-screen">
                 <div class="uni-card">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="invite_friends">Invite Friends</div>
-                        <div style="color: var(--gray);" data-translate="invite_description">Invite friends and earn income from 3 referral generations</div>
+                        <div style="font-size: 24px; font-weight: 600; color: var(--white); margin-bottom: 10px;" data-translate="invite_friends">Invite Friends</div>
+                        <div style="color: rgba(255,255,255,0.7);" data-translate="invite_description">Invite friends and earn income from 3 referral generations</div>
                     </div>
                     
                     <div class="referral-link-container">
-                        <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--dark);" id="referral-link">
+                        <div style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; color: var(--white);" id="referral-link">
                             Loading...
                         </div>
                         <button class="uni-button" style="padding: 8px 12px; font-size: 12px; width: auto;" onclick="copyToClipboard('referral-link')" data-translate="copy">
@@ -1670,26 +1709,26 @@
                     </div>
                     
                     <div style="margin-top: 30px;">
-                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--dark); text-align: center;" data-translate="your_bonuses">Your Bonuses</div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--white); text-align: center;" data-translate="your_bonuses">Your Bonuses</div>
                         <div class="referral-stats">
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">8%</div>
-                                <div class="stats-label" style="color: var(--dark);" data-translate="from_1st_generation">1st Generation</div>
+                                <div class="stats-label" style="color: var(--white);" data-translate="from_1st_generation">1st Generation</div>
                             </div>
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">3%</div>
-                                <div class="stats-label" style="color: var(--dark);" data-translate="from_2nd_generation">2nd Generation</div>
+                                <div class="stats-label" style="color: var(--white);" data-translate="from_2nd_generation">2nd Generation</div>
                             </div>
                             <div class="referral-stat">
                                 <div class="stats-value" style="color: var(--primary);">1%</div>
-                                <div class="stats-label" style="color: var(--dark);" data-translate="from_3rd_generation">3rd Generation</div>
+                                <div class="stats-label" style="color: var(--white);" data-translate="from_3rd_generation">3rd Generation</div>
                             </div>
                         </div>
                     </div>
 
-                    <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
-                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="how_it_works">How it works:</div>
-                        <div style="font-size: 14px; color: var(--gray); text-align: left;">
+                    <div style="margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-weight: 600; color: var(--white); margin-bottom: 10px;" data-translate="how_it_works">How it works:</div>
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.7); text-align: left;">
                             • <span data-translate="referral_works_1">8% from 1st generation deposits</span><br>
                             • <span data-translate="referral_works_2">3% from 2nd generation deposits</span><br>
                             • <span data-translate="referral_works_3">1% from 3rd generation deposits</span><br>
@@ -1711,8 +1750,8 @@
 
             <div class="uni-card">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="available_bonuses">Available Bonuses</div>
-                    <div style="color: var(--gray);" data-translate="complete_tasks">Complete tasks and earn additional rewards</div>
+                    <div style="font-size: 24px; font-weight: 600; color: var(--white); margin-bottom: 10px;" data-translate="available_bonuses">Available Bonuses</div>
+                    <div style="color: rgba(255,255,255,0.7);" data-translate="complete_tasks">Complete tasks and earn additional rewards</div>
                 </div>
 
                 <table class="task-center-table">
@@ -1767,9 +1806,9 @@
                     </tbody>
                 </table>
 
-                <div style="margin-top: 25px; padding: 15px; background: var(--light); border-radius: 10px;">
-                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px;" data-translate="terms_conditions">Terms & Conditions:</div>
-                    <div style="font-size: 14px; color: var(--gray); text-align: left;">
+                <div style="margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <div style="font-weight: 600; color: var(--white); margin-bottom: 10px;" data-translate="terms_conditions">Terms & Conditions:</div>
+                    <div style="font-size: 14px; color: rgba(255,255,255,0.7); text-align: left;">
                         • <span data-translate="terms_1">All bonuses are credited manually by administration</span><br>
                         • <span data-translate="terms_2">VIP purchase bonuses are awarded after successful package activation</span><br>
                         • <span data-translate="terms_3">Referral deposit bonuses require minimum deposit amounts from 1st generation users</span><br>
@@ -1792,7 +1831,7 @@
 
             <div class="license-content" style="padding: 20px;">
                 <!-- Основной лицензионный документ -->
-                <div style="background: white; border: 2px solid #d4af37; border-radius: 10px; padding: 30px; margin-bottom: 20px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="background: rgba(0,0,0,0.5); border: 2px solid #d4af37; border-radius: 10px; padding: 30px; margin-bottom: 20px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
                     <!-- Водяной знак -->
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 120px; opacity: 0.03; color: var(--primary); pointer-events: none; z-index: 1; font-weight: bold; white-space: nowrap;">
                         OFFICIAL LICENSE
@@ -1800,7 +1839,7 @@
                     
                     <!-- Заголовок документа -->
                     <div style="text-align: center; margin-bottom: 30px; position: relative; z-index: 2;">
-                        <div style="font-size: 12px; color: #666; margin-bottom: 5px;" data-translate="official_financial_license">OFFICIAL FINANCIAL LICENSE</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;" data-translate="official_financial_license">OFFICIAL FINANCIAL LICENSE</div>
                         <div style="font-size: 28px; font-weight: bold; color: #b8860b; margin-bottom: 10px; text-transform: uppercase;" data-translate="certificate_authorization">Certificate of Authorization</div>
                         <div style="height: 2px; background: linear-gradient(90deg, transparent, #d4af37, transparent); margin: 15px 0;"></div>
                     </div>
@@ -1810,18 +1849,18 @@
                         <!-- Левая колонка -->
                         <div>
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="license_number">License Number</div>
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 5px;" data-translate="license_number">License Number</div>
                                 <div style="font-size: 18px; font-weight: bold; color: var(--primary); letter-spacing: 2px;">IFSC/2020/UI789456</div>
                             </div>
                             
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="company_name">Company Name</div>
-                                <div style="font-size: 16px; font-weight: 600;">Uipath Financial Services Ltd.</div>
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 5px;" data-translate="company_name">Company Name</div>
+                                <div style="font-size: 16px; font-weight: 600; color: white;">Uipath Financial Services Ltd.</div>
                             </div>
                             
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="registration_address">Registration Address</div>
-                                <div style="font-size: 14px; line-height: 1.4;">
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 5px;" data-translate="registration_address">Registration Address</div>
+                                <div style="font-size: 14px; line-height: 1.4; color: white;">
                                     25-28 Old Burlington Street,<br>
                                     London, W1S 3AN,<br>
                                     United Kingdom
@@ -1832,18 +1871,18 @@
                         <!-- Правая колонка -->
                         <div>
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="date_issue">Date of Issue</div>
-                                <div style="font-size: 16px; font-weight: 600;">March 15, 2020</div>
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 5px;" data-translate="date_issue">Date of Issue</div>
+                                <div style="font-size: 16px; font-weight: 600; color: white;">March 15, 2020</div>
                             </div>
                             
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="valid_until">Valid Until</div>
-                                <div style="font-size: 16px; font-weight: 600;">December 31, 2037</div>
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 5px;" data-translate="valid_until">Valid Until</div>
+                                <div style="font-size: 16px; font-weight: 600; color: white;">December 31, 2037</div>
                             </div>
                             
                             <div style="margin-bottom: 25px;">
-                                <div style="font-size: 14px; color: #666; margin-bottom: 5px;" data-translate="regulatory_body">Regulatory Body</div>
-                                <div style="font-size: 14px; font-weight: 600;">International Financial Services Commission</div>
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 5px;" data-translate="regulatory_body">Regulatory Body</div>
+                                <div style="font-size: 14px; font-weight: 600; color: white;">International Financial Services Commission</div>
                             </div>
                         </div>
                     </div>
@@ -1851,11 +1890,11 @@
                     <!-- Область для подписей и печатей -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px; position: relative; z-index: 2;">
                         <div style="text-align: center;">
-                            <div style="height: 1px; background: #ddd; margin-bottom: 60px; position: relative;">
-                                <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; font-size: 12px; color: #666;" data-translate="authorized_signature">Authorized Signature</div>
+                            <div style="height: 1px; background: rgba(255,255,255,0.3); margin-bottom: 60px; position: relative;">
+                                <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.5); padding: 0 15px; font-size: 12px; color: rgba(255,255,255,0.7);" data-translate="authorized_signature">Authorized Signature</div>
                             </div>
-                            <div style="font-size: 12px; color: #666;">James Wilson</div>
-                            <div style="font-size: 11px; color: #999;" data-translate="director_licensing">Director of Licensing</div>
+                            <div style="font-size: 12px; color: rgba(255,255,255,0.7);">James Wilson</div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.5);" data-translate="director_licensing">Director of Licensing</div>
                         </div>
                         
                         <div style="text-align: center;">
@@ -1866,34 +1905,34 @@
                                     <div style="font-size: 10px; line-height: 1.2; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">IFSC<br>VERIFIED<br>2020</div>
                                 </div>
                             </div>
-                            <div style="font-size: 11px; color: #999;" data-translate="official_seal">Official Regulatory Seal</div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.5);" data-translate="official_seal">Official Regulatory Seal</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Дополнительные документы -->
-                <div style="background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
+                <div style="background: rgba(0,0,0,0.5); border-radius: 10px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
                     <h3 style="color: var(--primary); margin-bottom: 20px; text-align: center;" data-translate="supporting_documents">Supporting Documents</h3>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 8px;">
+                        <div style="text-align: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
                             <div style="font-size: 24px; margin-bottom: 10px;">📊</div>
-                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;" data-translate="financial_report">Financial Report 2024</div>
-                            <div style="font-size: 11px; color: var(--gray);" data-translate="annual_audit">Annual Audit Statement</div>
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; color: white;" data-translate="financial_report">Financial Report 2024</div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.7);" data-translate="annual_audit">Annual Audit Statement</div>
                         </div>
                         
-                        <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 8px;">
+                        <div style="text-align: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
                             <div style="font-size: 24px; margin-bottom: 10px;">🛡️</div>
-                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;" data-translate="insurance_certificate">Insurance Certificate</div>
-                            <div style="font-size: 11px; color: var(--gray);" data-translate="client_fund_protection">Client Fund Protection</div>
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; color: white;" data-translate="insurance_certificate">Insurance Certificate</div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.7);" data-translate="client_fund_protection">Client Fund Protection</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Юридическая информация -->
-                <div style="background: var(--light); padding: 20px; border-radius: 10px;">
-                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 10px; text-align: center;" data-translate="legal_information">Legal Information</div>
-                    <div style="font-size: 12px; color: var(--gray); line-height: 1.5; text-align: center;">
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
+                    <div style="font-weight: 600; color: var(--white); margin-bottom: 10px; text-align: center;" data-translate="legal_information">Legal Information</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.5; text-align: center;">
                         Uipath Financial Services Ltd. is registered in England and Wales (Company No. 12345678)<br>
                         VAT Registration: GB 123 4567 89 • FCA Reference: 123456<br>
                         <div style="margin-top: 8px; font-style: italic;">This document certifies regulatory compliance with international financial standards</div>
@@ -2739,7 +2778,7 @@
             }
             
             if (filteredTransactions.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px 0;" data-translate="no_transactions">No transactions found</div>';
+                container.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.7); padding: 20px 0;" data-translate="no_transactions">No transactions found</div>';
                 applyTranslations();
                 return;
             }
@@ -2789,12 +2828,12 @@
                 
                 transactionItem.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 30px; height: 30px; border-radius: 50%; background: ${transaction.positive ? 'rgba(76,217,100,0.1)' : 'rgba(255,59,48,0.1)'}; display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: ${transaction.positive ? 'rgba(23,205,175,0.1)' : 'rgba(248,89,99,0.1)'}; display: flex; align-items: center; justify-content: center;">
                             <i class="fas ${icon}" style="color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};"></i>
                         </div>
                         <div>
                             <div style="font-weight:600;">${transaction.title}</div>
-                            <div style="font-size:12px; color:var(--gray);">${formatDate(new Date(transaction.created_at))}</div>
+                            <div style="font-size:12px; color:rgba(255,255,255,0.7);">${formatDate(new Date(transaction.created_at))}</div>
                         </div>
                     </div>
                     <div style="font-weight:600; color: ${transaction.positive ? 'var(--success)' : 'var(--danger)'};">
@@ -3058,7 +3097,7 @@
             if (appState.referrals.gen1.length === 0 && 
                 appState.referrals.gen2.length === 0 && 
                 appState.referrals.gen3.length === 0) {
-                referralList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 40px 20px;" data-translate="no_referrals">No referrals yet. Share your referral link to invite friends!</div>';
+                referralList.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.7); padding: 40px 20px;" data-translate="no_referrals">No referrals yet. Share your referral link to invite friends!</div>';
                 applyTranslations();
                 return;
             }
@@ -3067,7 +3106,7 @@
                 if (referrals.length === 0) return;
                 
                 const levelHeader = document.createElement('div');
-                levelHeader.innerHTML = `<div style="font-weight: 600; color: var(--primary); margin: 20px 0 10px; font-size: 16px; border-bottom: 1px solid var(--light); padding-bottom: 8px;">${title} (${referrals.length} users)</div>`;
+                levelHeader.innerHTML = `<div style="font-weight: 600; color: var(--primary); margin: 20px 0 10px; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px;">${title} (${referrals.length} users)</div>`;
                 referralList.appendChild(levelHeader);
                 
                 referrals.forEach(ref => {
@@ -3078,7 +3117,7 @@
                             <div class="referral-avatar" style="background: var(--primary);">${ref.name ? ref.name.substring(0, 2).toUpperCase() : 'US'}</div>
                             <div style="flex: 1;">
                                 <div style="font-weight:600; font-size: 14px;">${ref.name || 'Unknown User'}</div>
-                                <div style="font-size:11px; color:var(--gray);">
+                                <div style="font-size:11px; color:rgba(255,255,255,0.7);">
                                     ID: ${ref.id} • ${ref.created_at ? new Date(ref.created_at).toLocaleDateString() : 'Unknown date'}
                                 </div>
                             </div>
@@ -3287,6 +3326,17 @@
                     window.location.href = 'index.html';
                 }
             );
+        }
+
+        function toggleLanguageMenu() {
+            const menu = document.getElementById('languageMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            applyTranslations();
+            toggleLanguageMenu();
         }
 
         window.onload = function() {
