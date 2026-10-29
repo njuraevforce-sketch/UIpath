@@ -90,3 +90,35 @@ jobs:
         with:
           name: nftalt-iphone-smoke
           path: /tmp/diary-iphone.png
+
+      - name: Capture the home screen on an iPad Simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          ipad_id=$(python3 - <<'PYCODE'
+          import json
+          with open('/tmp/diary-devices.json') as f:
+              devices = json.load(f)['devices']
+          options = [d for runtime, group in devices.items() if '.iOS-' in runtime for d in group if d.get('isAvailable') and 'iPad' in d['name'] and ('13-inch' in d['name'] or '12.9-inch' in d['name'])]
+          if not options:
+              raise SystemExit('No 13-inch iPad Simulator available')
+          print(options[0]['udid'])
+          PYCODE
+          )
+          xcrun simctl boot "$ipad_id" || true
+          xcrun simctl bootstatus "$ipad_id" -b
+          xcrun simctl install "$ipad_id" /tmp/DiaryBuild/Build/Products/Debug-iphonesimulator/Diary.app
+          xcrun simctl launch "$ipad_id" com.heddichloe.originaldiary
+          ready=0
+          for attempt in $(seq 1 20); do
+            xcrun simctl spawn "$ipad_id" log show --last 2m --style compact --predicate 'eventMessage CONTAINS "NFTALT_UI_READY"' > /tmp/nftalt-ipad-launch.log 2>/dev/null || true
+            if grep -q 'NFTALT_UI_READY' /tmp/nftalt-ipad-launch.log; then ready=1; break; fi
+            sleep 2
+          done
+          cat /tmp/nftalt-ipad-launch.log
+          if [[ "$ready" != 1 ]]; then echo 'The iPad diary did not finish loading.' >&2; exit 1; fi
+          xcrun simctl io "$ipad_id" screenshot /tmp/diary-ipad.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nftalt-ipad-smoke
+          path: /tmp/diary-ipad.png

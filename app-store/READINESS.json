@@ -10,10 +10,10 @@
   "backupExportImport": "passed",
   "nativeProjectStructure": "passed",
   "nativeBridgeTests": "simulated_browser_only",
-  "xcodeCompilation": "previous_bundled_build_passed_remote_build_pending",
+  "xcodeCompilation": "passed_remote_build_GitHub_Actions_40896308937",
   "physicalDeviceTests": "not_run",
   "dependencyAudit": "blocked_by_automatic_approval_review",
-  "githubUpload": "main_prepared_new_remote_loading_pending_ci",
+  "githubUpload": "main_ed4729d33ae37ffb46e3ce8e9299f98ff14a3f48",
   "httpsDeployment": "owner_deployed_previous_web_build_updated_package_required",
   "signedIpa": "not_created_requires_owner_signing",
   "appleSubmission": "not_submitted",
@@ -26,7 +26,8 @@
   "bundleId": "com.heddichloe.originaldiary",
   "appleAppRecord": "created_and_named_NFTALT",
   "appleAgreement": "accepted_by_owner",
-  "simulatorLaunch": "previous_bundled_build_passed_remote_build_pending",
+  "simulatorLaunch": "passed_remote_mode_GitHub_Actions_40896308937",
   "iosSignedBuild": "not_uploaded_requires_new_account_signing",
-  "deliveryMode": "https_nftalt1_com_network_first_with_bundled_offline_fallback"
+  "deliveryMode": "https_nftalt1_com_network_first_with_bundled_offline_fallback",
+  "appPrivacy": "draft_hosting_diagnostics_linked_no_tracking"
 }
