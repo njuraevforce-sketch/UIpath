@@ -1,0 +1,19 @@
+Original Diary is a standalone personal diary, with all interface resources and illustrations bundled in the iOS app. It does not require an account or sign-in and is not a website launcher.
+
+There are no purchases, subscriptions, cryptocurrency transactions, NFT trading, deposits, investments or financial returns. The character illustrations are included as diary covers and avatars. No remote feature flags or reviewer-specific behavior are implemented.
+
+Suggested review flow:
+1. On Home, tap Write. Enter a title and some text, choose a mood, and optionally select an illustrated cover. Tap Done.
+2. Close and reopen the app. Your entry should still be available.
+3. Open Calendar to find the entry by date.
+4. Open Entries, search for text and mark the entry as a favorite. It also appears in Favorites.
+5. In Profile, change the profile name or illustrated avatar.
+6. In Profile, Export entries opens the iOS share sheet with a JSON backup file. Save the file, then use Import entries to select it with the native file picker. The app also accepts pasted JSON backup text.
+7. In Profile > Settings, the larger-text option changes entry text size. Delete all data removes the entries and profile from the current installation after confirmation.
+8. Profile > Privacy includes a detailed local explanation and a link to the bundled privacy policy. The same policy must be available at the submitted public HTTPS URL.
+
+The app works offline from the first launch. No remote account or server is required for diary functionality. A privacy cover hides the diary view when the iOS app is inactive.
+
+Diary content stays on the device. Exported backup files are shared only when the user chooses to do so. No analytics, advertising or tracking SDK is included in the standalone Swift/WKWebView target.
+
+Support: n.juraevforce@gmail.com

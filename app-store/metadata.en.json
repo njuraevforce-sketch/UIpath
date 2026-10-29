@@ -1,0 +1,15 @@
+{
+  "name": "Original Diary",
+  "subtitle": "Your moments, kept close",
+  "primaryCategory": "LIFESTYLE",
+  "secondaryCategory": "PRODUCTIVITY",
+  "primaryLanguage": "en-GB",
+  "keywords": "diary,journal,mood,memories,writing,offline,personal,calendar,notes,reflection",
+  "promotionalText": "A little space for your everyday stories. Write offline, choose an illustrated cover, track your mood and keep your favorite moments close.",
+  "description": "Your day is worth remembering.\n\nOriginal Diary is a personal space for your thoughts, everyday moments and little discoveries. There is no account to create and no feed to keep up with. Just open a page and start writing.\n\nMAKE IT YOUR OWN\nGive each entry a date, a mood and an illustrated cover. Choose from 22 colorful character artworks included in the app.\n\nFIND YOUR MOMENTS\nBrowse your calendar, search your writing or return to the entries you have marked as favorites.\n\nWRITE OFFLINE\nYour diary entries stay on your device. The bundled iOS app works without an internet connection, including on its first launch. There is no automatic cloud sync.\n\nKEEP A BACKUP\nExport your entries as JSON and restore a backup when you move to another device. You control where you save or share the backup.\n\nREAD IN YOUR RHYTHM\nA warm, quiet interface and a larger-text option make room for your words.\n\nNo subscription, in-app purchases or advertising. Protect your device with a passcode and export backups regularly. The app does not add its own encryption layer to local diary storage.",
+  "version": "1.1.0",
+  "whatsNew": "An English-language diary with illustrated covers, offline writing, calendar browsing, mood selection, favorites and JSON backup export and import.",
+  "supportEmail": "n.juraevforce@gmail.com",
+  "privacyPolicyRelativePath": "/privacy.html",
+  "supportRelativePath": "/support.html"
+}

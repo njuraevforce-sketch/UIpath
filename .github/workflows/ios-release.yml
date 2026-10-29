@@ -1,0 +1,130 @@
+name: Upload Original Diary to App Store Connect
+on:
+  workflow_dispatch:
+    inputs:
+      apple_team_id:
+        description: Team ID of the NEW Apple Developer account
+        required: true
+      bundle_id:
+        description: Explicit App ID registered in the NEW Apple account
+        required: true
+      build_number:
+        description: Unique positive iOS build number
+        required: true
+        default: '110'
+permissions:
+  contents: read
+concurrency:
+  group: original-diary-app-store-upload
+  cancel-in-progress: false
+jobs:
+  upload:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      APP_BUNDLE_ID: ${{ inputs.bundle_id }}
+      APPLE_TEAM_ID: ${{ inputs.apple_team_id }}
+      BUILD_NUMBER: ${{ inputs.build_number }}
+      ASC_API_KEY_BASE64: ${{ secrets.DIARY_APP_STORE_CONNECT_API_KEY_BASE64 }}
+      ASC_KEY_ID: ${{ secrets.DIARY_APP_STORE_CONNECT_API_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.DIARY_APP_STORE_CONNECT_API_ISSUER_ID }}
+      BUILD_CERTIFICATE_BASE64: ${{ secrets.DIARY_BUILD_CERTIFICATE_BASE64 }}
+      P12_PASSWORD: ${{ secrets.DIARY_P12_PASSWORD }}
+      KEYCHAIN_PASSWORD: ${{ secrets.DIARY_KEYCHAIN_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run build
+      - run: npm run verify:release
+      - name: Check toolchain and signing inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(xcodebuild -version | awk '/Xcode/ {print $2}')
+          sdk=$(xcrun --sdk iphoneos --show-sdk-version)
+          if (( ${version%%.*} < 26 || ${sdk%%.*} < 26 )); then
+            echo 'Xcode 26 and iOS SDK 26 or newer are required.' >&2
+            exit 1
+          fi
+          if [[ ! "$APPLE_TEAM_ID" =~ ^[A-Z0-9]{10}$ || ! "$APP_BUNDLE_ID" =~ ^[A-Za-z0-9]+([.-][A-Za-z0-9]+)+$ || "$APP_BUNDLE_ID" == com.example.* ]]; then
+            echo 'Provide the new Apple account Team ID and its registered Bundle ID.' >&2
+            exit 1
+          fi
+          if [[ ! "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo 'Build number must be a positive integer.' >&2
+            exit 1
+          fi
+          for variable in ASC_API_KEY_BASE64 ASC_KEY_ID ASC_ISSUER_ID BUILD_CERTIFICATE_BASE64 P12_PASSWORD KEYCHAIN_PASSWORD; do
+            if [[ -z "${!variable}" ]]; then
+              echo "Missing required repository secret: $variable" >&2
+              exit 1
+            fi
+          done
+          printf '%s' "$ASC_API_KEY_BASE64" | base64 -D > "$RUNNER_TEMP/AuthKey.p8"
+          chmod 600 "$RUNNER_TEMP/AuthKey.p8"
+      - name: Install distribution certificate and diary profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$BUILD_CERTIFICATE_BASE64" | base64 -D > "$RUNNER_TEMP/distribution.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/diary-build.keychain"
+          security set-keychain-settings -lut 21600 "$RUNNER_TEMP/diary-build.keychain"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/diary-build.keychain"
+          security list-keychains -d user -s "$RUNNER_TEMP/diary-build.keychain"
+          security import "$RUNNER_TEMP/distribution.p12" -P "$P12_PASSWORD" -T /usr/bin/codesign -t cert -f pkcs12 -k "$RUNNER_TEMP/diary-build.keychain"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/diary-build.keychain"
+          node .github/scripts/prepare-ios-signing.mjs
+          security cms -D -i "$RUNNER_TEMP/Diary.mobileprovision" > "$RUNNER_TEMP/profile.plist"
+          profile_id=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$RUNNER_TEMP/profile.plist")
+          if [[ "$profile_id" != "$APPLE_TEAM_ID.$APP_BUNDLE_ID" ]]; then
+            echo 'The profile must match the diary Bundle ID and Apple Team.' >&2
+            exit 1
+          fi
+          profile_uuid=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$RUNNER_TEMP/profile.plist")
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$RUNNER_TEMP/Diary.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$profile_uuid.mobileprovision"
+          echo "PROFILE_UUID=$profile_uuid" >> "$GITHUB_ENV"
+      - name: Prepare export options
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, plistlib
+          options = {
+              'method': 'app-store-connect', 'destination': 'upload',
+              'signingStyle': 'manual', 'signingCertificate': 'Apple Distribution',
+              'teamID': os.environ['APPLE_TEAM_ID'],
+              'provisioningProfiles': {os.environ['APP_BUNDLE_ID']: os.environ['PROFILE_UUID']},
+              'uploadSymbols': True, 'manageAppVersionAndBuildNumber': False,
+          }
+          with open(os.environ['RUNNER_TEMP'] + '/ExportOptions.plist', 'wb') as f:
+              plistlib.dump(options, f)
+          PY
+      - name: Archive diary
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -project ios/Diary.xcodeproj -scheme Diary \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Diary.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" PRODUCT_BUNDLE_IDENTIFIER="$APP_BUNDLE_ID" \
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='Apple Distribution' \
+            PROVISIONING_PROFILE="$PROFILE_UUID" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" archive
+      - name: Upload to App Store Connect
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Diary.xcarchive" \
+            -exportPath "$RUNNER_TEMP/diary-export" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -allowProvisioningUpdates -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      - name: Clean signing files
+        if: always()
+        shell: bash
+        run: |
+          security delete-keychain "$RUNNER_TEMP/diary-build.keychain" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/AuthKey.p8" "$RUNNER_TEMP/distribution.p12" "$RUNNER_TEMP/Diary.mobileprovision"

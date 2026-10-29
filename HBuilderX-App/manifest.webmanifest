@@ -1,0 +1,37 @@
+{
+  "id": "./",
+  "name": "Original Diary \u2014 your everyday stories",
+  "short_name": "Diary",
+  "lang": "en",
+  "description": "A private offline diary for your thoughts, moods and favorite moments.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f4f0",
+  "theme_color": "#f6f4f0",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "lifestyle",
+    "productivity"
+  ],
+  "prefer_related_applications": false
+}

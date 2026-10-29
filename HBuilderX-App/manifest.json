@@ -1,0 +1,78 @@
+{
+  "@platforms": [
+    "iPhone",
+    "iPad",
+    "Android"
+  ],
+  "id": "",
+  "name": "Original Diary",
+  "version": {
+    "name": "1.1.0",
+    "code": 110
+  },
+  "description": "A private offline diary for thoughts, moods and everyday moments.",
+  "launch_path": "index.html",
+  "developer": {
+    "name": "njuraevforce-sketch",
+    "email": "n.juraevforce@gmail.com"
+  },
+  "permissions": {
+    "Storage": {},
+    "IO": {},
+    "Share": {}
+  },
+  "plus": {
+    "splashscreen": {
+      "autoclose": true,
+      "waiting": false,
+      "delay": 0
+    },
+    "statusbar": {
+      "style": "dark",
+      "background": "#f6f4f0"
+    },
+    "safearea": {
+      "background": "#f6f4f0",
+      "bottom": {
+        "offset": "none"
+      }
+    },
+    "launchwebview": {
+      "bounce": "none",
+      "background": "#f6f4f0",
+      "scalable": false
+    },
+    "distribute": {
+      "apple": {
+        "appid": "",
+        "devices": "universal"
+      },
+      "icons": {
+        "ios": {
+          "appstore": "icons/appstore-1024.png",
+          "iphone": {
+            "app@2x": "icons/icon-120.png",
+            "app@3x": "icons/apple-touch-icon.png",
+            "spotlight@2x": "icons/icon-80.png",
+            "spotlight@3x": "icons/icon-120.png",
+            "settings@2x": "icons/icon-58.png",
+            "settings@3x": "icons/icon-87.png",
+            "notification@2x": "icons/icon-40.png",
+            "notification@3x": "icons/icon-60.png"
+          },
+          "ipad": {
+            "app": "icons/icon-76.png",
+            "app@2x": "icons/icon-152.png",
+            "proapp@2x": "icons/icon-167.png",
+            "spotlight": "icons/icon-40.png",
+            "spotlight@2x": "icons/icon-80.png",
+            "settings": "icons/icon-29.png",
+            "settings@2x": "icons/icon-58.png",
+            "notification": "icons/icon-20.png",
+            "notification@2x": "icons/icon-40.png"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+name: Verify Original Diary
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: diary-verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  pwa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run build
+      - run: npm run verify:release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-diary-pwa
+          path: PWA/
+  ios-simulator-build:
+    needs: pwa
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: original-diary-pwa
+          path: ios/Diary/Web
+      - name: Check supported Apple toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          version=$(xcodebuild -version | awk '/Xcode/ {print $2}')
+          major=${version%%.*}
+          if (( major < 26 )); then
+            echo 'Xcode 26 or newer is required for App Store uploads.' >&2
+            exit 1
+          fi
+          sdk=$(xcrun --sdk iphoneos --show-sdk-version)
+          if (( ${sdk%%.*} < 26 )); then
+            echo 'iOS SDK 26 or newer is required.' >&2
+            exit 1
+          fi
+      - name: Compile unsigned simulator target
+        run: >-
+          xcodebuild -project ios/Diary.xcodeproj
+          -scheme Diary -configuration Debug
+          -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath /tmp/DiaryBuild
+          CODE_SIGNING_ALLOWED=NO build
+
+      - name: Launch the app in an iPhone Simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun simctl list devices available --json > /tmp/diary-devices.json
+          simulator_id=$(python3 - <<'PYCODE'
+          import json
+          with open('/tmp/diary-devices.json') as f:
+              devices = json.load(f)['devices']
+          options = [d for runtime, group in devices.items() if '.iOS-' in runtime for d in group if d.get('isAvailable') and 'iPhone' in d['name']]
+          if not options:
+              raise SystemExit('No available iPhone Simulator')
+          print(options[0]['udid'])
+          PYCODE
+          )
+          xcrun simctl boot "$simulator_id" || true
+          xcrun simctl bootstatus "$simulator_id" -b
+          xcrun simctl install "$simulator_id" /tmp/DiaryBuild/Build/Products/Debug-iphonesimulator/Diary.app
+          xcrun simctl launch "$simulator_id" com.example.originaldiary
+          sleep 5
+          xcrun simctl io "$simulator_id" screenshot /tmp/diary-iphone.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-diary-iphone-smoke
+          path: /tmp/diary-iphone.png
