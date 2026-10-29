@@ -16,3 +16,5 @@ The owner confirmed that NFTALT will be published from a DIFFERENT Apple account
 4. When manually running the upload workflow, enter that account's Team ID, registered Bundle ID and a unique positive build number. The workflow verifies the profile application identifier against both before archiving/uploading.
 
 Never send private keys or certificate passwords in chat or commit them. Repository secrets are not copied from TSQ2.0. Public support contact and App Store publisher details must also be confirmed for the new app/account.
+
+The upload workflow uses the generated App Store profile from NFTALT_PROVISIONING_PROFILE_BASE64 and a Developer-role team API key for uploads. It does not request profile or certificate management through the API.
