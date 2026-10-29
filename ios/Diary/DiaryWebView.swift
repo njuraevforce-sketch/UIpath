@@ -8,6 +8,7 @@ struct DiaryWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        config.limitsNavigationsToAppBoundDomains = true
         context.coordinator.updateBootstrap(in: config.userContentController)
         config.userContentController.add(context.coordinator, name: "diary")
         let web = WKWebView(frame: .zero, configuration: config)
@@ -18,20 +19,52 @@ struct DiaryWebView: UIViewRepresentable {
         web.isOpaque = false
         web.backgroundColor = UIColor(red: 0.965, green: 0.957, blue: 0.941, alpha: 1)
         context.coordinator.webView = web
-        if let root = Bundle.main.url(forResource: "Web", withExtension: nil),
-           let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "Web") {
-            web.loadFileURL(url, allowingReadAccessTo: root)
-        }
+        context.coordinator.loadRemote()
         return web
     }
     func updateUIView(_ uiView: WKWebView, context: Context) {}
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "diary")
+        coordinator.startupWatchdog?.cancel()
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, UIDocumentPickerDelegate {
         weak var webView: WKWebView?
+        private let remoteURL = URL(string: "https://nftalt1.com/")!
+        private var attemptingRemote = false
+        var startupWatchdog: DispatchWorkItem?
         private let limit = 10 * 1024 * 1024
+        func loadRemote() {
+            guard let webView else { return }
+            startupWatchdog?.cancel()
+            attemptingRemote = true
+            updateBootstrap(in: webView.configuration.userContentController)
+            let request = URLRequest(url: remoteURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
+            webView.load(request)
+            let watchdog = DispatchWorkItem { [weak self] in
+                guard let self, self.attemptingRemote else { return }
+                self.loadOffline()
+            }
+            startupWatchdog = watchdog
+            DispatchQueue.main.asyncAfter(deadline: .now() + 25, execute: watchdog)
+        }
+        private func finishStartup() {
+            startupWatchdog?.cancel()
+            attemptingRemote = false
+            NSLog("NFTALT_UI_READY mode=%@", isRemote(webView?.url) ? "remote" : "offline")
+        }
+        private func loadOffline() {
+            startupWatchdog?.cancel()
+            attemptingRemote = false
+            guard let webView,
+                  let root = Bundle.main.url(forResource: "Web", withExtension: nil),
+                  let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "Web") else {
+                showError("Could not open the offline diary. Please restart the app."); return
+            }
+            webView.stopLoading()
+            updateBootstrap(in: webView.configuration.userContentController)
+            webView.loadFileURL(url, allowingReadAccessTo: root)
+        }
         private var dataFile: URL {
             FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
                 .appendingPathComponent("OriginalDiary", isDirectory: true).appendingPathComponent("state.json")
@@ -50,6 +83,12 @@ struct DiaryWebView: UIViewRepresentable {
                   let root = Bundle.main.url(forResource: "Web", withExtension: nil) else { return false }
             return url.standardizedFileURL.path.hasPrefix(root.standardizedFileURL.path + "/")
         }
+        private func isRemote(_ url: URL?) -> Bool {
+            guard let url else { return false }
+            return url.scheme?.lowercased() == "https" && url.host?.lowercased() == "nftalt1.com"
+                && (url.port == nil || url.port == 443) && url.user == nil && url.password == nil
+        }
+        private func isTrusted(_ url: URL?) -> Bool { isLocal(url) || isRemote(url) }
         private func present(_ controller: UIViewController) {
             guard let root = webView?.window?.rootViewController else { return }
             var top = root
@@ -68,9 +107,13 @@ struct DiaryWebView: UIViewRepresentable {
         }
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             guard message.name == "diary", message.frameInfo.isMainFrame,
-                  isLocal(message.frameInfo.request.url),
+                  isTrusted(message.frameInfo.request.url),
                   let body = message.body as? [String: Any], let action = body["action"] as? String else { return }
             switch action {
+            case "ready":
+                finishStartup()
+            case "refresh":
+                loadRemote()
             case "save":
                 guard let content = body["content"] as? String, let bytes = content.data(using: .utf8), bytes.count <= limit,
                       let state = (try? JSONSerialization.jsonObject(with: bytes)) as? [String: Any],
@@ -128,7 +171,7 @@ struct DiaryWebView: UIViewRepresentable {
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             let url = navigationAction.request.url
-            if isLocal(url) || url?.absoluteString == "about:blank" {
+            if isTrusted(url) {
                 decisionHandler(.allow)
             } else {
                 if let url {
@@ -142,13 +185,41 @@ struct DiaryWebView: UIViewRepresentable {
         }
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                      for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-            if navigationAction.targetFrame == nil, isLocal(navigationAction.request.url) {
+            if navigationAction.targetFrame == nil, isTrusted(navigationAction.request.url) {
                 webView.load(navigationAction.request)
             }
             return nil
         }
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            guard attemptingRemote, isRemote(webView.url) else { return }
+            webView.evaluateJavaScript("Boolean(document.getElementById('diary'))") { [weak self] result, _ in
+                guard let self, self.attemptingRemote, result as? Bool == true else { return }
+                self.finishStartup()
+            }
+        }
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-            if (error as NSError).code != NSURLErrorCancelled { showError("Could not open your diary. Please restart the app.") }
+            guard (error as NSError).code != NSURLErrorCancelled else { return }
+            if attemptingRemote { loadOffline() }
+            else { showError("Could not open this page. Your saved entries remain on this device.") }
+        }
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            guard (error as NSError).code != NSURLErrorCancelled else { return }
+            if attemptingRemote { loadOffline() }
+        }
+        func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
+                     decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+            if navigationResponse.isForMainFrame, isRemote(navigationResponse.response.url),
+               let response = navigationResponse.response as? HTTPURLResponse,
+               response.statusCode >= 400 {
+                decisionHandler(.cancel)
+                if attemptingRemote { loadOffline() }
+                else { showError("This page is temporarily unavailable. Your entries are safe on this device.") }
+                return
+            }
+            decisionHandler(.allow)
+        }
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            loadRemote()
         }
     }
 }

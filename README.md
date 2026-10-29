@@ -8,7 +8,7 @@ This folder contains `package.json` and the Vue source. The build outputs are:
 
 - `PWA/`: ready-to-host installable web app.
 - `HBuilderX-App/`: HTML5+ project for HBuilderX cloud packaging.
-- `ios/Diary.xcodeproj`: standalone Swift/WKWebView wrapper for Xcode, with the same PWA interface bundled locally.
+- `ios/Diary.xcodeproj`: standalone Swift/WKWebView wrapper for Xcode, loading https://nftalt1.com/ first, with the same diary bundled as an offline fallback.
 
 ## Development on Windows/macOS
 
@@ -48,7 +48,7 @@ Import `HBuilderX-App` as an existing HTML5+ project. Open `manifest.json`, obta
 
 Open `ios/Diary.xcodeproj` on a Mac. The new app uses a different Apple Developer account. Verified Team `P27PL3XZ88` and registered Bundle ID `com.heddichloe.originaldiary` are configured; run on a device, then archive and validate. This target uses native share/file pickers and a privacy cover while inactive. See `ios/README.md`.
 
-No signing credentials, signed IPA, store submission or Apple approval is included. The manual `Upload NFTALT to App Store Connect` workflow uses diary-specific `DIARY_` secrets for the NEW account and accepts its Team ID / Bundle ID as manual inputs. The upload workflow is never triggered by a push. Review `app-store/RELEASE-CHECKLIST.md` for remaining owner/device steps.
+No signing credentials, signed IPA, store submission or Apple approval is included. The manual `Upload NFTALT to App Store Connect` workflow uses diary-specific `NFTALT_` secrets for the NEW account and accepts its Team ID / Bundle ID as manual inputs. The upload workflow is never triggered by a push. Review `app-store/RELEASE-CHECKLIST.md` for remaining owner/device steps.
 
 ## Features
 
@@ -72,6 +72,12 @@ Repository: https://github.com/njuraevforce-sketch/UIpath
 
 The legacy UIpath files are replaced by this diary. Before replacement the old commit is preserved in `backup/before-original-diary-20261029`. TSQ2.0 is a read-only reference and is not modified. Its WebKit/native-container persistence, system Share/Files and signing workflow patterns are adapted for this product. Its PIXEL Bundle ID, web domain, planner data and app identity are not copied.
 
-Unlike TSQ's server-only launch, this diary packages its reviewed PWA resources locally so it works offline from first launch. Native iOS mirrors diary state atomically into its own Application Support container. Browser storage is retained as a fallback; the latest saved snapshot is selected on relaunch.
+The iOS target loads https://nftalt1.com/ first and includes a bundled copy of the same diary for network/server failures. Native iOS mirrors diary state atomically into its own Application Support container. Browser storage is retained as a fallback; the latest saved snapshot is selected on relaunch.
 
 `Verify NFTALT` compiles the web app and unsigned iOS Simulator target. `Deploy diary PWA to GitHub Pages` is a manual workflow; first select GitHub Actions as the repository Pages source. It would publish the PWA and legal pages at the URL returned by the deployment; no live Pages deployment is asserted until it succeeds. `Upload NFTALT to App Store Connect` is also manual and requires the authorized signing secrets and an app-specific profile.
+
+## Server updates
+
+The standalone iOS target normally loads https://nftalt1.com/ over HTTPS with WebKit app-bound navigation. Only that exact HTTPS origin and bundled local resources can access the native diary bridge. An unavailable server falls back to the bundled diary. Saved diary data remains in the native application container across modes.
+
+Deploy the contents of PWA/ to that domain. The network-first worker refreshes static content online; old cached resources are used only if the fetch fails. Precache requests are batched four at a time. Online cold launches and Profile > Settings > Refresh from server load current server content. No reload interrupts an open editor. Native Swift code, permissions, entitlements, app icon and signing are still updated through App Store releases. Server-delivered changes remain subject to Apple review rules.

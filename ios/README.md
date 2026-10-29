@@ -17,3 +17,7 @@ The privacy manifest contains no declared tracking, developer-collected data or 
 `npm run build` at the Vue project root updates `Diary/Web` automatically. Bundle ID changes can create a different app/data container: keep the same ID when updating an existing published app.
 
 The native wrapper keeps a mirrored state.json in the application support container, written atomically with system data protection. Browser WebKit storage is retained as a fallback; the latest saved snapshot is used. The mirror contains the same diary content and is reset to anonymous empty state by Delete all data.
+
+## Online delivery
+
+Normal launch: https://nftalt1.com/. A 15-second document request and 25-second startup watchdog fall back to the bundled diary on loading failures. Only the exact HTTPS origin and bundled file resources are trusted for navigation and native messages. WKAppBoundDomains is configured. Refresh from server is explicit in Settings; there is no silent reload during editing. The local native data mirror is shared by the online and offline diary. Native release changes still require App Store updates.

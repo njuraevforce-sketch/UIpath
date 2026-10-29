@@ -8,7 +8,7 @@
 - Local data storage, backup export/import, per-entry and all-data deletion.
 - Public-ready English privacy, support and terms pages in the PWA output.
 - English App Store metadata and truthful reviewer instructions.
-- Native Swift/WKWebView source target with packaged PWA files, iOS share/file picker integration and background privacy cover.
+- Native Swift/WKWebView source target loading nftalt1.com with packaged offline fallback, iOS share/file picker integration and background privacy cover.
 - PrivacyInfo.xcprivacy, Info.plist, app icons and a shared Xcode scheme.
 - HBuilderX HTML5+ alternative and synchronized production assets.
 
@@ -38,3 +38,7 @@ Official sources consulted on October 29, 2026:
 - https://developer.apple.com/app-store/review/
 - https://developer.apple.com/documentation/bundleresources/privacy-manifest-files
 - https://developer.apple.com/documentation/bundleresources/describing-use-of-required-reason-api
+
+## Hosted delivery and privacy
+
+The online-first target supersedes the bundled-only description above. Deploy the current PWA/ output to nftalt1.com. Declare retained technical hosting logs as described in PRIVACY-HOSTING.md; the previous no-collection draft must not be published. The prepared privacy manifest declares linked Other Diagnostic Data for App Functionality, without tracking. Confirm actual hosting uses before final submission.

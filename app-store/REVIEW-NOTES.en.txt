@@ -1,19 +1,19 @@
-NFTALT is a standalone personal diary, with all interface resources and illustrations bundled in the iOS app. It does not require an account or sign-in and is not a website launcher.
+NFTALT is a personal diary. No account or sign-in is required.
 
-There are no purchases, subscriptions, cryptocurrency transactions, NFT trading, deposits, investments or financial returns. The character illustrations are included as diary covers and avatars. No remote feature flags or reviewer-specific behavior are implemented.
-
-Suggested review flow:
-1. On Home, tap Write. Enter a title and some text, choose a mood, and optionally select an illustrated cover. Tap Done.
-2. Close and reopen the app. Your entry should still be available.
-3. Open Calendar to find the entry by date.
-4. Open Entries, search for text and mark the entry as a favorite. It also appears in Favorites.
+Review flow:
+1. On Home, tap Write. Add a title and text, select a mood and cover, and tap Done.
+2. Close and reopen the app to verify that the entry is saved.
+3. Use Calendar to find the entry by date.
+4. In Entries, search for text and mark the entry as a favorite.
 5. In Profile, change the profile name or illustrated avatar.
-6. In Profile, Export entries opens the iOS share sheet with a JSON backup file. Save the file, then use Import entries to select it with the native file picker. The app also accepts pasted JSON backup text.
-7. In Profile > Settings, the larger-text option changes entry text size. Delete all data removes the entries and profile from the current installation after confirmation.
-8. Profile > Privacy includes a detailed local explanation and a link to the bundled privacy policy. The same policy must be available at the submitted public HTTPS URL.
+6. Export entries opens the iOS share sheet with a JSON backup. Import entries opens the native Files picker. Backups are processed locally.
+7. Profile > Settings includes larger text, Refresh from server, and confirmed deletion of local diary data.
+8. Profile > Privacy explains local storage and links to the privacy policy.
 
-The app works offline from the first launch. No remote account or server is required for diary functionality. A privacy cover hides the diary view when the iOS app is inactive.
+The diary interface loads from https://nftalt1.com/ when online. If loading fails, the app uses a bundled copy of the diary. Saved entries are mirrored in the native application container and remain available in either mode. Refresh is initiated from Settings or on a new launch, so it does not interrupt writing. A privacy cover hides the diary when the app is inactive.
 
-Diary content stays on the device. Exported backup files are shared only when the user chooses to do so. No analytics, advertising or tracking SDK is included in the standalone Swift/WKWebView target.
+Diary entries and the optional profile name are not uploaded. Technical hosting logs retain request information for server operation/security; this is declared as Other Diagnostic Data for App Functionality, linked and not used for tracking.
 
-Support: n.juraevforce@gmail.com
+Privacy policy: https://nftalt1.com/privacy.html
+Support: https://nftalt1.com/support.html
+Support email: n.juraevforce@gmail.com

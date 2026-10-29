@@ -77,7 +77,14 @@ jobs:
           xcrun simctl bootstatus "$simulator_id" -b
           xcrun simctl install "$simulator_id" /tmp/DiaryBuild/Build/Products/Debug-iphonesimulator/Diary.app
           xcrun simctl launch "$simulator_id" com.heddichloe.originaldiary
-          sleep 5
+          ready=0
+          for attempt in $(seq 1 20); do
+            xcrun simctl spawn "$simulator_id" log show --last 2m --style compact --predicate 'eventMessage CONTAINS "NFTALT_UI_READY"' > /tmp/nftalt-launch.log 2>/dev/null || true
+            if grep -q 'NFTALT_UI_READY' /tmp/nftalt-launch.log; then ready=1; break; fi
+            sleep 2
+          done
+          cat /tmp/nftalt-launch.log
+          if [[ "$ready" != 1 ]]; then echo 'The diary did not finish loading.' >&2; exit 1; fi
           xcrun simctl io "$simulator_id" screenshot /tmp/diary-iphone.png
       - uses: actions/upload-artifact@v4
         with:

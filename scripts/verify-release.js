@@ -6,5 +6,6 @@ assert(read('PWA/sw.js').includes('original-diary-'));for(const file of ['privac
 for(const file of ['index.html','manifest.webmanifest','sw.js'])for(const folder of ['HBuilderX-App','ios/Diary/Web'])assert.equal(read(folder+'/'+file),read('PWA/'+file));
 const source=read('src/App.vue');const ui=source.replace(/const moodMigration=.*?;\n/,'');assert(!/[А-Яа-яЁё]/.test(ui),'Cyrillic text remains in app source outside legacy migration');assert(!/[А-Яа-яЁё]/.test(read('src/main.js')));
 const c=json('src/release-config.json');assert(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.supportEmail));assert.equal(c.version,'1.1.0');
+assert(read('ios/Diary/Info.plist').includes('<string>nftalt1.com</string>'));assert(read('ios/Diary/DiaryWebView.swift').includes('context.coordinator.loadRemote()'));
 console.log('PASS: English PWA, 22 original-image checksums, offline worker, privacy/support/terms, synchronized native resources.');
 console.log('OWNER STEPS: configure signing profile, verify public HTTPS policy/support URLs, run Archive/TestFlight and on-device tests before submission.');
