@@ -1,4 +1,4 @@
-# Validation — Original Diary 1.1.0
+# Validation — NFTALT 1.1.0
 
 ## Passed locally
 

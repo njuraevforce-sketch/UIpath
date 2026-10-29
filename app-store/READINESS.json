@@ -1,5 +1,5 @@
 {
-  "app": "Original Diary",
+  "app": "NFTALT",
   "version": "1.1.0",
   "language": "en-GB",
   "pwaBuild": "passed",
@@ -10,15 +10,22 @@
   "backupExportImport": "passed",
   "nativeProjectStructure": "passed",
   "nativeBridgeTests": "simulated_browser_only",
-  "xcodeCompilation": "not_run_requires_macos_or_github_ci",
+  "xcodeCompilation": "passed_in_GitHub_Actions_40880202892",
   "physicalDeviceTests": "not_run",
   "dependencyAudit": "blocked_by_automatic_approval_review",
-  "githubUpload": "in_progress_njuraevforce-sketch/UIpath",
+  "githubUpload": "release_branch_ready_main_pending_final_brand_update",
   "httpsDeployment": "not_run",
   "signedIpa": "not_created_requires_owner_signing",
   "appleSubmission": "not_submitted",
   "approvalGuaranteed": false,
   "nativePersistence": "application_support_mirror_plus_webkit_fallback",
   "xcodeMinimum": "26",
-  "iosSdkMinimum": "26"
+  "iosSdkMinimum": "26",
+  "appleAppId": "6828440288",
+  "appleTeamId": "P27PL3XZ88",
+  "bundleId": "com.heddichloe.originaldiary",
+  "appleAppRecord": "created_and_named_NFTALT",
+  "appleAgreement": "accepted_by_owner",
+  "simulatorLaunch": "passed_in_GitHub_Actions_40880202892",
+  "iosSignedBuild": "not_uploaded_requires_new_account_signing"
 }

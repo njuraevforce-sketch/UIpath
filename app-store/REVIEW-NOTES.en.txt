@@ -1,4 +1,4 @@
-Original Diary is a standalone personal diary, with all interface resources and illustrations bundled in the iOS app. It does not require an account or sign-in and is not a website launcher.
+NFTALT is a standalone personal diary, with all interface resources and illustrations bundled in the iOS app. It does not require an account or sign-in and is not a website launcher.
 
 There are no purchases, subscriptions, cryptocurrency transactions, NFT trading, deposits, investments or financial returns. The character illustrations are included as diary covers and avatars. No remote feature flags or reviewer-specific behavior are implemented.
 

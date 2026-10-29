@@ -1,4 +1,4 @@
-name: Deploy diary PWA to GitHub Pages
+name: Deploy NFTALT PWA to GitHub Pages
 on:
   workflow_dispatch:
 permissions:

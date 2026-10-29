@@ -1,4 +1,4 @@
-# Original Diary — Vue 2 PWA
+# NFTALT — Vue 2 PWA
 
 A private English-language diary using the visual style and original artwork supplied by the project owner. No account, advertising, deposits, purchases, NFT trading or financial functionality is included. The illustrations are diary covers and avatars.
 
@@ -46,9 +46,9 @@ Import `HBuilderX-App` as an existing HTML5+ project. Open `manifest.json`, obta
 
 ### Standalone Xcode target
 
-Open `ios/Diary.xcodeproj` on a Mac. The new app uses a different Apple Developer account. Set that account's Team and registered Bundle ID, run on a device, then archive and validate. This target uses native share/file pickers and a privacy cover while inactive. See `ios/README.md`.
+Open `ios/Diary.xcodeproj` on a Mac. The new app uses a different Apple Developer account. Verified Team `P27PL3XZ88` and registered Bundle ID `com.heddichloe.originaldiary` are configured; run on a device, then archive and validate. This target uses native share/file pickers and a privacy cover while inactive. See `ios/README.md`.
 
-No signing credentials, signed IPA, store submission or Apple approval is included. The manual `Upload Original Diary to App Store Connect` workflow uses diary-specific `DIARY_` secrets for the NEW account and accepts its Team ID / Bundle ID as manual inputs. The upload workflow is never triggered by a push. Review `app-store/RELEASE-CHECKLIST.md` for remaining owner/device steps.
+No signing credentials, signed IPA, store submission or Apple approval is included. The manual `Upload NFTALT to App Store Connect` workflow uses diary-specific `DIARY_` secrets for the NEW account and accepts its Team ID / Bundle ID as manual inputs. The upload workflow is never triggered by a push. Review `app-store/RELEASE-CHECKLIST.md` for remaining owner/device steps.
 
 ## Features
 
@@ -74,4 +74,4 @@ The legacy UIpath files are replaced by this diary. Before replacement the old c
 
 Unlike TSQ's server-only launch, this diary packages its reviewed PWA resources locally so it works offline from first launch. Native iOS mirrors diary state atomically into its own Application Support container. Browser storage is retained as a fallback; the latest saved snapshot is selected on relaunch.
 
-`Verify Original Diary` compiles the web app and unsigned iOS Simulator target. `Deploy diary PWA to GitHub Pages` is a manual workflow; first select GitHub Actions as the repository Pages source. It would publish the PWA and legal pages at the URL returned by the deployment; no live Pages deployment is asserted until it succeeds. `Upload Original Diary to App Store Connect` is also manual and requires the authorized signing secrets and an app-specific profile.
+`Verify NFTALT` compiles the web app and unsigned iOS Simulator target. `Deploy diary PWA to GitHub Pages` is a manual workflow; first select GitHub Actions as the repository Pages source. It would publish the PWA and legal pages at the URL returned by the deployment; no live Pages deployment is asserted until it succeeds. `Upload NFTALT to App Store Connect` is also manual and requires the authorized signing secrets and an app-specific profile.

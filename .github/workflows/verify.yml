@@ -1,4 +1,4 @@
-name: Verify Original Diary
+name: Verify NFTALT
 on:
   workflow_dispatch:
   push:
@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: diary-verify-${{ github.ref }}
+  group: nftalt-verify-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   pwa:
@@ -22,7 +22,7 @@ jobs:
       - run: npm run verify:release
       - uses: actions/upload-artifact@v4
         with:
-          name: original-diary-pwa
+          name: nftalt-pwa
           path: PWA/
   ios-simulator-build:
     needs: pwa
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/download-artifact@v4
         with:
-          name: original-diary-pwa
+          name: nftalt-pwa
           path: ios/Diary/Web
       - name: Check supported Apple toolchain
         shell: bash
@@ -76,10 +76,10 @@ jobs:
           xcrun simctl boot "$simulator_id" || true
           xcrun simctl bootstatus "$simulator_id" -b
           xcrun simctl install "$simulator_id" /tmp/DiaryBuild/Build/Products/Debug-iphonesimulator/Diary.app
-          xcrun simctl launch "$simulator_id" com.example.originaldiary
+          xcrun simctl launch "$simulator_id" com.heddichloe.originaldiary
           sleep 5
           xcrun simctl io "$simulator_id" screenshot /tmp/diary-iphone.png
       - uses: actions/upload-artifact@v4
         with:
-          name: original-diary-iphone-smoke
+          name: nftalt-iphone-smoke
           path: /tmp/diary-iphone.png

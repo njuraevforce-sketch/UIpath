@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "installCommand": "npm ci --ignore-scripts --no-audit --no-fund",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "headers": [
+    {"source": "/sw.js", "headers": [{"key":"Cache-Control","value":"no-cache, no-store, must-revalidate"}]},
+    {"source": "/manifest.webmanifest", "headers": [{"key":"Cache-Control","value":"no-cache"},{"key":"Content-Type","value":"application/manifest+json"}]},
+    {"source": "/index.html", "headers": [{"key":"Cache-Control","value":"no-cache"}]}
+  ]
+}

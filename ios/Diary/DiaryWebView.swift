@@ -62,7 +62,7 @@ struct DiaryWebView: UIViewRepresentable {
             top.present(controller, animated: true)
         }
         private func showError(_ message: String) {
-            let alert = UIAlertController(title: "Original Diary", message: message, preferredStyle: .alert)
+            let alert = UIAlertController(title: "NFTALT", message: message, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert)
         }

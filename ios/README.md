@@ -2,7 +2,7 @@
 
 Open `Diary.xcodeproj` on a Mac with an Xcode release accepted by App Store Connect. Select the shared **Diary** scheme.
 
-1. Use the NEW Apple Developer account, its Team ID, registered Bundle ID, provisioning profile and App Store Connect listing. The example `com.example.originaldiary` must be replaced consistently before signing. Do not use TSQ2.0 account credentials or app identifiers.
+1. Use the NEW Apple Developer account, its Team ID, registered Bundle ID, provisioning profile and App Store Connect listing. The registered ID is `com.heddichloe.originaldiary`, with Team `P27PL3XZ88`. Do not use TSQ2.0 account credentials or app identifiers.
 2. Run the app on a physical iPhone. The included `Diary/Web` folder is the production PWA resource bundle and works offline without a remote launch URL.
 3. Test writing, relaunch persistence, search, mood filtering, favorites, calendar, backup export via the system share sheet and import via the Files picker. Test on iPad too if retaining universal support.
 4. In Xcode use Product > Archive, then Validate App and Distribute App through Organizer.
@@ -10,7 +10,7 @@ Open `Diary.xcodeproj` on a Mac with an Xcode release accepted by App Store Conn
 
 No third-party Swift packages or native SDKs are included in this target. The application embeds WKWebView and system iOS components. The HTML5+ HBuilderX option is separate and has a different runtime; validate its SDK/privacy behavior independently.
 
-Source and plist structure have been checked on Linux. This target has NOT been compiled, signed, installed, archived or validated by Xcode in this environment. No IPA is supplied.
+Source and plist structure have been checked on Linux. The first unsigned iOS Simulator compilation and launch passed in GitHub Actions run 40880202892. The NFTALT branding update must pass the subsequent Actions run too. No signing, physical-device TestFlight test or IPA upload is claimed.
 
 The privacy manifest contains no declared tracking, developer-collected data or directly used required-reason API categories for this source target. Verify the final Xcode privacy report and update it if you add APIs or SDKs. Copying a privacy manifest next to web assets does not replace bundling it in the native target; this project includes it in Copy Bundle Resources.
 

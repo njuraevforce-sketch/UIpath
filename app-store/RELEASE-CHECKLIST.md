@@ -1,4 +1,4 @@
-# Release status — Original Diary 1.1.0
+# Release status — NFTALT 1.1.0
 
 ## Prepared in this package
 
@@ -17,7 +17,7 @@
 1. Target repository: `njuraevforce-sketch/UIpath`. Confirm the deployment domain, then deploy the PWA via HTTPS and check public /privacy.html and /support.html URLs. Relative paths in metadata are not App Store Connect URLs.
 2. Confirm that n.juraevforce@gmail.com is the intended published support mailbox. It comes from the connected GitHub profile. Change src/release-config.json and the legal pages if another address is desired.
 3. Confirm artwork rights and the developer/publisher identity shown in Apple Developer and App Store Connect. The archive documentation describes AI-generated artwork, but rights were not independently verified.
-4. The new diary uses a different Apple Developer account. Set its Team ID and unique registered Bundle ID, and create its own App Store Connect app/profile. The source has an empty Team and `com.example.originaldiary` placeholder, which must be replaced before signing.
+4. The new diary uses a different Apple Developer account. Set its Team ID and unique registered Bundle ID, and create its own App Store Connect app/profile. Verified new account: Team `P27PL3XZ88`, registered App ID `com.heddichloe.originaldiary`, App Store Connect app `6828440288` named NFTALT. Certificate/profile setup is still required before signing.
 5. Compile with Xcode 26 or newer and iOS SDK 26 or newer, as required for current App Store uploads. Archive and validate on macOS. The Swift target has not been compiled in this Linux environment.
 6. Test on physical iPhone and, if keeping universal device support, iPad: keyboard, rotations, safe area, iPad share-sheet popover, first-launch offline, relaunch persistence, sharing, import cancellation, all-data deletion and privacy cover.
 7. Generate App Store screenshots from the actual release build. Do not use screenshots showing unrelated financial features or the reference NFT application.

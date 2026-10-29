@@ -1,13 +1,15 @@
-name: Upload Original Diary to App Store Connect
+name: Upload NFTALT to App Store Connect
 on:
   workflow_dispatch:
     inputs:
       apple_team_id:
         description: Team ID of the NEW Apple Developer account
         required: true
+        default: P27PL3XZ88
       bundle_id:
         description: Explicit App ID registered in the NEW Apple account
         required: true
+        default: com.heddichloe.originaldiary
       build_number:
         description: Unique positive iOS build number
         required: true
@@ -25,12 +27,12 @@ jobs:
       APP_BUNDLE_ID: ${{ inputs.bundle_id }}
       APPLE_TEAM_ID: ${{ inputs.apple_team_id }}
       BUILD_NUMBER: ${{ inputs.build_number }}
-      ASC_API_KEY_BASE64: ${{ secrets.DIARY_APP_STORE_CONNECT_API_KEY_BASE64 }}
-      ASC_KEY_ID: ${{ secrets.DIARY_APP_STORE_CONNECT_API_KEY_ID }}
-      ASC_ISSUER_ID: ${{ secrets.DIARY_APP_STORE_CONNECT_API_ISSUER_ID }}
-      BUILD_CERTIFICATE_BASE64: ${{ secrets.DIARY_BUILD_CERTIFICATE_BASE64 }}
-      P12_PASSWORD: ${{ secrets.DIARY_P12_PASSWORD }}
-      KEYCHAIN_PASSWORD: ${{ secrets.DIARY_KEYCHAIN_PASSWORD }}
+      ASC_API_KEY_BASE64: ${{ secrets.NFTALT_APP_STORE_CONNECT_API_KEY_BASE64 }}
+      ASC_KEY_ID: ${{ secrets.NFTALT_APP_STORE_CONNECT_API_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.NFTALT_APP_STORE_CONNECT_API_ISSUER_ID }}
+      BUILD_CERTIFICATE_BASE64: ${{ secrets.NFTALT_BUILD_CERTIFICATE_BASE64 }}
+      P12_PASSWORD: ${{ secrets.NFTALT_P12_PASSWORD }}
+      KEYCHAIN_PASSWORD: ${{ secrets.NFTALT_KEYCHAIN_PASSWORD }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
